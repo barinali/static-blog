@@ -1,16 +1,10 @@
 +++
-author = Monica
+author = "Monica"
 comments = true
-date = 2013-03-27 02:23:36+00:00
-layout = post
-slug = avoiding-the-oom-killer-by-limiting-the-number-of-apache2-processes
-title = Avoiding the OOM Killer by limiting the number of Apache2 processes and clients
+date = "2013-03-27 02:23:36+00:00"
+slug = "avoiding-the-oom-killer-by-limiting-the-number-of-apache2-processes"
+title = "Avoiding the OOM Killer by limiting the number of Apache2 processes and clients"
 wordpress_id = 77
-categories:
-- Tech
-tags:
-- apache
-- debian
 +++
 
 ## Prologue
