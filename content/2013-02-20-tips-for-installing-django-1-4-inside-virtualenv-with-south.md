@@ -1,4 +1,4 @@
----
++++
 author: Monica
 comments: true
 date: 2013-02-20 05:42:58+00:00
@@ -17,7 +17,7 @@ tags:
 - python
 - south
 - virtualenv
----
++++
 
 I'm in the process of installing Django 1.4 on my Debian 6 (Squeeze) box, hosted on Rackspace. I've been following a number of tutorials to get this done, but a lot of them leave out important tips that matter for a total n00b like myself. Here's the process I ultimately followed for installing Django and South inside a virtualenv.
 

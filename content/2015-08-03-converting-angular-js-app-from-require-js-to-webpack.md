@@ -1,4 +1,4 @@
----
++++
 author: Monica
 comments: true
 date: 2015-08-03 18:29:56+00:00
@@ -6,7 +6,7 @@ layout: post
 slug: converting-angular-js-app-from-require-js-to-webpack
 title: Converting an Angular.js app from Require.js to Webpack
 wordpress_id: 433
----
++++
 
 I've recently converted my webapp at work from Require.js to webpack, and although the initial setup was a little tricky, it clearly offers numerous benefits to make the switch when it comes to performance, loading times, and development workflow. In this post, I will only cover a basic switch from Require.js to Webpack. In a following post, I'll go into lazy-loading with webpack and ui-router.
 
@@ -191,13 +191,13 @@ File structure:
     
     <code>
     root/
-    --- app/
-    ------ scripts/
-    --------- main.js
-    --------- app.js
-    ------ vendor/
-    --- dist/
-    ------ scripts/
+    +++ app/
+    ++++++ scripts/
+    +++++++++ main.js
+    +++++++++ app.js
+    ++++++ vendor/
+    +++ dist/
+    ++++++ scripts/
     </code>
 
 
@@ -243,15 +243,15 @@ File structure:
     
     <code>
     root/
-    --- webpack.config.js
-    --- app/
-    ------ scripts/
-    --------- bootstrap.js
-    --------- app.js
-    ------ vendor/
-    --- dist/
-    ------ scripts/
-    --------- app.js (built by webpack)
+    +++ webpack.config.js
+    +++ app/
+    ++++++ scripts/
+    +++++++++ bootstrap.js
+    +++++++++ app.js
+    ++++++ vendor/
+    +++ dist/
+    ++++++ scripts/
+    +++++++++ app.js (built by webpack)
     </code>
 
 

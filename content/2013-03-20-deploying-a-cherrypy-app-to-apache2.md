@@ -1,4 +1,4 @@
----
++++
 author: Monica
 comments: true
 date: 2013-03-20 08:50:33+00:00
@@ -13,7 +13,7 @@ categories:
 tags:
 - cherrypy
 - python
----
++++
 
 This is really quick and dirty, but after a _lot _of tedious editing of an apache conf file, I need to get my thoughts and notes written down so I don't forget. It is loosely based on the [CherryPy documentation](http://tools.cherrypy.org/wiki/ModRewrite), though certain things did not work the same way for me. Who knows why.
 

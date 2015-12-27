@@ -1,4 +1,4 @@
----
++++
 author: Monica
 comments: true
 date: 2014-10-31 17:54:27+00:00
@@ -12,7 +12,7 @@ tags:
 - django
 - python
 - tastypie
----
++++
 
 Tastypie is one of the most popular REST API frameworks for Django, and surprisingly easy to get up and running if you're already working with Django's Models. It can, however, be a bit difficult to debug, and produce some cryptic error messages. Here are a couple of tasks I've had to figure out while working with this framework, tips for troubleshooting, and some general reflections.
 

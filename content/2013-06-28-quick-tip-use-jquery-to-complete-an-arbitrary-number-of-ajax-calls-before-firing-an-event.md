@@ -1,4 +1,4 @@
----
++++
 author: Monica
 comments: true
 date: 2013-06-28 16:40:14+00:00
@@ -13,7 +13,7 @@ categories:
 tags:
 - ajax
 - jquery
----
++++
 
 Somewhat recently, I encountered an issue where my expected user input is an arbitrarily long list of words. While I could get the word count, I had no reliable way to know whether all of the ajax requests had been completed before firing an event that created a list of definitions for each word. I had several realizations in my quest:
 

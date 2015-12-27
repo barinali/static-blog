@@ -1,4 +1,4 @@
----
++++
 author: Monica
 comments: true
 date: 2014-06-15 12:21:41+00:00
@@ -18,7 +18,7 @@ tags:
 - linguistics
 - parse trees
 - tree layout
----
++++
 
 [caption id="attachment_193" align="aligncenter" width="475"][![](http://monicalent.com/blog/wp-content/uploads/2014/05/Screen-Shot-2014-05-20-at-4.26.31-PM.png)](http://monicalent.com/blog/wp-content/uploads/2014/05/Screen-Shot-2014-05-20-at-4.26.31-PM.png) "In this way, the Athenians came to the circumstances under which they grew in power." The first sentence from Thucydides' [Pentecontaetia](http://en.wikipedia.org/wiki/Pentecontaetia). [/caption]
 

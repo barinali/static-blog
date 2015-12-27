@@ -1,4 +1,4 @@
----
++++
 author: Monica
 comments: true
 date: 2015-02-11 15:53:00+00:00
@@ -16,7 +16,7 @@ tags:
 - javascript
 - karma
 - requirejs
----
++++
 
 Setting up testing is usually a little painful -- but setting up testing when you're using some kind of weird Angular + Require setup is even worse! Furthermore, the Karma documentation is a little bit terse, so it's hard to tell exactly what combination of configuration settings will get you your intended result. Here's how I accomplished this.
 
@@ -31,15 +31,15 @@ Here is a typical, sample hierarchy. My top-level directory is something like /o
     
     app/
     -- scripts/
-    ---- filters/my_filter.js
-    ---- app.js
-    ---- main.js
+    +++- filters/my_filter.js
+    +++- app.js
+    +++- main.js
     -- test/
-    ---- spec/
-    ------ filters/my_filter_spec.js
-    ------ karma.conf.js
-    ------ test-app.js
-    ------ test-main.js
+    +++- spec/
+    ++++++ filters/my_filter_spec.js
+    ++++++ karma.conf.js
+    ++++++ test-app.js
+    ++++++ test-main.js
     Gruntfile.js
     package.json
     bower.json

@@ -1,4 +1,4 @@
----
++++
 author: Monica
 comments: true
 date: 2014-06-13 09:39:46+00:00
@@ -15,7 +15,7 @@ tags:
 - debian squeeze
 - nodejs
 - npm
----
++++
 
 I had some issues with libraries installed via npm (such as d3 and jsdom) causing segmentation faults in Mocha tests. Ultimately I realized that it wasn't a problem with these node modules so much as it was with my node install itself. I had installed from source following [this guide](http://sekati.com/etc/install-nodejs-on-debian-squeeze), but it wasn't quit enough to get my node install right on Debian Squeeze.
 

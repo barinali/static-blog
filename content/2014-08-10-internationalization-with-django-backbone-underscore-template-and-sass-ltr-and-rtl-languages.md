@@ -1,4 +1,4 @@
----
++++
 author: Monica
 comments: true
 date: 2014-08-10 12:02:59+00:00
@@ -15,7 +15,7 @@ categories:
 - Python
 - Sass
 - Tech
----
++++
 
 Let's be honest: No developer wakes up in the morning and thinks, "Oh goody! Today I get to internationalize my giant website with tons of content and files. I bet supporting right-to-left languages is going to be a blast." 
 
@@ -157,10 +157,10 @@ Once you've run this `django-admin.py` command, you should take a look inside yo
     
     <code>
     /opt/app
-    --- /locale
-    ------ /LC_MESSAGES
-    --------- /de
-    ------------ django.po
+    +++ /locale
+    ++++++ /LC_MESSAGES
+    +++++++++ /de
+    ++++++++++++ django.po
     </code>
 
 
@@ -262,12 +262,12 @@ Again, specify the locale and ignore the files inside my virtual environment. No
     
     <code>
     /opt/app
-    --- /locale
-    ------ /LC_MESSAGES
-    --------- /de
-    ------------ django.po
-    ------------ django.mo
-    ------------ djangojs.po
+    +++ /locale
+    ++++++ /LC_MESSAGES
+    +++++++++ /de
+    ++++++++++++ django.po
+    ++++++++++++ django.mo
+    ++++++++++++ djangojs.po
     </code>
 
 
@@ -300,14 +300,14 @@ Previously, my project structure was something like this:
     
     <code>
     app/
-    --- static/
-    ------ css/
-    ------ js/
-    ---------- views/
-    ---------- templates/
-    -------------- underscore-template.html
-    --- templates/
-    ------ django-template.html
+    +++ static/
+    ++++++ css/
+    ++++++ js/
+    +++++++++- views/
+    +++++++++- templates/
+    ++++++++++++-- underscore-template.html
+    +++ templates/
+    ++++++ django-template.html
     </code>
 
 
@@ -330,14 +330,14 @@ Now, instead of this, I want Django to do its magic before Backbone and Undersco
     
     <code>
     app/
-    --- static/
-    ------ css/
-    ------ js/
-    ---------- views/
-    --- templates/
-    ------ js/
-    ---------- underscore-template.html
-    ------ django-template.html
+    +++ static/
+    ++++++ css/
+    ++++++ js/
+    +++++++++- views/
+    +++ templates/
+    ++++++ js/
+    +++++++++- underscore-template.html
+    ++++++ django-template.html
     </code>
 
 

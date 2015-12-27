@@ -1,4 +1,4 @@
----
++++
 author: Monica
 comments: true
 date: 2013-06-15 05:41:13+00:00
@@ -10,7 +10,7 @@ wordpress_id: 86
 categories:
 - Design
 - UX
----
++++
 
 _Welcome to my blogging mini-series, entitled "Industry UX Standards that Matter for Academia." Enthralling and creative, no? Over the next few weeks, I'll be highlighting a couple of seemingly obvious, yet critical, user interaction endpoints that academic, government, and non-profit projects often overlook. I'll do it by including industry examples and studies that demonstrate which strategies work on a large scale. _
 
