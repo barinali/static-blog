@@ -1,11 +1,11 @@
 +++
-author: Monica
-comments: true
-date: 2015-02-11 15:53:00+00:00
-layout: post
-slug: karma-tests-angular-js-require-j
-title: Karma tests with AngularJS + RequireJS
-wordpress_id: 392
+author = Monica
+comments = true
+date = 2015-02-11 15:53:00+00:00
+layout = post
+slug = karma-tests-angular-js-require-j
+title = Karma tests with AngularJS + RequireJS
+wordpress_id = 392
 categories:
 - AngularJS
 - JavaScript

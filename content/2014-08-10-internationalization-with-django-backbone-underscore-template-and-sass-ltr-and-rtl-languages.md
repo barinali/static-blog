@@ -1,12 +1,12 @@
 +++
-author: Monica
-comments: true
-date: 2014-08-10 12:02:59+00:00
-layout: post
-slug: internationalization-with-django-backbone-underscore-template-and-sass-ltr-and-rtl-languages
-title: Internationalization with Django, Backbone, Underscore templates, and Sass
+author = Monica
+comments = true
+date = 2014-08-10 12:02:59+00:00
+layout = post
+slug = internationalization-with-django-backbone-underscore-template-and-sass-ltr-and-rtl-languages
+title = Internationalization with Django, Backbone, Underscore templates, and Sass
   (LTR and RTL languages)
-wordpress_id: 288
+wordpress_id = 288
 categories:
 - CSS
 - Internationalization

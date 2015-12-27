@@ -1,11 +1,11 @@
 +++
-author: Monica
-comments: true
-date: 2013-07-29 11:59:40+00:00
-layout: post
-slug: using-a-custom-event-to-detect-fetch-errors-in-backbone-js
-title: Custom event for detecting fetch errors in Backbone.js
-wordpress_id: 123
+author = Monica
+comments = true
+date = 2013-07-29 11:59:40+00:00
+layout = post
+slug = using-a-custom-event-to-detect-fetch-errors-in-backbone-js
+title = Custom event for detecting fetch errors in Backbone.js
+wordpress_id = 123
 categories:
 - JavaScript
 - Tech

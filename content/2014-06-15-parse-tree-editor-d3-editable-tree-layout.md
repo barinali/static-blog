@@ -1,11 +1,11 @@
 +++
-author: Monica
-comments: true
-date: 2014-06-15 12:21:41+00:00
-layout: post
-slug: parse-tree-editor-d3-editable-tree-layout
-title: Building a Parse Tree Editor in d3 with Tree Layout (Pt. 1 - Display)
-wordpress_id: 191
+author = Monica
+comments = true
+date = 2014-06-15 12:21:41+00:00
+layout = post
+slug = parse-tree-editor-d3-editable-tree-layout
+title = Building a Parse Tree Editor in d3 with Tree Layout (Pt. 1 - Display)
+wordpress_id = 191
 categories:
 - d3
 - Data Visualization

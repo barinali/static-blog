@@ -1,12 +1,12 @@
 +++
-author: Monica
-comments: true
-date: 2013-06-28 16:40:14+00:00
-layout: post
-slug: quick-tip-use-jquery-to-complete-an-arbitrary-number-of-ajax-calls-before-firing-an-event
-title: 'Quick Tip: Use jQuery to Complete an Arbitrary Number of AJAX Calls Before
+author = Monica
+comments = true
+date = 2013-06-28 16:40:14+00:00
+layout = post
+slug = quick-tip-use-jquery-to-complete-an-arbitrary-number-of-ajax-calls-before-firing-an-event
+title = 'Quick Tip = Use jQuery to Complete an Arbitrary Number of AJAX Calls Before
   Firing an Event'
-wordpress_id: 112
+wordpress_id = 112
 categories:
 - JavaScript
 - Tech

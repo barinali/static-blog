@@ -1,11 +1,11 @@
 +++
-author: Monica
-comments: true
-date: 2014-06-13 09:39:46+00:00
-layout: post
-slug: install-node-js-on-debian-squeeze
-title: Install Node.js on Debian Squeeze
-wordpress_id: 230
+author = Monica
+comments = true
+date = 2014-06-13 09:39:46+00:00
+layout = post
+slug = install-node-js-on-debian-squeeze
+title = Install Node.js on Debian Squeeze
+wordpress_id = 230
 categories:
 - JavaScript
 - Node

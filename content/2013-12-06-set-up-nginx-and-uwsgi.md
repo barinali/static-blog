@@ -1,11 +1,11 @@
 +++
-author: Monica
-comments: true
-date: 2013-12-06 16:03:09+00:00
-layout: post
-slug: set-up-nginx-and-uwsgi
-title: Set up Nginx and uWSGI
-wordpress_id: 156
+author = Monica
+comments = true
+date = 2013-12-06 16:03:09+00:00
+layout = post
+slug = set-up-nginx-and-uwsgi
+title = Set up Nginx and uWSGI
+wordpress_id = 156
 categories:
 - Python
 tags:
