@@ -1,23 +1,10 @@
 +++
 author = "Monica"
 comments = true
-date = 2014-06-15 12:21:41+00:00
-layout = post
-slug = parse-tree-editor-d3-editable-tree-layout
-title = Building a Parse Tree Editor in d3 with Tree Layout (Pt. 1 - Display)
+date = "2014-06-15 12:21:41+00:00"
+slug = "parse-tree-editor-d3-editable-tree-layout"
+title = "Building a Parse Tree Editor in d3 with Tree Layout (Pt. 1 - Display)"
 wordpress_id = 191
-categories:
-- d3
-- Data Visualization
-- JavaScript
-- Tech
-tags:
-- computational linguistics
-- d3
-- javascript
-- linguistics
-- parse trees
-- tree layout
 +++
 
 [caption id="attachment_193" align="aligncenter" width="475"][![](http://monicalent.com/blog/wp-content/uploads/2014/05/Screen-Shot-2014-05-20-at-4.26.31-PM.png)](http://monicalent.com/blog/wp-content/uploads/2014/05/Screen-Shot-2014-05-20-at-4.26.31-PM.png) "In this way, the Athenians came to the circumstances under which they grew in power." The first sentence from Thucydides' [Pentecontaetia](http://en.wikipedia.org/wiki/Pentecontaetia). [/caption]

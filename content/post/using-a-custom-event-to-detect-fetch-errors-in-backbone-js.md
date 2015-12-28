@@ -1,17 +1,10 @@
 +++
 author = "Monica"
 comments = true
-date = 2013-07-29 11:59:40+00:00
-layout = post
-slug = using-a-custom-event-to-detect-fetch-errors-in-backbone-js
-title = Custom event for detecting fetch errors in Backbone.js
+date = "2013-07-29 11:59:40+00:00"
+slug = "using-a-custom-event-to-detect-fetch-errors-in-backbone-js"
+title = "Custom event for detecting fetch errors in Backbone.js"
 wordpress_id = 123
-categories:
-- JavaScript
-- Tech
-tags:
-- backbone.js
-- jquery
 +++
 
 One of Backbone's major strengths as a javascript MVC framework is the way it helps you do event handling. By extension, it's also great for handling errors that result from failed AJAX calls. As you can see in the [Backbone.js documentation](http://backbonejs.org/#Events-catalog), the `error` event is triggered when a model's attempt to save fails server-side. However, there is no Backbone event that detects when the `fetch` event fails. Since a fetch from the server is the first thing that happens when a page is loaded, you would need to know if it fails because that could indicate that the API is down or some other server error.

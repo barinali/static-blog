@@ -1,21 +1,10 @@
 +++
 author = "Monica"
 comments = true
-date = 2015-02-11 15:53:00+00:00
-layout = post
-slug = karma-tests-angular-js-require-j
-title = Karma tests with AngularJS + RequireJS
+date = "2015-02-11 15:53:00+00:00"
+slug = "karma-tests-angular-js-require-j"
+title = "Karma tests with AngularJS + RequireJS"
 wordpress_id = 392
-categories:
-- AngularJS
-- JavaScript
-tags:
-- amd
-- angular
-- jasmine
-- javascript
-- karma
-- requirejs
 +++
 
 Setting up testing is usually a little painful -- but setting up testing when you're using some kind of weird Angular + Require setup is even worse! Furthermore, the Karma documentation is a little bit terse, so it's hard to tell exactly what combination of configuration settings will get you your intended result. Here's how I accomplished this.

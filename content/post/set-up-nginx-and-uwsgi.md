@@ -1,19 +1,10 @@
 +++
 author = "Monica"
 comments = true
-date = 2013-12-06 16:03:09+00:00
-layout = post
-slug = set-up-nginx-and-uwsgi
-title = Set up Nginx and uWSGI
+date = "2013-12-06 16:03:09+00:00"
+slug = "set-up-nginx-and-uwsgi"
+title = "Set up Nginx and uWSGI"
 wordpress_id = 156
-categories:
-- Python
-tags:
-- django
-- nginx
-- python
-- ubuntu
-- uwsgi
 +++
 
 When browsing the web, I often read that setting up nginx with uWSGI is incredibly easy to set up and get running. I absolutely did not find it so, as I had to deal with a lot of configuration issues. So here's how I finally got these components working together on an instance of Ubuntu 12.04. _I ultimately hook this up to Django_, but I'm sure the general principle would apply to other python frameworks with a WSGI interface.

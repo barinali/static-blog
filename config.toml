@@ -1,3 +1,47 @@
-baseurl = "http://replace-this-with-your-hugo-site.com/"
+baseurl = "http://localhost:1313/"
+title = "Blog"
+theme = "ghostwriter"
 languageCode = "en-us"
-title = "My New Hugo Site"
+copyright = "Monica Lent"
+googleAnalytics = "XXX"
+paginate = 10
+paginatePath = "page"
+
+[Author]
+    name = "Monica"
+    profile = "http://monicalent.com"
+
+[Taxonomies]
+    tag = "tags"
+
+[Params]
+    intro = true
+    headline = "Blog"
+    description = "A blog I made"
+    github = "https://github.com/mlent"
+    gplus = "https://google.com/+MonicaLent"
+    twitter = "https://twitter.com/monicalent"
+
+[Permalinks]
+    post = "/:year/:month/:day/:filename/"
+
+[[menu.main]]
+    name = "Blog"
+    url = "/"
+    weight = 1
+
+[[menu.main]]
+    name = "Projects"
+    url = "http://monicalent.com/#projects"
+    weight = 2
+
+[[menu.main]]
+    name = "Contact"
+    url = "http://monicalent.com/#contact"
+    weight = 3
+
+[[menu.main]]
+    name = "About"
+    url = "http://monicalent.com/#about"
+    weight = 4
+
