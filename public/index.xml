@@ -12,10 +12,10 @@
     
     <item>
       <title>Converting an Angular.js app from Require.js to Webpack</title>
-      <link>http://monicalent.com/blog/blog/2015/08/03/converting-angular-js-app-from-require-js-to-webpack/</link>
+      <link>http://monicalent.com/blog/2015/08/03/converting-angular-js-app-from-require-js-to-webpack/</link>
       <pubDate>Mon, 03 Aug 2015 18:29:56 +0000</pubDate>
       
-      <guid>http://monicalent.com/blog/blog/2015/08/03/converting-angular-js-app-from-require-js-to-webpack/</guid>
+      <guid>http://monicalent.com/blog/2015/08/03/converting-angular-js-app-from-require-js-to-webpack/</guid>
       <description>
 
 &lt;p&gt;I&amp;rsquo;ve recently converted my webapp at work from Require.js to webpack, and although the initial setup was a little tricky, it clearly offers numerous benefits to make the switch when it comes to performance, loading times, and development workflow. In this post, I will only cover a basic switch from Require.js to Webpack. In a following post, I&amp;rsquo;ll go into lazy-loading with webpack and ui-router.&lt;/p&gt;
@@ -266,10 +266,10 @@ angular.bootstrap(document, [&#39;Dashboard&#39;]);
     
     <item>
       <title>Karma tests with AngularJS &#43; RequireJS</title>
-      <link>http://monicalent.com/blog/blog/2015/02/11/karma-tests-angular-js-require-j/</link>
+      <link>http://monicalent.com/blog/2015/02/11/karma-tests-angular-js-require-j/</link>
       <pubDate>Wed, 11 Feb 2015 15:53:00 +0000</pubDate>
       
-      <guid>http://monicalent.com/blog/blog/2015/02/11/karma-tests-angular-js-require-j/</guid>
+      <guid>http://monicalent.com/blog/2015/02/11/karma-tests-angular-js-require-j/</guid>
       <description>
 
 &lt;p&gt;Setting up testing is usually a little painful &amp;ndash; but setting up testing when you&amp;rsquo;re using some kind of weird Angular + Require setup is even worse! Furthermore, the Karma documentation is a little bit terse, so it&amp;rsquo;s hard to tell exactly what combination of configuration settings will get you your intended result. Here&amp;rsquo;s how I accomplished this.&lt;/p&gt;
@@ -627,10 +627,10 @@ PhantomJS 1.9.8 (Mac OS X): Executed 1 of 1 SUCCESS (0.004 secs / 0.027 secs)
     
     <item>
       <title>Django Tastypie: Tips, Tricks, and Troubleshooting</title>
-      <link>http://monicalent.com/blog/blog/2014/10/31/django-tastypie-reverse-relationships-filtering/</link>
+      <link>http://monicalent.com/blog/2014/10/31/django-tastypie-reverse-relationships-filtering/</link>
       <pubDate>Fri, 31 Oct 2014 17:54:27 +0000</pubDate>
       
-      <guid>http://monicalent.com/blog/blog/2014/10/31/django-tastypie-reverse-relationships-filtering/</guid>
+      <guid>http://monicalent.com/blog/2014/10/31/django-tastypie-reverse-relationships-filtering/</guid>
       <description>
 
 &lt;p&gt;Tastypie is one of the most popular REST API frameworks for Django, and surprisingly easy to get up and running if you&amp;rsquo;re already working with Django&amp;rsquo;s Models. It can, however, be a bit difficult to debug, and produce some cryptic error messages. Here are a couple of tasks I&amp;rsquo;ve had to figure out while working with this framework, tips for troubleshooting, and some general reflections.&lt;/p&gt;
@@ -1222,10 +1222,10 @@ class RelativeResource(ModelResource):
     
     <item>
       <title>Internationalization with Django, Backbone, Underscore templates, and Sass (LTR and RTL languages)</title>
-      <link>http://monicalent.com/blog/blog/2014/08/10/internationalization-with-django-backbone-underscore-template-and-sass-ltr-and-rtl-languages/</link>
+      <link>http://monicalent.com/blog/2014/08/10/internationalization-with-django-backbone-underscore-template-and-sass-ltr-and-rtl-languages/</link>
       <pubDate>Sun, 10 Aug 2014 12:02:59 +0000</pubDate>
       
-      <guid>http://monicalent.com/blog/blog/2014/08/10/internationalization-with-django-backbone-underscore-template-and-sass-ltr-and-rtl-languages/</guid>
+      <guid>http://monicalent.com/blog/2014/08/10/internationalization-with-django-backbone-underscore-template-and-sass-ltr-and-rtl-languages/</guid>
       <description>
 
 &lt;p&gt;Let&amp;rsquo;s be honest: No developer wakes up in the morning and thinks, &amp;ldquo;Oh goody! Today I get to internationalize my giant website with tons of content and files. I bet supporting right-to-left languages is going to be a blast.&amp;rdquo;&lt;/p&gt;
@@ -1662,10 +1662,10 @@ $ sass generic.scss generic.ltr.css
     
     <item>
       <title>Building a Parse Tree Editor in d3 with Tree Layout (Pt. 1 - Display)</title>
-      <link>http://monicalent.com/blog/blog/2014/06/15/parse-tree-editor-d3-editable-tree-layout/</link>
+      <link>http://monicalent.com/blog/2014/06/15/parse-tree-editor-d3-editable-tree-layout/</link>
       <pubDate>Sun, 15 Jun 2014 12:21:41 +0000</pubDate>
       
-      <guid>http://monicalent.com/blog/blog/2014/06/15/parse-tree-editor-d3-editable-tree-layout/</guid>
+      <guid>http://monicalent.com/blog/2014/06/15/parse-tree-editor-d3-editable-tree-layout/</guid>
       <description>
 
 &lt;p&gt;[caption id=&amp;ldquo;attachment_193&amp;rdquo; align=&amp;ldquo;aligncenter&amp;rdquo; width=&amp;ldquo;475&amp;rdquo;]&lt;a href=&#34;http://monicalent.com/blog/wp-content/uploads/2014/05/Screen-Shot-2014-05-20-at-4.26.31-PM.png&#34;&gt;&lt;img src=&#34;http://monicalent.com/blog/wp-content/uploads/2014/05/Screen-Shot-2014-05-20-at-4.26.31-PM.png&#34; alt=&#34;&#34; /&gt;&lt;/a&gt; &amp;ldquo;In this way, the Athenians came to the circumstances under which they grew in power.&amp;rdquo; The first sentence from Thucydides&amp;rsquo; &lt;a href=&#34;http://en.wikipedia.org/wiki/Pentecontaetia&#34;&gt;Pentecontaetia&lt;/a&gt;. [/caption]&lt;/p&gt;
@@ -2246,10 +2246,10 @@ parsetree.prototype.update = function (source) {
     
     <item>
       <title>Install Node.js on Debian Squeeze</title>
-      <link>http://monicalent.com/blog/blog/2014/06/13/install-node-js-on-debian-squeeze/</link>
+      <link>http://monicalent.com/blog/2014/06/13/install-node-js-on-debian-squeeze/</link>
       <pubDate>Fri, 13 Jun 2014 09:39:46 +0000</pubDate>
       
-      <guid>http://monicalent.com/blog/blog/2014/06/13/install-node-js-on-debian-squeeze/</guid>
+      <guid>http://monicalent.com/blog/2014/06/13/install-node-js-on-debian-squeeze/</guid>
       <description>
 
 &lt;p&gt;I had some issues with libraries installed via npm (such as d3 and jsdom) causing segmentation faults in Mocha tests. Ultimately I realized that it wasn&amp;rsquo;t a problem with these node modules so much as it was with my node install itself. I had installed from source following &lt;a href=&#34;http://sekati.com/etc/install-nodejs-on-debian-squeeze&#34;&gt;this guide&lt;/a&gt;, but it wasn&amp;rsquo;t quit enough to get my node install right on Debian Squeeze.&lt;/p&gt;
@@ -2324,10 +2324,10 @@ $ npm -v&amp;lt;/code&amp;gt;
     
     <item>
       <title>Set up Nginx and uWSGI</title>
-      <link>http://monicalent.com/blog/blog/2013/12/06/set-up-nginx-and-uwsgi/</link>
+      <link>http://monicalent.com/blog/2013/12/06/set-up-nginx-and-uwsgi/</link>
       <pubDate>Fri, 06 Dec 2013 16:03:09 +0000</pubDate>
       
-      <guid>http://monicalent.com/blog/blog/2013/12/06/set-up-nginx-and-uwsgi/</guid>
+      <guid>http://monicalent.com/blog/2013/12/06/set-up-nginx-and-uwsgi/</guid>
       <description>
 
 &lt;p&gt;When browsing the web, I often read that setting up nginx with uWSGI is incredibly easy to set up and get running. I absolutely did not find it so, as I had to deal with a lot of configuration issues. So here&amp;rsquo;s how I finally got these components working together on an instance of Ubuntu 12.04. &lt;em&gt;I ultimately hook this up to Django&lt;/em&gt;, but I&amp;rsquo;m sure the general principle would apply to other python frameworks with a WSGI interface.&lt;/p&gt;
@@ -2541,19 +2541,19 @@ $ ps aux | grep uwsgi
     
     <item>
       <title>Create a server-side fallback for HTML5 Push State used with Backbone.js</title>
-      <link>http://monicalent.com/blog/blog/2013/09/01/create-server-side-fallback-html5-push-state-backbone-js/</link>
+      <link>http://monicalent.com/blog/2013/09/01/create-server-side-fallback-html5-push-state-backbone-js/</link>
       <pubDate>Sun, 01 Sep 2013 15:47:08 +0000</pubDate>
       
-      <guid>http://monicalent.com/blog/blog/2013/09/01/create-server-side-fallback-html5-push-state-backbone-js/</guid>
+      <guid>http://monicalent.com/blog/2013/09/01/create-server-side-fallback-html5-push-state-backbone-js/</guid>
       <description></description>
     </item>
     
     <item>
       <title>Custom event for detecting fetch errors in Backbone.js</title>
-      <link>http://monicalent.com/blog/blog/2013/07/29/using-a-custom-event-to-detect-fetch-errors-in-backbone-js/</link>
+      <link>http://monicalent.com/blog/2013/07/29/using-a-custom-event-to-detect-fetch-errors-in-backbone-js/</link>
       <pubDate>Mon, 29 Jul 2013 11:59:40 +0000</pubDate>
       
-      <guid>http://monicalent.com/blog/blog/2013/07/29/using-a-custom-event-to-detect-fetch-errors-in-backbone-js/</guid>
+      <guid>http://monicalent.com/blog/2013/07/29/using-a-custom-event-to-detect-fetch-errors-in-backbone-js/</guid>
       <description>&lt;p&gt;One of Backbone&amp;rsquo;s major strengths as a javascript MVC framework is the way it helps you do event handling. By extension, it&amp;rsquo;s also great for handling errors that result from failed AJAX calls. As you can see in the &lt;a href=&#34;http://backbonejs.org/#Events-catalog&#34;&gt;Backbone.js documentation&lt;/a&gt;, the &lt;code&gt;error&lt;/code&gt; event is triggered when a model&amp;rsquo;s attempt to save fails server-side. However, there is no Backbone event that detects when the &lt;code&gt;fetch&lt;/code&gt; event fails. Since a fetch from the server is the first thing that happens when a page is loaded, you would need to know if it fails because that could indicate that the API is down or some other server error.&lt;/p&gt;
 
 &lt;!-- more --&gt;
@@ -2610,10 +2610,10 @@ MyApp.Collections.Base = Backbone.Collection.extend({
     
     <item>
       <title>Quick Tip: Use jQuery to Complete an Arbitrary Number of AJAX Calls Before Firing an Event</title>
-      <link>http://monicalent.com/blog/blog/2013/06/28/quick-tip-use-jquery-to-complete-an-arbitrary-number-of-ajax-calls-before-firing-an-event/</link>
+      <link>http://monicalent.com/blog/2013/06/28/quick-tip-use-jquery-to-complete-an-arbitrary-number-of-ajax-calls-before-firing-an-event/</link>
       <pubDate>Fri, 28 Jun 2013 16:40:14 +0000</pubDate>
       
-      <guid>http://monicalent.com/blog/blog/2013/06/28/quick-tip-use-jquery-to-complete-an-arbitrary-number-of-ajax-calls-before-firing-an-event/</guid>
+      <guid>http://monicalent.com/blog/2013/06/28/quick-tip-use-jquery-to-complete-an-arbitrary-number-of-ajax-calls-before-firing-an-event/</guid>
       <description>&lt;p&gt;Somewhat recently, I encountered an issue where my expected user input is an arbitrarily long list of words. While I could get the word count, I had no reliable way to know whether all of the ajax requests had been completed before firing an event that created a list of definitions for each word. I had several realizations in my quest:&lt;/p&gt;
 
 &lt;ol&gt;
@@ -2669,10 +2669,10 @@ $.when.apply(this, ajax_calls).done(function() {
     
     <item>
       <title>Avoiding the OOM Killer by limiting the number of Apache2 processes and clients</title>
-      <link>http://monicalent.com/blog/blog/2013/03/27/avoiding-the-oom-killer-by-limiting-the-number-of-apache2-processes/</link>
+      <link>http://monicalent.com/blog/2013/03/27/avoiding-the-oom-killer-by-limiting-the-number-of-apache2-processes/</link>
       <pubDate>Wed, 27 Mar 2013 02:23:36 +0000</pubDate>
       
-      <guid>http://monicalent.com/blog/blog/2013/03/27/avoiding-the-oom-killer-by-limiting-the-number-of-apache2-processes/</guid>
+      <guid>http://monicalent.com/blog/2013/03/27/avoiding-the-oom-killer-by-limiting-the-number-of-apache2-processes/</guid>
       <description>
 
 &lt;h2 id=&#34;prologue:845086cb80237fc9eb92e1c183d94e4e&#34;&gt;Prologue&lt;/h2&gt;
