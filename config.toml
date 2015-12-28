@@ -3,7 +3,7 @@ title = "Blog"
 theme = "ghostwriter"
 languageCode = "en-us"
 copyright = "Monica Lent"
-googleAnalytics = "XXX"
+googleAnalytics = "UA-40399378-2"
 paginate = 10
 paginatePath = "page"
 
