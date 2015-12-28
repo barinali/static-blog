@@ -43,11 +43,6 @@
   </url>
   
   <url>
-    <loc>http://monicalent.com/blog/2013/09/01/create-server-side-fallback-html5-push-state-backbone-js/</loc>
-    <lastmod>2013-09-01T15:47:08+00:00</lastmod>
-  </url>
-  
-  <url>
     <loc>http://monicalent.com/blog/2013/07/29/using-a-custom-event-to-detect-fetch-errors-in-backbone-js/</loc>
     <lastmod>2013-07-29T11:59:40+00:00</lastmod>
   </url>

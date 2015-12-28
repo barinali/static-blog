@@ -101,14 +101,15 @@ ga('send', 'pageview');
         <div class="post-content clearfix" itemprop="articleBody">
     
 
-    <p>One of Backbone&rsquo;s major strengths as a javascript MVC framework is the way it helps you do event handling. By extension, it&rsquo;s also great for handling errors that result from failed AJAX calls. As you can see in the <a href="http://backbonejs.org/#Events-catalog">Backbone.js documentation</a>, the <code>error</code> event is triggered when a model&rsquo;s attempt to save fails server-side. However, there is no Backbone event that detects when the <code>fetch</code> event fails. Since a fetch from the server is the first thing that happens when a page is loaded, you would need to know if it fails because that could indicate that the API is down or some other server error.</p>
+    
+
+<p>One of Backbone&rsquo;s major strengths as a javascript MVC framework is the way it helps you do event handling. By extension, it&rsquo;s also great for handling errors that result from failed AJAX calls. As you can see in the <a href="http://backbonejs.org/#Events-catalog">Backbone.js documentation</a>, the <code>error</code> event is triggered when a model&rsquo;s attempt to save fails server-side. However, there is no Backbone event that detects when the <code>fetch</code> event fails. Since a fetch from the server is the first thing that happens when a page is loaded, you would need to know if it fails because that could indicate that the API is down or some other server error.</p>
 
 <!-- more -->
 
 <p>One way to handle this is that every time you call fetch, you specify an error function. However, this precludes us from being able to organize our failed fetches nicely within Views themselves, as we would with other events that occur on collections such as <code>add</code> or <code>reset</code>. For example:</p>
 
-<pre><code>&lt;code class=&quot;language-javascript&quot;&gt;
-MyApp.Views.Foo = Backbone.View.extend({
+<pre><code>MyApp.Views.Foo = Backbone.View.extend({
   'tagName': 'div',
   template: _.template(MyApp.Templates.foo_template),
   initialize: function() {
@@ -122,13 +123,11 @@ MyApp.Views.Foo = Backbone.View.extend({
     // Update DOM to denote failure to fetch models
   }
 });
-&lt;/code&gt;
 </code></pre>
 
 <p>You can trigger a &lsquo;fail&rsquo; event, or any other kind of event, by modifying your base collection. In this case, I am modifying the <code>fetch</code> event handler to trigger a <code>fail</code> event in the case that it fails.</p>
 
-<pre><code>&lt;code class=&quot;language-javascript&quot;&gt;
-MyApp.Collections.Base = Backbone.Collection.extend({
+<pre><code>MyApp.Collections.Base = Backbone.Collection.extend({
   fetch: function(options) {
     var self = this;
     var opts =  { 
@@ -148,10 +147,15 @@ MyApp.Collections.Base = Backbone.Collection.extend({
     (_.bind(Backbone.Collection.prototype.fetch, this, _.extend({}, options, opts)))();
   }
 });
-&lt;/code&gt;
 </code></pre>
 
 <p>Looking at <a href="http://backbonejs.org/docs/backbone.html#section-55">Backbone.js annotated source code</a> is really helpful to understand how to override certain functions.</p>
+
+<hr />
+
+<h2 id="questions-comments-corrections:21e24b793f145e13b87d61cf878bb3f2">Questions, Comments, Corrections?</h2>
+
+<p>Get in touch via Twitter at <a href="http://www.twitter.com/monicalent">@monicalent</a>.</p>
 
 </div>
 

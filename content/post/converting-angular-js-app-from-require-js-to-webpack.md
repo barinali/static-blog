@@ -237,3 +237,9 @@ angular.bootstrap(document, ['Dashboard']);
 Now, in both cases, you would end up with an app.js made by Require JS, and an app.js made by Webpack. Unlike require.js where you have to first load require.js, which then loads main.js, and boostraps your app, in Webpack you can just put your app.js in the script tag and it runs. Perhaps not a huge optimization, but it is one less request!
 
 If your Require.js app is loaded lazily, and not ultimately all bundled into a single app.js, then you will have to wait until my follow-up post on lazy-loading Angular apps with webpack! It will also included information as impact webpack can have on your Angular build process, specifically regarding template loading and handling assets like SVGs.
+
+* * *
+
+## Questions, Comments, Corrections?
+
+Get in touch via Twitter at [@monicalent](http://www.twitter.com/monicalent).

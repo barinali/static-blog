@@ -107,27 +107,24 @@ ga('send', 'pageview');
 
 <p>Before you read this guide, I would advise taking a look at <a href="https://uwsgi.readthedocs.org/en/latest/tutorials/Django_and_nginx.html">Setting up Django and your web server with uWSGI and nginx</a>. It didn&rsquo;t work &ldquo;as advertised&rdquo; for me, but was nonetheless very helpful.</p>
 
-<!-- more -->
-
 <h2 id="basic-installation:70def7930d5cd4b692cfce309764f367">Basic Installation</h2>
 
 <p>The fun begins when you simply install both components, nginx and uWSGI.</p>
 
-<pre><code>&lt;code class=&quot;language-bash&quot;&gt;$ sudo apt-get install nginx uwsgi uwsgi-plugin-python&lt;/code&gt;
+<pre><code>$ sudo apt-get install nginx uwsgi uwsgi-plugin-python
 </code></pre>
 
 <p>Now, you cannot trust that the version of uWSGI you&rsquo;ve just installed is the most recent. Even after running <code>apt-get update</code> my package installer <em>still</em> insisted on an ancient version of uWSGI, something like 0.8. You cannot even run <code>apt-get install uwsgi=1.9</code> and expect it will find the correct version. The great part about this is that such an old version of uWSGI flat out does not work with nginx. So, check you have the most recent version of uWSGI installed:</p>
 
-<pre><code>&lt;code class=&quot;language-bash&quot;&gt;$ uwsgi --version&lt;/code&gt;
+<pre><code>$ uwsgi --version
 </code></pre>
 
 <p>If you find anything besides the latest version (1.9, at the time of writing), you have to do a magic work around for this issue (acquired from <a href="http://stackoverflow.com/questions/13965555/after-pip-installing-uwsgi-theres-no-etc-uwsgi-directory-how-can-i-use-apps">this Stackoverflow question</a>):</p>
 
-<pre><code>&lt;code class=&quot;language-bash&quot;&gt;
-$ pip install -U uwsgi
+<pre><code>$ pip install -U uwsgi
 $ cd /usr/bin
 $ mv uwsgi uwsgi-old
-$ ln -s /usr/local/bin/uwsgi uwsgi&lt;/code&gt;
+$ ln -s /usr/local/bin/uwsgi uwsgi
 </code></pre>
 
 <h2 id="nginx-configuration:70def7930d5cd4b692cfce309764f367">nginx Configuration</h2>
@@ -136,8 +133,7 @@ $ ln -s /usr/local/bin/uwsgi uwsgi&lt;/code&gt;
 
 <p>In <code>/opt/app/extras/nginx.conf</code>, place the following code:</p>
 
-<pre><code>&lt;code&gt;
-server {
+<pre><code>server {
   listen  8000;
     server_name localhost;
     charset utf-8;
@@ -153,35 +149,27 @@ server {
       include     /opt/app/extras/uwsgi_params;
       uwsgi_param UWSGI_SCRIPT app.wsgi;
     }
-}&lt;/code&gt;
+}
 </code></pre>
 
 <p>I&rsquo;ll explain all these settings in turn:</p>
 
 <ul>
-<li><p><strong>listen</strong>: The port that nginx is essentially broadcasting on. If you visit <em>www.yoursite.com:8000</em>, in this case, you will trigger nginx to respond. If you don&rsquo;t want to have to specify a port, or you want to update the configuration for production, just use port 80.</p></li>
-
-<li><p><strong>server_name</strong>: Can generally be localhost, though alternatively could be the IP address of the server you are on.</p></li>
-
-<li><p><strong>charset</strong>: utf-8 is suitable for most purposes.</p></li>
-
-<li><p><strong>access_log, error_log</strong>: You can set these to basically any path that the <code>www-data</code> Unix user can write to, though it makes sense it keep them out of your working directory so you don&rsquo;t end up pushing them to source control.</p></li>
-
-<li><p><strong>location <code>/static</code></strong>: This is just a location that we don&rsquo;t need uWSGI to worry about. It keeps the code running faster if nginx knows it can server this directory straight, instead of through the interface.</p></li>
-
-<li><p><strong>uwsgi_pass</strong>: The path to the socket that uWSGI and nginx will both access to communicate with one another (more on this later).</p></li>
-
-<li><p><strong>include</strong>: Some uWSGI settings which are rather standard (see: &ldquo;<a href="http://uwsgi-docs.readthedocs.org/en/latest/Nginx.html#what-is-the-uwsgi-params-file">What is the uWSGI params file?</a>&rdquo;).</p></li>
-
-<li><p><strong>uwsgi_param</strong>: Specifies the uWSGI module you want to use&ndash;this <em>must be available from the python path</em>.**</p></li>
+<li><strong>listen</strong>: The port that nginx is essentially broadcasting on. If you visit <em>www.yoursite.com:8000</em>, in this case, you will trigger nginx to respond. If you don&rsquo;t want to have to specify a port, or you want to update the configuration for production, just use port 80.</li>
+<li><strong>server_name</strong>: Can generally be localhost, though alternatively could be the IP address of the server you are on.</li>
+<li><strong>charset</strong>: utf-8 is suitable for most purposes.</li>
+<li><strong>access_log, error_log</strong>: You can set these to basically any path that the <code>www-data</code> Unix user can write to, though it makes sense it keep them out of your working directory so you don&rsquo;t end up pushing them to source control.</li>
+<li><strong>location <code>/static</code></strong>: This is just a location that we don&rsquo;t need uWSGI to worry about. It keeps the code running faster if nginx knows it can server this directory straight, instead of through the interface.</li>
+<li><strong>uwsgi_pass</strong>: The path to the socket that uWSGI and nginx will both access to communicate with one another (more on this later).</li>
+<li><strong>include</strong>: Some uWSGI settings which are rather standard (see: &ldquo;<a href="http://uwsgi-docs.readthedocs.org/en/latest/Nginx.html#what-is-the-uwsgi-params-file">What is the uWSGI params file?</a>&rdquo;).</li>
+<li><strong>uwsgi_param</strong>: Specifies the uWSGI module you want to use&ndash;this <em>must be available from the python path</em>.**</li>
 </ul>
 
 <h2 id="uwsgi-configuration:70def7930d5cd4b692cfce309764f367">uWSGI Configuration</h2>
 
 <p>The uWSGI configuration is much pickier than the nginx configuration for several reasons. Hereafter, I&rsquo;ll share the configuration that I use and discuss the errors that many of these specific configurations and values specifically fixed.</p>
 
-<pre><code>&lt;code&gt;
-[uwsgi]
+<pre><code>[uwsgi]
 binary-path = /usr/local/bin/uwsgi
 chdir = /opt/app
 chmod-socket = 777
@@ -210,7 +198,7 @@ uid = www-data
 vacuum = true
 vhost = true
 virtualenv = /opt/app/env
-workers = 4&lt;/code&gt;
+workers = 4
 </code></pre>
 
 <p>Not all of these settings may be necessary, but it&rsquo;s what I finally found works for me. Visit the official uWSGI documentation on <a href="http://uwsgi-docs.readthedocs.org/en/latest/Options.html">Configuration Options</a> for a complete rundown. Here are settings I needed to resolve specific bugs.</p>
@@ -219,30 +207,23 @@ workers = 4&lt;/code&gt;
 
 <p><strong>chmod-socket, chown-socket, gid, uid, socket</strong> For uWSGI and nginx to communicate over a socket, you need to specify the permissions and the owner of the socket. <em>777 as chmod-socket is much too liberal for production</em>. However, you may have to mess around with this number to get it correct, so everything necessary can communicate. If you don&rsquo;t take care of your socket configurations, you will get errors such as:</p>
 
-<pre><code>&lt;code&gt;
-(111: Connection refused) while connecting to upstream.&lt;/code&gt;
+<pre><code>(111: Connection refused) while connecting to upstream.
+</code></pre>
 
-
-
-
-
-&lt;code&gt;
-bind(): Permission denied [socket.c line 107]&lt;/code&gt;
+<pre><code>bind(): Permission denied [socket.c line 107]
 </code></pre>
 
 <p>To create the space for the socket to exist, you just have to pick a persistent directory (e.g. <em>not</em> <code>/run</code> or <code>/tmp</code>) and make <code>www-data</code> (the user nginx runs as) the owner of it, as such:</p>
 
-<pre><code>&lt;code class=&quot;language-bash&quot;&gt;
-$ sudo mkdir /var/uwsgi
-$ sudo chown www-data:www-data /var/uwsgi&lt;/code&gt;
+<pre><code>$ sudo mkdir /var/uwsgi
+$ sudo chown www-data:www-data /var/uwsgi
 </code></pre>
 
 <p>Make sure that your value for <code>socket</code> in the uWSGI conf file corresponds to the value for <code>uwsgi_pass</code> in the nginx conf file.</p>
 
 <p><strong>limit-as</strong> Unix has some sort of built in limits for what it can transfer. You may need to set this value if you get errors such as:</p>
 
-<pre><code>&lt;code&gt;
-[error] 20739#0: *21 upstream prematurely closed connection while reading response header from upstream&lt;/code&gt;
+<pre><code>[error] 20739#0: *21 upstream prematurely closed connection while reading response header from upstream
 </code></pre>
 
 <p><strong>module</strong> Refers to the uWSGI module, which must be on the Python Path. In the Nginx settings, you saw this same value corresponding to <code>uwsgi_param UWSGI_SCRIPT</code>.</p>
@@ -253,18 +234,16 @@ $ sudo chown www-data:www-data /var/uwsgi&lt;/code&gt;
 
 <p>Okay, so you should now have two working configuration files stored in a place such as <code>/opt/app/extras</code>. Now, in order for nginx and uWSGI to automatically load when you use them as services, we have to sym link our files into directories that each looks in on startup.</p>
 
-<pre><code>&lt;code class=&quot;language-bash&quot;&gt;
-$ ln -s /opt/app/extras/nginx.conf /etc/nginx/sites-enabled/nginx.conf
-$ ln -s /opt/app/extras/uwsgi.conf /etc/uwsgi/apps-enabled/uwsgi.conf&lt;/code&gt;
+<pre><code>$ ln -s /opt/app/extras/nginx.conf /etc/nginx/sites-enabled/nginx.conf
+$ ln -s /opt/app/extras/uwsgi.conf /etc/uwsgi/apps-enabled/uwsgi.conf
 </code></pre>
 
 <h2 id="testing-the-configuration:70def7930d5cd4b692cfce309764f367">Testing the Configuration</h2>
 
 <p>Now we should be able to test out the configuration. My advice is to comment out the <code>daemonize</code> line in <code>uWSGI.conf</code>, so you can see what&rsquo;s happening while you start up uWSGI. Then start both services.</p>
 
-<pre><code>&lt;code class=&quot;language-bash&quot;&gt;
-$ service nginx restart
-$ uwsgi /opt/extras/uwsgi.conf&lt;/code&gt;
+<pre><code>$ service nginx restart
+$ uwsgi /opt/extras/uwsgi.conf
 </code></pre>
 
 <p>You should then see uWSGI take over your entire terminal and tell you that it&rsquo;s running correctly. Open up localhost or the IP address in the web browser and watch what happens. If you can load a page, congratulations! Sig int and uncomment the daemon line, and let it run.</p>
@@ -273,25 +252,22 @@ $ uwsgi /opt/extras/uwsgi.conf&lt;/code&gt;
 
 <p><strong>Error:</strong></p>
 
-<pre><code>&lt;code&gt;
-ImportError: No module named 'app.wsgi'
-unable to load app 0 (mountpoint='') (callable not found or import error)&lt;/code&gt;
+<pre><code>ImportError: No module named 'app.wsgi'
+unable to load app 0 (mountpoint='') (callable not found or import error)
 </code></pre>
 
 <p><strong>Problem:</strong> You probably have a Python path issue, because it is not finding your WSGI app. Also, make sure your virtualenv is running!</p>
 
 <p><strong>Error:</strong></p>
 
-<pre><code>&lt;code&gt;
-uWSGI Error. Python application not found&lt;/code&gt;
+<pre><code>uWSGI Error. Python application not found
 </code></pre>
 
 <p><strong>Problem:</strong> Your python path is probably still wrong to your app.wsgi. Make sure that nginx and uWSGI are finding your UWSGI app at all by checking their logs.</p>
 
 <p><strong>Error:</strong></p>
 
-<pre><code>&lt;code&gt;
-502 Bad Gateway&lt;/code&gt;
+<pre><code>502 Bad Gateway
 </code></pre>
 
 <p><strong>Problem:</strong> Chances are that uWSGI isn&rsquo;t actually running. The issue is that Nginx is trying to funnel requests through uWGSI, but uWSGI isn&rsquo;t running to handle them with your Python app.</p>
@@ -299,16 +275,16 @@ uWSGI Error. Python application not found&lt;/code&gt;
 <p><strong>In general:</strong>
 <strong>Make sure uWSGI is actually running.</strong> It generally helps to look at the processes and see how many are running&ndash;I had issues where I thought uWSGI was running, but it was &ldquo;silently&rdquo; failing because all the errors were being funneled into the logs. This means that nginx will be attempting to talk to uWSGI, but it cannot. You&rsquo;ll get all sorts of non-descriptives errors of this.</p>
 
-<pre><code>&lt;code class=&quot;language-bash&quot;&gt;
-$ ps aux | grep uwsgi
-&lt;/code&gt;
+<pre><code>$ ps aux | grep uwsgi
 </code></pre>
 
 <p>Will list all the processing running on your machine.</p>
 
-<h2 id="questions-comments-mistakes:70def7930d5cd4b692cfce309764f367">Questions, Comments, Mistakes?</h2>
+<hr />
 
-<p>Get in touch via the comments (preferable, so others can use them to troubleshoot), or Twitter at <a href="http://www.twitter.com/monicalent">@monicalent</a>, or Google at <a href="https://plus.google.com/+MonicaLent/">+MonicaLent</a>.</p>
+<h2 id="questions-comments-corrections:70def7930d5cd4b692cfce309764f367">Questions, Comments, Corrections?</h2>
+
+<p>Get in touch via Twitter at <a href="http://www.twitter.com/monicalent">@monicalent</a>.</p>
 
 </div>
 

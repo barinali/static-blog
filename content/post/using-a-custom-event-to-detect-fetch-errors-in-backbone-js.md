@@ -13,8 +13,6 @@ One of Backbone's major strengths as a javascript MVC framework is the way it he
 
 One way to handle this is that every time you call fetch, you specify an error function. However, this precludes us from being able to organize our failed fetches nicely within Views themselves, as we would with other events that occur on collections such as `add` or `reset`. For example:
 
-    
-    <code class="language-javascript">
     MyApp.Views.Foo = Backbone.View.extend({
       'tagName': 'div',
       template: _.template(MyApp.Templates.foo_template),
@@ -29,15 +27,9 @@ One way to handle this is that every time you call fetch, you specify an error f
         // Update DOM to denote failure to fetch models
       }
     });
-    </code>
-
-
 
 You can trigger a 'fail' event, or any other kind of event, by modifying your base collection. In this case, I am modifying the `fetch` event handler to trigger a `fail` event in the case that it fails.
 
-
-    
-    <code class="language-javascript">
     MyApp.Collections.Base = Backbone.Collection.extend({
       fetch: function(options) {
         var self = this;
@@ -58,8 +50,11 @@ You can trigger a 'fail' event, or any other kind of event, by modifying your ba
         (_.bind(Backbone.Collection.prototype.fetch, this, _.extend({}, options, opts)))();
       }
     });
-    </code>
-
-
 
 Looking at [Backbone.js annotated source code](http://backbonejs.org/docs/backbone.html#section-55) is really helpful to understand how to override certain functions.
+
+* * *
+
+## Questions, Comments, Corrections?
+
+Get in touch via Twitter at [@monicalent](http://www.twitter.com/monicalent).

@@ -88,3 +88,9 @@ MaxRequestsPerChild 0
 Now, when I check for memory usage on my machine after a restart of apache, I see that there are fewer apache processes going (thanks to my changes to StartServers, MinSpareServers, and MaxSpareServers). However, each apache process is using a greater percentage of memory a piece. So it becomes a bit of a balancing game to figure out what the proper numbers to put in ought to be.
 
 Hopefully, however, since MaxClients has been reduced from 150 to 40, I will not cause my machine to dip into swap memory to comply with client requests. Further, it should be killing the other connections rather than keeping them alive.
+
+* * *
+
+## Questions, Comments, Corrections?
+
+Get in touch via Twitter at [@monicalent](http://www.twitter.com/monicalent).

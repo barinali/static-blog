@@ -107,18 +107,13 @@ ga('send', 'pageview');
 
 <hr />
 
-<!-- more -->
-
 <h2 id="table-of-contents:237e1358bd1d0aa8a86292e50122607d">Table of Contents</h2>
 
 <ol>
-<li><p>Adding Fields to a Resource</p></li>
-
-<li><p>Mapping Attributes of an Object through a Reverse Relationship</p></li>
-
-<li><p>Filtering via Through Relationships</p></li>
-
-<li><p>Self-Referential Resources</p></li>
+<li>Adding Fields to a Resource</li>
+<li>Mapping Attributes of an Object through a Reverse Relationship</li>
+<li>Filtering via Through Relationships</li>
+<li>Self-Referential Resources</li>
 </ol>
 
 <hr />
@@ -129,12 +124,11 @@ ga('send', 'pageview');
 
 <p><strong>1. Implementing the field-specific <code>dehydrate</code> function</strong></p>
 
-<pre><code>&lt;code class=&quot;language-python&quot;&gt;
-from tastypie import fields
+<p>from tastypie import fields
 from tastypie.resources import ModelResource
-from app.models import MyModel
+from app.models import MyModel</p>
 
-class MyModelResource(ModelResource):
+<pre><code>class MyModelResource(ModelResource):
     FOO = fields.CharField()
 
     class Meta:
@@ -142,16 +136,13 @@ class MyModelResource(ModelResource):
 
     def dehydrate_FOO(self, bundle):
         return bundle.obj.data.FOO.upper()
-
-&lt;/code&gt;
 </code></pre>
 
 <p>Here, we work on the object referenced after the underscore in the function name (e.g. function <code>dehydrate_FOO</code> operates on the FOO field, accessible within the function as <code>bundle.obj</code>). Once you&rsquo;ve updated it in some way, Tastypie will automatically update <code>bundle.data['FOO']</code> for you.</p>
 
 <p><strong>2. Implementing the (resource-wide) <code>dehydrate</code> function</strong></p>
 
-<pre><code>&lt;code class=&quot;language-python&quot;&gt;
-from tastypie import fields
+<pre><code>from tastypie import fields
 from tastypie.resources import ModelResource
 from app.models import MyModel
 
@@ -162,7 +153,6 @@ class MyModelResource(ModelResource):
     def dehydrate(self, bundle):
         bundle.data['new_FOO'] = 'This came from nowhere!'
         return bundle
-&lt;/code&gt;
 </code></pre>
 
 <p>This makes sense if you need to add a new field, which is based on the value of several other fields, or none of the other fields at all. In the example above, the string &lsquo;some data&rsquo; is not derived from any other field, so it makes sense to put it in the <code>dehydrate</code> function.</p>
@@ -172,13 +162,10 @@ class MyModelResource(ModelResource):
 <p>There are a couple different strategies floating around for adding fields manually to a Tastypie resource. Here are some resources you may find helpful, if you have</p>
 
 <ul>
-<li><p><a href="http://django-tastypie.readthedocs.org/en/latest/resources.html#dehydrate">Tastypie Documentation</a></p></li>
-
-<li><p><a href="http://fan-zf.blogspot.de/2013/07/add-extra-object-to-tastypie-returned.html">Blogpost on adding fields during alter_list_data_to_serialize</a></p></li>
-
-<li><p><a href="http://stackoverflow.com/questions/13302240/how-to-add-extra-object-to-tasty-pie-return-json-in-python-django">Stackoverflow Post: &ldquo;How to add extra object to Tastypie Return JSON&rdquo;</a></p></li>
-
-<li><p><a href="http://stackoverflow.com/questions/10693379/can-django-tastypie-display-a-different-set-of-fields-in-the-list-and-detail-vie">Stackoverflow Post: &ldquo;Can Tastypie display a different set of fields in List and Detail views?&rdquo;</a></p></li>
+<li><a href="http://django-tastypie.readthedocs.org/en/latest/resources.html#dehydrate">Tastypie Documentation</a></li>
+<li><a href="http://fan-zf.blogspot.de/2013/07/add-extra-object-to-tastypie-returned.html">Blogpost on adding fields during alter_list_data_to_serialize</a></li>
+<li><a href="http://stackoverflow.com/questions/13302240/how-to-add-extra-object-to-tasty-pie-return-json-in-python-django">Stackoverflow Post: &ldquo;How to add extra object to Tastypie Return JSON&rdquo;</a></li>
+<li><a href="http://stackoverflow.com/questions/10693379/can-django-tastypie-display-a-different-set-of-fields-in-the-list-and-detail-vie">Stackoverflow Post: &ldquo;Can Tastypie display a different set of fields in List and Detail views?&rdquo;</a></li>
 </ul>
 
 <p><strong>Troubleshooting</strong></p>
@@ -187,8 +174,8 @@ class MyModelResource(ModelResource):
 
 <p>This occurs because you are trying to assign a new field to <code>bundle</code> rather than to <code>bundle.data</code>. Make sure that when you are adding or removing fields from the bundle, particularly when implementing resource-wide <code>dehydrate</code>, you are operating on its <code>data</code> dictionary.</p>
 
-<pre><code>&lt;code class=&quot;language-python&quot;&gt;bundle['new_field'] = 'This will not work.'
-bundle.data['new_field'] = 'This works!'&lt;/code&gt;
+<pre><code>bundle['new_field'] = 'This will not work.'
+bundle.data['new_field'] = 'This works!'
 </code></pre>
 
 <hr />
@@ -198,19 +185,15 @@ bundle.data['new_field'] = 'This works!'&lt;/code&gt;
 <p>This is a completely insane title for a section, so let me start by giving you a use-case.</p>
 
 <ul>
-<li><p>I have a list of <code>Grammar</code> topics (objects).</p></li>
-
-<li><p>I have content written for these topics in many languages.</p></li>
-
-<li><p>Each <code>Content</code> object has a <code>ForeignKey</code> relationship to a Grammar topic.</p></li>
-
-<li><p>When looking at the list view of Grammar topics, I want to see the languages and titles of corresponding available content.</p></li>
+<li>I have a list of <code>Grammar</code> topics (objects).</li>
+<li>I have content written for these topics in many languages.</li>
+<li>Each <code>Content</code> object has a <code>ForeignKey</code> relationship to a Grammar topic.</li>
+<li>When looking at the list view of Grammar topics, I want to see the languages and titles of corresponding available content.</li>
 </ul>
 
 <p><strong>My starting JSON</strong></p>
 
-<pre><code>&lt;code class=&quot;language-javascript&quot;&gt;
-{
+<pre><code>{
     meta: {
         limit: 20,
         next: &quot;/api/v1/grammar/?offset=20&amp;limit;=20&amp;format;=json&quot;,
@@ -226,13 +209,11 @@ bundle.data['new_field'] = 'This works!'&lt;/code&gt;
         }
     ]
 }
-&lt;/code&gt;
 </code></pre>
 
 <p><strong>My target JSON</strong></p>
 
-<pre><code>&lt;code class=&quot;language-javascript&quot;&gt;
-{
+<pre><code>{
     meta: {
         limit: 20,
         next: &quot;/api/v1/grammar/?offset=20&amp;limit;=20&amp;format;=json&quot;,
@@ -253,7 +234,6 @@ bundle.data['new_field'] = 'This works!'&lt;/code&gt;
         }
     ]
 }
-&lt;/code&gt;
 </code></pre>
 
 <p>As you can see, the goal is to end up with a dictionary of related content titles, with the <code>short_code</code> of the language as their key. We&rsquo;ll achieve this by grabbing the content, filtering by the grammar relationship, and the ultimately mapping the full <code>Content</code> object into a short and sweet dictionary entry.</p>
@@ -261,8 +241,7 @@ bundle.data['new_field'] = 'This works!'&lt;/code&gt;
 <p><strong>The Django Models</strong>
 For good measure, here are the relevant Django models.</p>
 
-<pre><code>&lt;code class=&quot;language-python&quot;&gt;
-from django.db import models
+<pre><code>from django.db import models
 import textwrap
 
 class Language(models.Model):
@@ -337,13 +316,10 @@ class Content(models.Model):
         return unicode(self.title) or u''
 </code></pre>
 
-<p>`</p>
-
 <p><strong>api/grammar.py</strong> - <code>GrammarResource</code>
 I use the <code>dehydrate</code> function to add a new field to the resource object, and a helper function to reduce the list of content objects to something simpler.</p>
 
-<pre><code>&lt;code class=&quot;language-python&quot;&gt;
-from tastypie import fields
+<pre><code>from tastypie import fields
 from tastypie.resources import ModelResource
 from app.models import Grammar, Content
 from api.content import ContentResource
@@ -376,8 +352,7 @@ class GrammarResource(ModelResource):
 
 <p>This is how we end up with:</p>
 
-<pre><code>&lt;code class=&quot;language-javascript&quot;&gt;
-titles: {
+<pre><code>titles: {
     de: &quot;Die a-Deklination&quot;,
     en: &quot;First Declension Nouns&quot;,
     it: &quot;Sostantivi femminili&quot;
@@ -398,17 +373,14 @@ titles: {
 <p>One thing which Tastypie doesn&rsquo;t seem to support nicely out of the box is including the values of the through relationship to a model. Consider the following use-case:</p>
 
 <ul>
-<li><p>You have a <code>Task</code> model.</p></li>
-
-<li><p>You want to order these tasks using another model, <code>TaskSequence</code>.</p></li>
-
-<li><p>You relate a <code>Task</code> to a <code>TaskSequence</code> with metadata (through a &lsquo;through&rsquo; relationship, in a model named <code>TaskContext</code>, which includes information about the order of the tasks.</p></li>
+<li>You have a <code>Task</code> model.</li>
+<li>You want to order these tasks using another model, <code>TaskSequence</code>.</li>
+<li>You relate a <code>Task</code> to a <code>TaskSequence</code> with metadata (through a &lsquo;through&rsquo; relationship, in a model named <code>TaskContext</code>, which includes information about the order of the tasks.</li>
 </ul>
 
 <p>If you just ask Tastypie for the <code>TaskSequence</code> (which is related to another Resource over a simple foreign key relationship, in our case, the same GrammarResource as above), you might end up with something like this:</p>
 
-<pre><code>&lt;code class=&quot;language-javascript&quot;&gt;
-{
+<pre><code>{
    id: 60,
    name: &quot;The Aorist Tense&quot;,
    query: &quot;pos=verb&amp;tense;=aor&quot;,
@@ -437,12 +409,9 @@ titles: {
 }
 </code></pre>
 
-<p>`</p>
-
 <p>However, we really need the information in the through relationship in order to determine the order of the tasks. Therefore, our target JSON is something like this instead:</p>
 
-<pre><code>&lt;code class=&quot;language-javascript&quot;&gt;
-{
+<pre><code>{
    id: 60,
    name: &quot;The Aorist Tense&quot;,
    query: &quot;pos=verb&amp;tense;=aor&quot;,
@@ -482,15 +451,13 @@ titles: {
           }
     ]
 }
-&lt;/code&gt;
 </code></pre>
 
 <p><strong>Relevant Resources</strong></p>
 
 <p>Take a look at the Tastypie resources for each of these three components (<code>Task</code>, <code>TaskSequence</code>, <code>TaskContext</code>). The most interesting code occurs in the <code>TaskSequenceResource</code>, where we filter on tasks related to the object in question &ndash; similarly to the example above.</p>
 
-<pre><code>&lt;code class=&quot;language-python&quot;&gt;
-&quot;&quot;&quot;
+<pre><code>&quot;&quot;&quot;
 Model Resource
 &quot;&quot;&quot;
 from tastypie import fields
@@ -498,18 +465,14 @@ from tastypie.resources import ModelResource
 from app.models import Task
 
 class TaskResource(ModelResource):
-
+    
     class Meta:
         queryset = Task.objects.all()
         allowed_methods = ['get']
-&lt;/code&gt;
 
+</code></pre>
 
-
-
-
-&lt;code class=&quot;language-python&quot;&gt;
-&quot;&quot;&quot;
+<pre><code>&quot;&quot;&quot;
 Through Model
 &quot;&quot;&quot;
 from tastypie import fields
@@ -526,14 +489,10 @@ class TaskContextResource(ModelResource):
         class Meta:
                 queryset = TaskContext.objects.all()
                 allowed_methods = ['get']
-&lt;/code&gt;
 
+</code></pre>
 
-
-
-
-&lt;code class=&quot;language-python&quot;&gt;
-&quot;&quot;&quot;
+<pre><code>&quot;&quot;&quot;
 Model Sequence Resource
 &quot;&quot;&quot;
 from tastypie import fields
@@ -552,7 +511,6 @@ class TaskSequenceResource(ModelResource):
     class Meta:
         queryset = TaskSequence.objects.all()
         allowed_methods = ['get']
-&lt;/code&gt;
 </code></pre>
 
 <p><strong>Troubleshooting</strong></p>
@@ -582,9 +540,8 @@ In our example, this would mean that Person A can be related to Person B (e.g. i
 
 <p>This makes it pretty easy for Tastypie to deal with, so long as you do not need the full resources in the Person list view.</p>
 
-<p><strong>app/models.py</strong></p>
+<pre><code># app/models.py
 
-<pre><code>&lt;code class=&quot;language-python&quot;&gt;
 from django.db import models
 
 class Person(models.Model):
@@ -593,12 +550,10 @@ class Person(models.Model):
         symmetrical=False,
         null=True,
         blank=True)
-&lt;/code&gt;
 </code></pre>
 
-<p><strong>api/person.py</strong></p>
+<pre><code># api/person.py
 
-<pre><code>&lt;code class=&quot;language-python&quot;&gt;
 from tastypie import fields
 from tastypie.resources import ModelResource
 from myapp.models import Person
@@ -609,13 +564,12 @@ class PersonResource(ModelResource):
 
     class Meta:
         queryset = Person.objects.all()
-&lt;/code&gt;
+
 </code></pre>
 
 <p><strong>2. Use the <code>use_in</code> option</strong></p>
 
-<pre><code>&lt;code class=&quot;language-python&quot;&gt;
-from tastypie import fields
+<pre><code>from tastypie import fields
 from tastypie.resources import ModelResource
 from myapp.models import Person
 
@@ -625,7 +579,6 @@ class PersonResource(ModelResource):
 
     class Meta:
         queryset = Person.objects.all()
-&lt;/code&gt;
 </code></pre>
 
 <p>This is rather straightforward. This way, the relatives will never try to flesh themselves out into detail forms when you&rsquo;re viewing the Person resource as a list. However, this precludes you from seeing this same information in the detail view.</p>
@@ -633,9 +586,8 @@ class PersonResource(ModelResource):
 <p><strong>3. Create a &lsquo;shallow&rsquo; version of the resource</strong>
 But, if you need <code>full=True</code> on your list view, you&rsquo;re kind of out of luck. The easiest solution to prevent exceeding the maximum recursion depth is to create two resources. Consider:</p>
 
-<p><code>api/person.py</code></p>
+<pre><code># api/person.py
 
-<pre><code>&lt;code class=&quot;language-python&quot;&gt;
 from tastypie import fields
 from tastypie.resources import ModelResource
 from myapp.models import Person
@@ -651,12 +603,11 @@ class PersonResource(ModelResource):
     class Meta:
        queryset = Person.objects.all()
        allowed_methods = ['get']
-&lt;/code&gt;
+
 </code></pre>
 
-<p><code>api/relative.py</code></p>
-
-<pre><code>&lt;code class=&quot;language-python&quot;&gt;
+<pre><code># api/relative.py
+    
 from tastypie import fields
 from tastypie.resources import ModelResource
 from myapp.models import Person
@@ -665,7 +616,6 @@ class RelativeResource(ModelResource):
     class Meta:
        queryset = Person.objects.all()
        allowed_methods = ['get']
-&lt;/code&gt;
 </code></pre>
 
 <p>Notice that only the person resource has <code>full=True</code>. This means that, because the relative resource will not try to fill out its own m2m fields, you won&rsquo;t run into infinite recursion.</p>
@@ -686,7 +636,7 @@ class RelativeResource(ModelResource):
 
 <h2 id="questions-comments-mistakes:237e1358bd1d0aa8a86292e50122607d">Questions, Comments, Mistakes?</h2>
 
-<p>Get in touch via the comments (preferable, so others can use them to troubleshoot), or Twitter at <a href="http://www.twitter.com/monicalent">@monicalent</a>, or Google at <a href="https://plus.google.com/+MonicaLent/">+MonicaLent</a>.</p>
+<p>Get in touch via Twitter at <a href="http://www.twitter.com/monicalent">@monicalent</a>, or Google at <a href="https://plus.google.com/+MonicaLent/">+MonicaLent</a>.</p>
 
 </div>
 

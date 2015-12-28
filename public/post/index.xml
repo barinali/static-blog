@@ -261,6 +261,12 @@ angular.bootstrap(document, [&#39;Dashboard&#39;]);
 &lt;p&gt;Now, in both cases, you would end up with an app.js made by Require JS, and an app.js made by Webpack. Unlike require.js where you have to first load require.js, which then loads main.js, and boostraps your app, in Webpack you can just put your app.js in the script tag and it runs. Perhaps not a huge optimization, but it is one less request!&lt;/p&gt;
 
 &lt;p&gt;If your Require.js app is loaded lazily, and not ultimately all bundled into a single app.js, then you will have to wait until my follow-up post on lazy-loading Angular apps with webpack! It will also included information as impact webpack can have on your Angular build process, specifically regarding template loading and handling assets like SVGs.&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;h2 id=&#34;questions-comments-corrections:4eeaadf64fb7af65b4825f6f1945e386&#34;&gt;Questions, Comments, Corrections?&lt;/h2&gt;
+
+&lt;p&gt;Get in touch via Twitter at &lt;a href=&#34;http://www.twitter.com/monicalent&#34;&gt;@monicalent&lt;/a&gt;.&lt;/p&gt;
 </description>
     </item>
     
@@ -278,47 +284,40 @@ angular.bootstrap(document, [&#39;Dashboard&#39;]);
 
 &lt;p&gt;Here is a typical, sample hierarchy. My top-level directory is something like /opt/some-app. However, since all of the configurations will use relative paths, this is not really important. All you need to know is that my project root contains &amp;ldquo;app&amp;rdquo; as a subdirectory.&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;app/
+&lt;pre&gt;
+app/
 -- scripts/
-+++- filters/my_filter.js
-+++- app.js
-+++- main.js
+--- filters/my_filter.js
+--- app.js
+--- main.js
 -- test/
-+++- spec/
-++++++ filters/my_filter_spec.js
-++++++ karma.conf.js
-++++++ test-app.js
-++++++ test-main.js
+---- spec/
+------ filters/my_filter_spec.js
+------ karma.conf.js
+------ test-app.js
+------ test-main.js
 Gruntfile.js
 package.json
 bower.json
 etc.
-&lt;/code&gt;&lt;/pre&gt;
+&lt;/pre&gt;
+As you can probably deduce, for this post I will discuss how we&#39;ll test a filter, which is used in our app. Next let&#39;s look at the key files in play here:
 
-&lt;p&gt;As you can probably deduce, for this post I will discuss how we&amp;rsquo;ll test a filter, which is used in our app. Next let&amp;rsquo;s look at the key files in play here:&lt;/p&gt;
+* **my_filter.js** The filter we want to test.
+* **my_filter_spec.js** The file with our tests in it.
+* **app.js** Our Angular module.
+* **karma.conf.js** Configuration file, which tell the karma server what files to watch and serve.
+* **main.js** vs. **test-main.js** Main.js is our app&#39;s real Requirejs configuration, which we want to mirror as closely as possible in `test-main.js`, so that all our `define` statements that work in our app also work in our tests.
 
-&lt;ul&gt;
-&lt;li&gt;&lt;p&gt;&lt;strong&gt;my_filter.js&lt;/strong&gt; The filter we want to test.&lt;/p&gt;&lt;/li&gt;
+# Setting up Angular modules with Require
 
-&lt;li&gt;&lt;p&gt;&lt;strong&gt;my_filter_spec.js&lt;/strong&gt; The file with our tests in it.&lt;/p&gt;&lt;/li&gt;
+In general, the thing to remember is that if you want to test something, each AMD module must return the function you want to test, so we can inject it later. I will assume you already have some kind of working Angular+Require setup that you want to test, and will gloss over the details of bootstrapping your core Angular module. Here&#39;s just a tiny example of a &#34;requireable&#34; Angular module and a filter.
 
-&lt;li&gt;&lt;p&gt;**app.js ** Our Angular module.&lt;/p&gt;&lt;/li&gt;
+**1. Review the main.js for your Require setup**
+I&#39;m going to assume you&#39;re familiar with Require, and only discuss the parts of the Requirejs setup that we need to get testing to work.
 
-&lt;li&gt;&lt;p&gt;&lt;strong&gt;karma.conf.js&lt;/strong&gt; Configuration file, which tell the karma server what files to watch and serve.&lt;/p&gt;&lt;/li&gt;
 
-&lt;li&gt;&lt;p&gt;&lt;strong&gt;main.js vs. test-main.js&lt;/strong&gt; Main.js is our app&amp;rsquo;s real Requirejs configuration, which we want to mirror as closely as possible in &lt;code&gt;test-main.js&lt;/code&gt;, so that all our &lt;code&gt;define&lt;/code&gt; statements that work in our app also work in our tests.&lt;/p&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h1 id=&#34;setting-up-angular-modules-with-require:2281b5cb3a53149a7b95ad220e3ffbdc&#34;&gt;Setting up Angular modules with Require&lt;/h1&gt;
-
-&lt;!-- more --&gt;
-
-&lt;p&gt;In general, the thing to remember is that if you want to test something, each AMD module must return the function you want to test, so we can inject it later. I will assume you already have some kind of working Angular+Require setup that you want to test, and will gloss over the details of bootstrapping your core Angular module. Here&amp;rsquo;s just a tiny example of a &amp;ldquo;requireable&amp;rdquo; Angular module and a filter.&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;1. Review the main.js for your Require setup&lt;/strong&gt;
-I&amp;rsquo;m going to assume you&amp;rsquo;re familiar with Require, and only discuss the parts of the Requirejs setup that we need to get testing to work.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;&amp;lt;code class=&amp;quot;language-javascript&amp;quot;&amp;gt;require.config({
+&lt;pre&gt;&lt;code class=&#34;language-javascript&#34;&gt;require.config({
   baseUrl: &#39;/scripts&#39;,
   paths: {
     angular: &#39;../vendor/angular/angular&#39;  
@@ -327,7 +326,6 @@ I&amp;rsquo;m going to assume you&amp;rsquo;re familiar with Require, and only d
     angular: { exports: &#39;angular&#39; }
   }
 });
-&amp;lt;/code&amp;gt;
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;So you see, we&amp;rsquo;re telling Require to start looking in &lt;code&gt;scripts/&lt;/code&gt; automatically, so this way, when we define a new module, Require will begin to resolve where to look for a file to include as a dependency by using this baseUrl.&lt;/p&gt;
@@ -335,8 +333,7 @@ I&amp;rsquo;m going to assume you&amp;rsquo;re familiar with Require, and only d
 &lt;p&gt;&lt;strong&gt;2. Define a module&lt;/strong&gt;
 This allows us to define components on a module at runtime. Once we create this module, we&amp;rsquo;ll be able to include it anywhere using &lt;code&gt;define([&#39;app&#39;], function() { ... })&lt;/code&gt; because main.js knows that &amp;ldquo;app&amp;rdquo; really means &amp;ldquo;scripts/app.js&amp;rdquo;.&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;&amp;lt;code class=&amp;quot;language-javascript&amp;quot;&amp;gt;/* app/scripts/app.js */
-
+&lt;pre&gt;&lt;code class=&#34;language-javascript&#34;&gt;/* app/scripts/app.js */
 define([&#39;angular&#39;], function(angular) {
   var module = angular.module(&#39;app&#39;, []);
   module.config([&#39;$controllerProvider&#39;, 
@@ -354,46 +351,39 @@ define([&#39;angular&#39;], function(angular) {
 
  return module;
 
-});
-&amp;lt;/code&amp;gt;
-&lt;/code&gt;&lt;/pre&gt;
+});&lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;&lt;strong&gt;3. Create a filter, register it on the module&lt;/strong&gt;&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;&amp;lt;code class=&amp;quot;language-javascript&amp;quot;&amp;gt;/* app/scripts/filters/my_filter.js */
+&lt;pre&gt;&lt;code class=&#34;language-javascript&#34;&gt;/* app/scripts/filters/my_filter.js */
 
 define([&#39;app&#39;], function(app) {
-
+   
   var FILTER_NAME = &#39;myFilter&#39;;
   var filter = function() {
     return function(input, option) {
       return input + option;
     }
   };
-
+  
   app.filter(FILTER_NAME, filter);
   return filter;
-
-});
-&amp;lt;/code&amp;gt;
-&lt;/code&gt;&lt;/pre&gt;
+   
+});&lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;Okay, so now you have the three main &amp;ldquo;normal&amp;rdquo; components needed for this example:&lt;/p&gt;
 
 &lt;ol&gt;
-&lt;li&gt;&lt;p&gt;main.js&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;my_filter.js&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;app.js&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;main.js&lt;/li&gt;
+&lt;li&gt;my_filter.js&lt;/li&gt;
+&lt;li&gt;app.js&lt;/li&gt;
 &lt;/ol&gt;
 
 &lt;p&gt;Now we create the &amp;ldquo;testing&amp;rdquo; counterparts:&lt;/p&gt;
 
 &lt;ol&gt;
-&lt;li&gt;&lt;p&gt;test-main.js&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;my_filter_spec.js&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;test-main.js&lt;/li&gt;
+&lt;li&gt;my_filter_spec.js&lt;/li&gt;
 &lt;/ol&gt;
 
 &lt;p&gt;&amp;hellip;and of course, the Karma configuration itself.&lt;/p&gt;
@@ -402,31 +392,23 @@ define([&#39;app&#39;], function(app) {
 
 &lt;p&gt;Now is a good time to install Karma and its variable components if you haven&amp;rsquo;t already.&lt;/p&gt;
 
-&lt;p&gt;`&lt;/p&gt;
-
 &lt;pre&gt;&lt;code&gt;npm install karma karma-jasmine karma-phantomjs-launcher karma-requirejs --save-dev
 npm install -g karma-cli
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;`&lt;/p&gt;
-
 &lt;p&gt;You can now navigate to &lt;code&gt;app/test/&lt;/code&gt; and run:&lt;/p&gt;
 
-&lt;p&gt;`&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;karma init&amp;lt;/code&amp;gt;
+&lt;pre&gt;&lt;code&gt;karma init
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;When one of the prompts asks you whether you&amp;rsquo;re using RequireJS, say YES. This will generate the bases of our two important configuration files: &lt;code&gt;karma.conf.js&lt;/code&gt; and &lt;code&gt;test-main.js&lt;/code&gt;. Naturally, they won&amp;rsquo;t work out of the box, but we&amp;rsquo;ll get there.&lt;/p&gt;
 
 &lt;p&gt;Start by opening &lt;code&gt;karma.conf.js&lt;/code&gt;. This file has a bunch of interesting settings, which we will discuss in turn. First, I&amp;rsquo;ll show you the working configuration for our sample project:&lt;/p&gt;
 
-&lt;p&gt;`&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;module.exports = function(config) {
+&lt;pre&gt;&lt;code class=&#34;language-javascript&#34;&gt;module.exports = function(config) {
   config.set({
     basePath: &#39;../..&#39;,
-    frameworks: [&#39;jasmine, &#39;requirejs&#39;],
+    frameworks: [&#39;jasmine&#39;, &#39;requirejs&#39;],
     files: [
       &#39;app/test/test-main.js&#39;,
       { pattern: &#39;app/vendor/**/*.js&#39;, included: false },
@@ -446,16 +428,10 @@ npm install -g karma-cli
 };
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;`&lt;/p&gt;
-
 &lt;p&gt;Most importantly, we care about &lt;strong&gt;basePath&lt;/strong&gt;.  We want this to be the route of our project, so that Karma can find our angular files, vendor files, and test files, and &lt;strong&gt;serve them to Require&lt;/strong&gt;. This is the critical point. Only files that are served by Karma can be found during testing, when Require is trying to pull together your dependencies. This is why, for example, we have the following line in &lt;code&gt;files&lt;/code&gt;:&lt;/p&gt;
 
-&lt;p&gt;`&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;{ pattern: &#39;app/vendor/**/*.js&#39;, included: false }
+&lt;pre&gt;&lt;code class=&#34;language-javascript&#34;&gt;{ pattern: &#39;app/vendor/**/*.js&#39;, included: false }
 &lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;`&lt;/p&gt;
 
 &lt;p&gt;Because without this, when we setup test-main.js, we will get 404 WARN&amp;rsquo;s when trying to load Angular. &lt;strong&gt;As a rule, any file that you want to test, or that is a dependency of a file you want to test, must be picked up by Karma by matching an entry in &amp;ldquo;files&amp;rdquo;.&lt;/strong&gt;&lt;/p&gt;
 
@@ -463,12 +439,8 @@ npm install -g karma-cli
 
 &lt;p&gt;Time for the first test! Try running karma with your configuration file. It should spit out a biiiiig long list of all the files that you&amp;rsquo;ve told it to serve (especially because of the &lt;code&gt;config.LOG_DEBUG&lt;/code&gt; setting).&lt;/p&gt;
 
-&lt;p&gt;`&lt;/p&gt;
-
 &lt;pre&gt;&lt;code&gt;karma start app/test/karma.conf.js
 &lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;`&lt;/p&gt;
 
 &lt;p&gt;You should get output which says that it loaded your configuration file. If you get an error that it could not find the configuration file, make sure the file path after &amp;ldquo;karma start&amp;rdquo; is correct. I am running this from my top-level directory (/opt/some-app).&lt;/p&gt;
 
@@ -480,36 +452,28 @@ npm install -g karma-cli
 
 &lt;p&gt;First things first: &lt;strong&gt;The default karma+requirejs setup is wrong&lt;/strong&gt;. Particularly, the way it decides how the files being passed to &lt;code&gt;deps&lt;/code&gt; should be formatted. You will see a function called &lt;code&gt;fileToModule&lt;/code&gt;. DELETE IT. This tries to truncate the .js extension of your test files, which we actually don&amp;rsquo;t want it to do, because Karma actually make an HTTP request for &lt;code&gt;my_filter_spec&lt;/code&gt; instead of &lt;code&gt;my_filter_spec.js&lt;/code&gt;. Try this instead for collecting the test files:&lt;/p&gt;
 
-&lt;p&gt;`&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;var allTestFiles = [];
+&lt;pre&gt;&lt;code class=&#34;language-javascript&#34;&gt;var allTestFiles = [];
 var TEST_REGEXP = /(_spec|_test)\.js$/i;
 for (var file in window.__karma__.files) {
   if (TEST_REGEXP.test(file)) allTestFiles.push(file);
 }
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;`&lt;/p&gt;
-
 &lt;p&gt;The next important part of this file is &lt;strong&gt;baseUrl&lt;/strong&gt;. This is the long long loooong lost sibling of &lt;strong&gt;basePath&lt;/strong&gt; in &lt;code&gt;karma.conf.js&lt;/code&gt; &amp;ndash; it&amp;rsquo;s difficult to imagine when you&amp;rsquo;re looking at them, but they&amp;rsquo;re working together in some mysterious way.&lt;/p&gt;
 
-&lt;p&gt;For us, the following pairing works:
-`&lt;/p&gt;
+&lt;p&gt;For us, the following pairing works:&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;/* karma.conf.js */
+&lt;pre&gt;&lt;code class=&#34;language-javascript&#34;&gt;
+/* karma.conf.js */
 basePath: &#39;../..&#39;
 
 /* test-main.js */
 baseUrl: &#39;/base/app/scripts&#39;
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;`&lt;/p&gt;
-
 &lt;p&gt;This is because karma is serving our entire top-level directory at &lt;code&gt;/base&lt;/code&gt;. So, to mirror our normal &lt;code&gt;main.js&lt;/code&gt;, which has &lt;code&gt;baseUrl: &#39;/scripts&#39;&lt;/code&gt;, in &lt;code&gt;test-main.js&lt;/code&gt; we put &lt;code&gt;&#39;/base/app/scripts&#39;&lt;/code&gt;. &lt;strong&gt;So in both of our configurations for Require.js, Require is using our &amp;ldquo;scripts/&amp;rdquo; folder as a starting point.&lt;/strong&gt;&lt;/p&gt;
 
 &lt;p&gt;Following this logic, we can re-define where we want our paths in test-main to come from:&lt;/p&gt;
-
-&lt;p&gt;`&lt;/p&gt;
 
 &lt;pre&gt;&lt;code&gt;/* app/test/test-main.js */
 
@@ -526,15 +490,10 @@ require.config({
 });
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;`&lt;/p&gt;
-
-&lt;p&gt;Now this means, when we have a file with the following header:
-`&lt;/p&gt;
+&lt;p&gt;Now this means, when we have a file with the following header:&lt;/p&gt;
 
 &lt;pre&gt;&lt;code&gt;define([&#39;path/to/somewhere&#39;], function() { });
 &lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;`&lt;/p&gt;
 
 &lt;p&gt;When it is loaded using &lt;code&gt;main.js&lt;/code&gt;, &amp;ldquo;path/to/somewhere&amp;rdquo; will load &lt;em&gt;&lt;a href=&#34;http://localhost:8080/scripts/path/to/somewhere&#34;&gt;http://localhost:8080/scripts/path/to/somewhere&lt;/a&gt;&lt;/em&gt; from your normal webserver. When using &lt;code&gt;test-main.js&lt;/code&gt;, the same file will require &lt;em&gt;&lt;a href=&#34;http://localhost:9876/base/app/scripts/path/to/somewhere&#34;&gt;http://localhost:9876/base/app/scripts/path/to/somewhere&lt;/a&gt;&lt;/em&gt; from karma. Meaning, the code can be used for running the app or for testing, with no modifications of the dependency paths in individual files!&lt;/p&gt;
 
@@ -542,16 +501,10 @@ require.config({
 
 &lt;p&gt;Now we finally get to try to tie everything together with our first spec file. Start off by installing &lt;code&gt;angular-mocks&lt;/code&gt;, as this will allow us to register our filter before we test it.&lt;/p&gt;
 
-&lt;p&gt;`&lt;/p&gt;
-
 &lt;pre&gt;&lt;code&gt;npm install angular-mocks --save-dev
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;`&lt;/p&gt;
-
 &lt;p&gt;Add this to your &lt;code&gt;test-main.js&lt;/code&gt; file under &amp;ldquo;paths&amp;rdquo;:&lt;/p&gt;
-
-&lt;p&gt;`&lt;/p&gt;
 
 &lt;pre&gt;&lt;code&gt;paths: {
   angular: &#39;/base/app/vendor/angular/angular&#39;,
@@ -563,11 +516,7 @@ shim: {
 }
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;`&lt;/p&gt;
-
 &lt;p&gt;Once we include angularMocks as a dependency, we&amp;rsquo;ll have &lt;code&gt;angular.mock&lt;/code&gt; available on our instance of angular. We can use this to construct components on the fly as we test.&lt;/p&gt;
-
-&lt;p&gt;`&lt;/p&gt;
 
 &lt;pre&gt;&lt;code&gt;/* app/tests/spec/filters/my_filter_spec.js */
 
@@ -593,23 +542,19 @@ define([&#39;angular&#39;,
 );
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;`&lt;/p&gt;
-
 &lt;p&gt;Now it&amp;rsquo;s time to &lt;code&gt;karma start&lt;/code&gt; our tests!! You should see a very exciting message:&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;&amp;lt;code&amp;gt;INFO [karma]: Karma v0.12.31 server started at http://localhost:9876/
+&lt;pre&gt;&lt;code&gt;INFO [karma]: Karma v0.12.31 server started at http://localhost:9876/
 INFO [launcher]: Starting browser PhantomJS
 INFO [PhantomJS 1.9.8 (Mac OS X)]: Connected on socket W9ErxZ86IapgwQqqNiPw with id 48168125
 PhantomJS 1.9.8 (Mac OS X): Executed 1 of 1 SUCCESS (0.004 secs / 0.027 secs)
-&amp;lt;/code&amp;gt;
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;Once this works, you can go ahead and write a real test:&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;&amp;lt;code class=&amp;quot;language-javascript&amp;quot;&amp;gt;it(&amp;quot;should concatenate strings&amp;quot;, inject(function($filter) {
+&lt;pre&gt;&lt;code&gt;it(&amp;quot;should concatenate strings&amp;quot;, inject(function($filter) {
   expect($filter(&#39;myFilter&#39;)(&#39;a&#39;, &#39;b&#39;)).toBe(&#39;ab&#39;);
 });
-&amp;lt;/code&amp;gt;
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;hr /&gt;
@@ -637,18 +582,13 @@ PhantomJS 1.9.8 (Mac OS X): Executed 1 of 1 SUCCESS (0.004 secs / 0.027 secs)
 
 &lt;hr /&gt;
 
-&lt;!-- more --&gt;
-
 &lt;h2 id=&#34;table-of-contents:237e1358bd1d0aa8a86292e50122607d&#34;&gt;Table of Contents&lt;/h2&gt;
 
 &lt;ol&gt;
-&lt;li&gt;&lt;p&gt;Adding Fields to a Resource&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;Mapping Attributes of an Object through a Reverse Relationship&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;Filtering via Through Relationships&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;Self-Referential Resources&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;Adding Fields to a Resource&lt;/li&gt;
+&lt;li&gt;Mapping Attributes of an Object through a Reverse Relationship&lt;/li&gt;
+&lt;li&gt;Filtering via Through Relationships&lt;/li&gt;
+&lt;li&gt;Self-Referential Resources&lt;/li&gt;
 &lt;/ol&gt;
 
 &lt;hr /&gt;
@@ -659,12 +599,11 @@ PhantomJS 1.9.8 (Mac OS X): Executed 1 of 1 SUCCESS (0.004 secs / 0.027 secs)
 
 &lt;p&gt;&lt;strong&gt;1. Implementing the field-specific &lt;code&gt;dehydrate&lt;/code&gt; function&lt;/strong&gt;&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;&amp;lt;code class=&amp;quot;language-python&amp;quot;&amp;gt;
-from tastypie import fields
+&lt;p&gt;from tastypie import fields
 from tastypie.resources import ModelResource
-from app.models import MyModel
+from app.models import MyModel&lt;/p&gt;
 
-class MyModelResource(ModelResource):
+&lt;pre&gt;&lt;code&gt;class MyModelResource(ModelResource):
     FOO = fields.CharField()
 
     class Meta:
@@ -672,16 +611,13 @@ class MyModelResource(ModelResource):
 
     def dehydrate_FOO(self, bundle):
         return bundle.obj.data.FOO.upper()
-
-&amp;lt;/code&amp;gt;
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;Here, we work on the object referenced after the underscore in the function name (e.g. function &lt;code&gt;dehydrate_FOO&lt;/code&gt; operates on the FOO field, accessible within the function as &lt;code&gt;bundle.obj&lt;/code&gt;). Once you&amp;rsquo;ve updated it in some way, Tastypie will automatically update &lt;code&gt;bundle.data[&#39;FOO&#39;]&lt;/code&gt; for you.&lt;/p&gt;
 
 &lt;p&gt;&lt;strong&gt;2. Implementing the (resource-wide) &lt;code&gt;dehydrate&lt;/code&gt; function&lt;/strong&gt;&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;&amp;lt;code class=&amp;quot;language-python&amp;quot;&amp;gt;
-from tastypie import fields
+&lt;pre&gt;&lt;code&gt;from tastypie import fields
 from tastypie.resources import ModelResource
 from app.models import MyModel
 
@@ -692,7 +628,6 @@ class MyModelResource(ModelResource):
     def dehydrate(self, bundle):
         bundle.data[&#39;new_FOO&#39;] = &#39;This came from nowhere!&#39;
         return bundle
-&amp;lt;/code&amp;gt;
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;This makes sense if you need to add a new field, which is based on the value of several other fields, or none of the other fields at all. In the example above, the string &amp;lsquo;some data&amp;rsquo; is not derived from any other field, so it makes sense to put it in the &lt;code&gt;dehydrate&lt;/code&gt; function.&lt;/p&gt;
@@ -702,13 +637,10 @@ class MyModelResource(ModelResource):
 &lt;p&gt;There are a couple different strategies floating around for adding fields manually to a Tastypie resource. Here are some resources you may find helpful, if you have&lt;/p&gt;
 
 &lt;ul&gt;
-&lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://django-tastypie.readthedocs.org/en/latest/resources.html#dehydrate&#34;&gt;Tastypie Documentation&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://fan-zf.blogspot.de/2013/07/add-extra-object-to-tastypie-returned.html&#34;&gt;Blogpost on adding fields during alter_list_data_to_serialize&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://stackoverflow.com/questions/13302240/how-to-add-extra-object-to-tasty-pie-return-json-in-python-django&#34;&gt;Stackoverflow Post: &amp;ldquo;How to add extra object to Tastypie Return JSON&amp;rdquo;&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://stackoverflow.com/questions/10693379/can-django-tastypie-display-a-different-set-of-fields-in-the-list-and-detail-vie&#34;&gt;Stackoverflow Post: &amp;ldquo;Can Tastypie display a different set of fields in List and Detail views?&amp;rdquo;&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://django-tastypie.readthedocs.org/en/latest/resources.html#dehydrate&#34;&gt;Tastypie Documentation&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://fan-zf.blogspot.de/2013/07/add-extra-object-to-tastypie-returned.html&#34;&gt;Blogpost on adding fields during alter_list_data_to_serialize&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://stackoverflow.com/questions/13302240/how-to-add-extra-object-to-tasty-pie-return-json-in-python-django&#34;&gt;Stackoverflow Post: &amp;ldquo;How to add extra object to Tastypie Return JSON&amp;rdquo;&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://stackoverflow.com/questions/10693379/can-django-tastypie-display-a-different-set-of-fields-in-the-list-and-detail-vie&#34;&gt;Stackoverflow Post: &amp;ldquo;Can Tastypie display a different set of fields in List and Detail views?&amp;rdquo;&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
 &lt;p&gt;&lt;strong&gt;Troubleshooting&lt;/strong&gt;&lt;/p&gt;
@@ -717,8 +649,8 @@ class MyModelResource(ModelResource):
 
 &lt;p&gt;This occurs because you are trying to assign a new field to &lt;code&gt;bundle&lt;/code&gt; rather than to &lt;code&gt;bundle.data&lt;/code&gt;. Make sure that when you are adding or removing fields from the bundle, particularly when implementing resource-wide &lt;code&gt;dehydrate&lt;/code&gt;, you are operating on its &lt;code&gt;data&lt;/code&gt; dictionary.&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;&amp;lt;code class=&amp;quot;language-python&amp;quot;&amp;gt;bundle[&#39;new_field&#39;] = &#39;This will not work.&#39;
-bundle.data[&#39;new_field&#39;] = &#39;This works!&#39;&amp;lt;/code&amp;gt;
+&lt;pre&gt;&lt;code&gt;bundle[&#39;new_field&#39;] = &#39;This will not work.&#39;
+bundle.data[&#39;new_field&#39;] = &#39;This works!&#39;
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;hr /&gt;
@@ -728,19 +660,15 @@ bundle.data[&#39;new_field&#39;] = &#39;This works!&#39;&amp;lt;/code&amp;gt;
 &lt;p&gt;This is a completely insane title for a section, so let me start by giving you a use-case.&lt;/p&gt;
 
 &lt;ul&gt;
-&lt;li&gt;&lt;p&gt;I have a list of &lt;code&gt;Grammar&lt;/code&gt; topics (objects).&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;I have content written for these topics in many languages.&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;Each &lt;code&gt;Content&lt;/code&gt; object has a &lt;code&gt;ForeignKey&lt;/code&gt; relationship to a Grammar topic.&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;When looking at the list view of Grammar topics, I want to see the languages and titles of corresponding available content.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;I have a list of &lt;code&gt;Grammar&lt;/code&gt; topics (objects).&lt;/li&gt;
+&lt;li&gt;I have content written for these topics in many languages.&lt;/li&gt;
+&lt;li&gt;Each &lt;code&gt;Content&lt;/code&gt; object has a &lt;code&gt;ForeignKey&lt;/code&gt; relationship to a Grammar topic.&lt;/li&gt;
+&lt;li&gt;When looking at the list view of Grammar topics, I want to see the languages and titles of corresponding available content.&lt;/li&gt;
 &lt;/ul&gt;
 
 &lt;p&gt;&lt;strong&gt;My starting JSON&lt;/strong&gt;&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;&amp;lt;code class=&amp;quot;language-javascript&amp;quot;&amp;gt;
-{
+&lt;pre&gt;&lt;code&gt;{
     meta: {
         limit: 20,
         next: &amp;quot;/api/v1/grammar/?offset=20&amp;amp;limit;=20&amp;amp;format;=json&amp;quot;,
@@ -756,13 +684,11 @@ bundle.data[&#39;new_field&#39;] = &#39;This works!&#39;&amp;lt;/code&amp;gt;
         }
     ]
 }
-&amp;lt;/code&amp;gt;
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;&lt;strong&gt;My target JSON&lt;/strong&gt;&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;&amp;lt;code class=&amp;quot;language-javascript&amp;quot;&amp;gt;
-{
+&lt;pre&gt;&lt;code&gt;{
     meta: {
         limit: 20,
         next: &amp;quot;/api/v1/grammar/?offset=20&amp;amp;limit;=20&amp;amp;format;=json&amp;quot;,
@@ -783,7 +709,6 @@ bundle.data[&#39;new_field&#39;] = &#39;This works!&#39;&amp;lt;/code&amp;gt;
         }
     ]
 }
-&amp;lt;/code&amp;gt;
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;As you can see, the goal is to end up with a dictionary of related content titles, with the &lt;code&gt;short_code&lt;/code&gt; of the language as their key. We&amp;rsquo;ll achieve this by grabbing the content, filtering by the grammar relationship, and the ultimately mapping the full &lt;code&gt;Content&lt;/code&gt; object into a short and sweet dictionary entry.&lt;/p&gt;
@@ -791,8 +716,7 @@ bundle.data[&#39;new_field&#39;] = &#39;This works!&#39;&amp;lt;/code&amp;gt;
 &lt;p&gt;&lt;strong&gt;The Django Models&lt;/strong&gt;
 For good measure, here are the relevant Django models.&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;&amp;lt;code class=&amp;quot;language-python&amp;quot;&amp;gt;
-from django.db import models
+&lt;pre&gt;&lt;code&gt;from django.db import models
 import textwrap
 
 class Language(models.Model):
@@ -867,13 +791,10 @@ class Content(models.Model):
         return unicode(self.title) or u&#39;&#39;
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;`&lt;/p&gt;
-
 &lt;p&gt;&lt;strong&gt;api/grammar.py&lt;/strong&gt; - &lt;code&gt;GrammarResource&lt;/code&gt;
 I use the &lt;code&gt;dehydrate&lt;/code&gt; function to add a new field to the resource object, and a helper function to reduce the list of content objects to something simpler.&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;&amp;lt;code class=&amp;quot;language-python&amp;quot;&amp;gt;
-from tastypie import fields
+&lt;pre&gt;&lt;code&gt;from tastypie import fields
 from tastypie.resources import ModelResource
 from app.models import Grammar, Content
 from api.content import ContentResource
@@ -906,8 +827,7 @@ class GrammarResource(ModelResource):
 
 &lt;p&gt;This is how we end up with:&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;&amp;lt;code class=&amp;quot;language-javascript&amp;quot;&amp;gt;
-titles: {
+&lt;pre&gt;&lt;code&gt;titles: {
     de: &amp;quot;Die a-Deklination&amp;quot;,
     en: &amp;quot;First Declension Nouns&amp;quot;,
     it: &amp;quot;Sostantivi femminili&amp;quot;
@@ -928,17 +848,14 @@ titles: {
 &lt;p&gt;One thing which Tastypie doesn&amp;rsquo;t seem to support nicely out of the box is including the values of the through relationship to a model. Consider the following use-case:&lt;/p&gt;
 
 &lt;ul&gt;
-&lt;li&gt;&lt;p&gt;You have a &lt;code&gt;Task&lt;/code&gt; model.&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;You want to order these tasks using another model, &lt;code&gt;TaskSequence&lt;/code&gt;.&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;You relate a &lt;code&gt;Task&lt;/code&gt; to a &lt;code&gt;TaskSequence&lt;/code&gt; with metadata (through a &amp;lsquo;through&amp;rsquo; relationship, in a model named &lt;code&gt;TaskContext&lt;/code&gt;, which includes information about the order of the tasks.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;You have a &lt;code&gt;Task&lt;/code&gt; model.&lt;/li&gt;
+&lt;li&gt;You want to order these tasks using another model, &lt;code&gt;TaskSequence&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;You relate a &lt;code&gt;Task&lt;/code&gt; to a &lt;code&gt;TaskSequence&lt;/code&gt; with metadata (through a &amp;lsquo;through&amp;rsquo; relationship, in a model named &lt;code&gt;TaskContext&lt;/code&gt;, which includes information about the order of the tasks.&lt;/li&gt;
 &lt;/ul&gt;
 
 &lt;p&gt;If you just ask Tastypie for the &lt;code&gt;TaskSequence&lt;/code&gt; (which is related to another Resource over a simple foreign key relationship, in our case, the same GrammarResource as above), you might end up with something like this:&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;&amp;lt;code class=&amp;quot;language-javascript&amp;quot;&amp;gt;
-{
+&lt;pre&gt;&lt;code&gt;{
    id: 60,
    name: &amp;quot;The Aorist Tense&amp;quot;,
    query: &amp;quot;pos=verb&amp;amp;tense;=aor&amp;quot;,
@@ -967,12 +884,9 @@ titles: {
 }
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;`&lt;/p&gt;
-
 &lt;p&gt;However, we really need the information in the through relationship in order to determine the order of the tasks. Therefore, our target JSON is something like this instead:&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;&amp;lt;code class=&amp;quot;language-javascript&amp;quot;&amp;gt;
-{
+&lt;pre&gt;&lt;code&gt;{
    id: 60,
    name: &amp;quot;The Aorist Tense&amp;quot;,
    query: &amp;quot;pos=verb&amp;amp;tense;=aor&amp;quot;,
@@ -1012,15 +926,13 @@ titles: {
           }
     ]
 }
-&amp;lt;/code&amp;gt;
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;&lt;strong&gt;Relevant Resources&lt;/strong&gt;&lt;/p&gt;
 
 &lt;p&gt;Take a look at the Tastypie resources for each of these three components (&lt;code&gt;Task&lt;/code&gt;, &lt;code&gt;TaskSequence&lt;/code&gt;, &lt;code&gt;TaskContext&lt;/code&gt;). The most interesting code occurs in the &lt;code&gt;TaskSequenceResource&lt;/code&gt;, where we filter on tasks related to the object in question &amp;ndash; similarly to the example above.&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;&amp;lt;code class=&amp;quot;language-python&amp;quot;&amp;gt;
-&amp;quot;&amp;quot;&amp;quot;
+&lt;pre&gt;&lt;code&gt;&amp;quot;&amp;quot;&amp;quot;
 Model Resource
 &amp;quot;&amp;quot;&amp;quot;
 from tastypie import fields
@@ -1028,18 +940,14 @@ from tastypie.resources import ModelResource
 from app.models import Task
 
 class TaskResource(ModelResource):
-
+    
     class Meta:
         queryset = Task.objects.all()
         allowed_methods = [&#39;get&#39;]
-&amp;lt;/code&amp;gt;
 
+&lt;/code&gt;&lt;/pre&gt;
 
-
-
-
-&amp;lt;code class=&amp;quot;language-python&amp;quot;&amp;gt;
-&amp;quot;&amp;quot;&amp;quot;
+&lt;pre&gt;&lt;code&gt;&amp;quot;&amp;quot;&amp;quot;
 Through Model
 &amp;quot;&amp;quot;&amp;quot;
 from tastypie import fields
@@ -1056,14 +964,10 @@ class TaskContextResource(ModelResource):
         class Meta:
                 queryset = TaskContext.objects.all()
                 allowed_methods = [&#39;get&#39;]
-&amp;lt;/code&amp;gt;
 
+&lt;/code&gt;&lt;/pre&gt;
 
-
-
-
-&amp;lt;code class=&amp;quot;language-python&amp;quot;&amp;gt;
-&amp;quot;&amp;quot;&amp;quot;
+&lt;pre&gt;&lt;code&gt;&amp;quot;&amp;quot;&amp;quot;
 Model Sequence Resource
 &amp;quot;&amp;quot;&amp;quot;
 from tastypie import fields
@@ -1082,7 +986,6 @@ class TaskSequenceResource(ModelResource):
     class Meta:
         queryset = TaskSequence.objects.all()
         allowed_methods = [&#39;get&#39;]
-&amp;lt;/code&amp;gt;
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;&lt;strong&gt;Troubleshooting&lt;/strong&gt;&lt;/p&gt;
@@ -1112,9 +1015,8 @@ In our example, this would mean that Person A can be related to Person B (e.g. i
 
 &lt;p&gt;This makes it pretty easy for Tastypie to deal with, so long as you do not need the full resources in the Person list view.&lt;/p&gt;
 
-&lt;p&gt;&lt;strong&gt;app/models.py&lt;/strong&gt;&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;# app/models.py
 
-&lt;pre&gt;&lt;code&gt;&amp;lt;code class=&amp;quot;language-python&amp;quot;&amp;gt;
 from django.db import models
 
 class Person(models.Model):
@@ -1123,12 +1025,10 @@ class Person(models.Model):
         symmetrical=False,
         null=True,
         blank=True)
-&amp;lt;/code&amp;gt;
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;&lt;strong&gt;api/person.py&lt;/strong&gt;&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;# api/person.py
 
-&lt;pre&gt;&lt;code&gt;&amp;lt;code class=&amp;quot;language-python&amp;quot;&amp;gt;
 from tastypie import fields
 from tastypie.resources import ModelResource
 from myapp.models import Person
@@ -1139,13 +1039,12 @@ class PersonResource(ModelResource):
 
     class Meta:
         queryset = Person.objects.all()
-&amp;lt;/code&amp;gt;
+
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;&lt;strong&gt;2. Use the &lt;code&gt;use_in&lt;/code&gt; option&lt;/strong&gt;&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;&amp;lt;code class=&amp;quot;language-python&amp;quot;&amp;gt;
-from tastypie import fields
+&lt;pre&gt;&lt;code&gt;from tastypie import fields
 from tastypie.resources import ModelResource
 from myapp.models import Person
 
@@ -1155,7 +1054,6 @@ class PersonResource(ModelResource):
 
     class Meta:
         queryset = Person.objects.all()
-&amp;lt;/code&amp;gt;
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;This is rather straightforward. This way, the relatives will never try to flesh themselves out into detail forms when you&amp;rsquo;re viewing the Person resource as a list. However, this precludes you from seeing this same information in the detail view.&lt;/p&gt;
@@ -1163,9 +1061,8 @@ class PersonResource(ModelResource):
 &lt;p&gt;&lt;strong&gt;3. Create a &amp;lsquo;shallow&amp;rsquo; version of the resource&lt;/strong&gt;
 But, if you need &lt;code&gt;full=True&lt;/code&gt; on your list view, you&amp;rsquo;re kind of out of luck. The easiest solution to prevent exceeding the maximum recursion depth is to create two resources. Consider:&lt;/p&gt;
 
-&lt;p&gt;&lt;code&gt;api/person.py&lt;/code&gt;&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;# api/person.py
 
-&lt;pre&gt;&lt;code&gt;&amp;lt;code class=&amp;quot;language-python&amp;quot;&amp;gt;
 from tastypie import fields
 from tastypie.resources import ModelResource
 from myapp.models import Person
@@ -1181,12 +1078,11 @@ class PersonResource(ModelResource):
     class Meta:
        queryset = Person.objects.all()
        allowed_methods = [&#39;get&#39;]
-&amp;lt;/code&amp;gt;
+
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;&lt;code&gt;api/relative.py&lt;/code&gt;&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;&amp;lt;code class=&amp;quot;language-python&amp;quot;&amp;gt;
+&lt;pre&gt;&lt;code&gt;# api/relative.py
+    
 from tastypie import fields
 from tastypie.resources import ModelResource
 from myapp.models import Person
@@ -1195,7 +1091,6 @@ class RelativeResource(ModelResource):
     class Meta:
        queryset = Person.objects.all()
        allowed_methods = [&#39;get&#39;]
-&amp;lt;/code&amp;gt;
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;Notice that only the person resource has &lt;code&gt;full=True&lt;/code&gt;. This means that, because the relative resource will not try to fill out its own m2m fields, you won&amp;rsquo;t run into infinite recursion.&lt;/p&gt;
@@ -1216,7 +1111,7 @@ class RelativeResource(ModelResource):
 
 &lt;h2 id=&#34;questions-comments-mistakes:237e1358bd1d0aa8a86292e50122607d&#34;&gt;Questions, Comments, Mistakes?&lt;/h2&gt;
 
-&lt;p&gt;Get in touch via the comments (preferable, so others can use them to troubleshoot), or Twitter at &lt;a href=&#34;http://www.twitter.com/monicalent&#34;&gt;@monicalent&lt;/a&gt;, or Google at &lt;a href=&#34;https://plus.google.com/+MonicaLent/&#34;&gt;+MonicaLent&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Get in touch via Twitter at &lt;a href=&#34;http://www.twitter.com/monicalent&#34;&gt;@monicalent&lt;/a&gt;, or Google at &lt;a href=&#34;https://plus.google.com/+MonicaLent/&#34;&gt;+MonicaLent&lt;/a&gt;.&lt;/p&gt;
 </description>
     </item>
     
@@ -1237,14 +1132,10 @@ class RelativeResource(ModelResource):
 &lt;h1 id=&#34;what-django-gives-you:a8b69f0bd1cf7dfff86ea279c0ab2ec8&#34;&gt;What Django gives you&lt;/h1&gt;
 
 &lt;ul&gt;
-&lt;li&gt;&lt;p&gt;Preferred language of the user, and uses the files you generate to serve translated and localized templates.&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;Gives you tools for translating strings in both HTML files (i.e. templates) and Javascript files.&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;Gives you helpful variables in your templates to help you serve the correct content for left-to-right and right-to-left users.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;Preferred language of the user, and uses the files you generate to serve translated and localized templates.&lt;/li&gt;
+&lt;li&gt;Gives you tools for translating strings in both HTML files (i.e. templates) and Javascript files.&lt;/li&gt;
+&lt;li&gt;Gives you helpful variables in your templates to help you serve the correct content for left-to-right and right-to-left users.&lt;/li&gt;
 &lt;/ul&gt;
-
-&lt;!-- more --&gt;
 
 &lt;h1 id=&#34;step-1-enabling-localization-in-django:a8b69f0bd1cf7dfff86ea279c0ab2ec8&#34;&gt;Step 1: Enabling Localization in Django&lt;/h1&gt;
 
@@ -1252,8 +1143,7 @@ class RelativeResource(ModelResource):
 
 &lt;p&gt;Open up your &lt;code&gt;settings.py&lt;/code&gt; and include or update the following settings:&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;&amp;lt;code class=&amp;quot;language-python&amp;quot;&amp;gt;
-# Path to locale folder
+&lt;pre&gt;&lt;code&gt;# Path to locale folder
 LOCALE_PATHS = (
     &#39;/path/to/folder/locale&#39;,
 )
@@ -1273,87 +1163,70 @@ USE_I18N = True
 
 # Use localization
 USE_L10N = True
-&amp;lt;/code&amp;gt;
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;Also, in each of your views (e.g. in &lt;code&gt;views.py&lt;/code&gt;), you should be setting the request language as a session. For example:&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;&amp;lt;code class=&amp;quot;language-python&amp;quot;&amp;gt;
-    if hasattr(request.user, &#39;lang&#39;):
-        request.session[&#39;django_language&#39;] = request.user.lang
-&amp;lt;/code&amp;gt;
+&lt;pre&gt;&lt;code&gt;if hasattr(request.user, &#39;lang&#39;):
+  request.session[&#39;django_language&#39;] = request.user.lang
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;h1 id=&#34;step-2-internationalizing-your-django-content:a8b69f0bd1cf7dfff86ea279c0ab2ec8&#34;&gt;Step 2: Internationalizing your Django content&lt;/h1&gt;
 
 &lt;p&gt;This is really the easy part. Chances are, you&amp;rsquo;ve got a folder in your Django app called &amp;ldquo;templates&amp;rdquo;. Inside, you&amp;rsquo;ve got HTML, some variables, and whatnot. All you have to do is go through and mark up the strings that need to be translated, like so:&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;&amp;lt;code&amp;gt;
-{% trans &amp;quot;My English&amp;quot; %}
+&lt;pre&gt;&lt;code&gt;{% trans &amp;quot;My English&amp;quot; %}
 {% trans myvar %}
-&amp;lt;/code&amp;gt;
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;You get a lot of flexibility here, as described in &lt;a href=&#34;https://docs.djangoproject.com/en/dev/topics/i18n/translation/#internationalization-in-template-code&#34;&gt;the documentation&lt;/a&gt;. Essentially what happens is that you label all of your strings that should be translated, and then Django generates a handy file that your translator can use to localize the interface.&lt;/p&gt;
 
 &lt;p&gt;Just make sure that at the top of any template you want localized, you actually load the i18n library.&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;&amp;lt;code&amp;gt;
-{% load i18n %}
-&amp;lt;/code&amp;gt;
+&lt;pre&gt;&lt;code&gt;{% load i18n %}
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;&lt;strong&gt;Test it out&lt;/strong&gt;
 You only have to translate a string or two in order to see whether it&amp;rsquo;s working. Create your translation files using the following command:&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;&amp;lt;code&amp;gt;
-$ django-admin.py makemessages --locale=de --extension=html --ignore=env --ignore=*.py
-&amp;lt;/code&amp;gt;
+&lt;pre&gt;&lt;code&gt;$ django-admin.py makemessages --locale=de --extension=html --ignore=env --ignore=*.py
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;Explanation of the options:&lt;/p&gt;
 
 &lt;ul&gt;
-&lt;li&gt;&lt;p&gt;&lt;code&gt;--locale=de&lt;/code&gt;&lt;br /&gt;
-Change this from &lt;em&gt;de&lt;/em&gt; to whatever locale you&amp;rsquo;re going for.&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;&lt;code&gt;--extension=html&lt;/code&gt;&lt;br /&gt;
-Tells the django engine only to look for .html files.&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;&lt;code&gt;--ignore=env&lt;/code&gt;&lt;br /&gt;
-In my app, env/ is the folder where my virtual environment exists. I probably don&amp;rsquo;t want to localize everything that exists in this folder, so we can ignore it.&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;&lt;code&gt;--ignore=*.py&lt;/code&gt;&lt;br /&gt;
-For some reason, django keeps trying to localize some of my python files that exist at the project root. To avoid this, I explicitly ignore such files.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;--locale=de&lt;/code&gt;&lt;br /&gt;
+Change this from &lt;em&gt;de&lt;/em&gt; to whatever locale you&amp;rsquo;re going for.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;--extension=html&lt;/code&gt;&lt;br /&gt;
+Tells the django engine only to look for .html files.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;--ignore=env&lt;/code&gt;&lt;br /&gt;
+In my app, env/ is the folder where my virtual environment exists. I probably don&amp;rsquo;t want to localize everything that exists in this folder, so we can ignore it.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;--ignore=*.py&lt;/code&gt;&lt;br /&gt;
+For some reason, django keeps trying to localize some of my python files that exist at the project root. To avoid this, I explicitly ignore such files.&lt;/li&gt;
 &lt;/ul&gt;
 
 &lt;p&gt;Once you&amp;rsquo;ve run this &lt;code&gt;django-admin.py&lt;/code&gt; command, you should take a look inside your &lt;code&gt;locale/&lt;/code&gt; directory. If your app exists at something like &lt;code&gt;/opt/app/&lt;/code&gt;, you&amp;rsquo;ll find a file structure like this:&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;&amp;lt;code&amp;gt;
+&lt;pre&gt;
 /opt/app
-+++ /locale
-++++++ /LC_MESSAGES
-+++++++++ /de
-++++++++++++ django.po
-&amp;lt;/code&amp;gt;
-&lt;/code&gt;&lt;/pre&gt;
+--- /locale
+------ /LC_MESSAGES
+--------- /de
+------------ django.po
+&lt;/pre&gt;
 
 &lt;p&gt;And within each of these &lt;code&gt;django.po&lt;/code&gt; files, you&amp;rsquo;ll find pairs of a string, and then a space for a translation, as so:&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;&amp;lt;code class=&amp;quot;language-python&amp;quot;&amp;gt;
-# path/to/templates/blah.html:123
+&lt;pre&gt;&lt;code&gt;# path/to/templates/blah.html:123
 msgid &amp;quot;My English.&amp;quot;
 msgstr &amp;quot;&amp;quot;
-&amp;lt;/code&amp;gt;
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;Obviously, if you&amp;rsquo;re in &lt;code&gt;/opt/app/locale/LC_MESSAGES/de/django.po&lt;/code&gt; you&amp;rsquo;d better provide a German translation as a &lt;code&gt;msgstr&lt;/code&gt;.&lt;/p&gt;
 
 &lt;p&gt;&lt;strong&gt;Now, compile your messages and we&amp;rsquo;ll see what we get!&lt;/strong&gt;&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;&amp;lt;code&amp;gt;
-$ django-admin.py compilemessages
-&amp;lt;/code&amp;gt;
+&lt;pre&gt;&lt;code&gt;$ django-admin.py compilemessages
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;Next to each &lt;code&gt;django.po&lt;/code&gt; file, you&amp;rsquo;ll now also have a &lt;code&gt;django.mo&lt;/code&gt; file. This is the binary file that Django actually uses to fetch translations in real time.&lt;/p&gt;
@@ -1368,55 +1241,44 @@ $ django-admin.py compilemessages
 
 &lt;p&gt;Open up your &lt;code&gt;urls.py&lt;/code&gt;. Append the following:&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;&amp;lt;code class=&amp;quot;language-python&amp;quot;&amp;gt;
-# &#39;Packages&#39; should include the names of the app or apps you wish to localize
+&lt;pre&gt;&lt;code&gt;# &#39;Packages&#39; should include the names of the app or apps you wish to localize
 js_info_dict = {
     &#39;packages&#39;: (&#39;app&#39;,)
 }
-&amp;lt;/code&amp;gt;
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;And in your &lt;code&gt;urlpatterns&lt;/code&gt;, include:&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;&amp;lt;code class=&amp;quot;language-python&amp;quot;&amp;gt;
-url(r&#39;^jsi8n/$&#39;, &#39;django.views.i18n.javascript_catalog&#39;, js_info_dict),
-&amp;lt;/code&amp;gt;
+&lt;pre&gt;&lt;code&gt;url(r&#39;^jsi8n/$&#39;, &#39;django.views.i18n.javascript_catalog&#39;, js_info_dict),
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;Now, in your base template (whichever manages loading your javascript) and place this script first:&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;&amp;lt;code class=&amp;quot;language-html&amp;quot;&amp;gt;
-&amp;lt;script type=&amp;quot;text/javascript&amp;quot; src=&amp;quot;{% url &#39;django.views.i18n.javascript_catalog&#39; %}&amp;quot;&amp;gt;&amp;lt;/script&amp;gt;
-&amp;lt;/code&amp;gt;
+&lt;pre&gt;&lt;code&gt;&amp;lt;script type=&amp;quot;text/javascript&amp;quot; src=&amp;quot;{% url &#39;django.views.i18n.javascript_catalog&#39; %}&amp;quot;&amp;gt;&amp;lt;/script&amp;gt;
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;Now you can go into any javascript file and simply place &lt;code&gt;gettext(&amp;quot;&amp;quot;)&lt;/code&gt; around any string and that string can be localized. For example:&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;&amp;lt;code class=&amp;quot;language-javascript&amp;quot;&amp;gt;
-this.$el.find(&#39;.a&#39;)[0].attr(&#39;title&#39;, gettext(&#39;Show Resources&#39;));
-&amp;lt;/code&amp;gt;
+&lt;pre&gt;&lt;code&gt;this.$el.find(&#39;.a&#39;)[0].attr(&#39;title&#39;, gettext(&#39;Show Resources&#39;));
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;&lt;strong&gt;Generating the Javascript messages file&lt;/strong&gt;
 Just as before, when you ran the &lt;code&gt;django-admin.py&lt;/code&gt; command to gather all the strings needing translations in your html templates, you can do the same in your javascript files.&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;&amp;lt;code&amp;gt;
-$ django-admin.py makemessages -d djangojs --locale de --ignore=env
-&amp;lt;/code&amp;gt;
+&lt;pre&gt;&lt;code&gt;$ django-admin.py makemessages -d djangojs --locale de --ignore=env
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;Again, specify the locale and ignore the files inside my virtual environment. Now, look at the files you have in your &lt;code&gt;locale/&lt;/code&gt; subdirectories.&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;&amp;lt;code&amp;gt;
+&lt;pre&gt;
 /opt/app
-+++ /locale
-++++++ /LC_MESSAGES
-+++++++++ /de
-++++++++++++ django.po
-++++++++++++ django.mo
-++++++++++++ djangojs.po
-&amp;lt;/code&amp;gt;
-&lt;/code&gt;&lt;/pre&gt;
+--- /locale
+--- /LC_MESSAGES
+------ /de
+--------- django.po
+--------- django.mo
+--------- djangojs.po
+&lt;/pre&gt;
 
 &lt;p&gt;Simply open up &lt;code&gt;djangojs.po&lt;/code&gt;, translate a string, and run &lt;code&gt;django-admin.py compilemessages&lt;/code&gt; again. You&amp;rsquo;ll find, as you probably expected, a new file called &lt;code&gt;djangojs.mo&lt;/code&gt;. As before, restart uWSGI and your server, and spin it up in the browser. Again, be sure that you&amp;rsquo;ve got your test language set as your preferred language in your browser settings.&lt;/p&gt;
 
@@ -1425,122 +1287,108 @@ $ django-admin.py makemessages -d djangojs --locale de --ignore=env
 &lt;p&gt;This is where things get a little more interesting. The critical point is this: &lt;strong&gt;We want our underscore templates to be served through Django, not through our web server directly (e.g. through Apache or Nginx)&lt;/strong&gt;. These are the steps I took to achieve this:&lt;/p&gt;
 
 &lt;ol&gt;
-&lt;li&gt;&lt;p&gt;Move my underscore templates out of my &lt;code&gt;static/&lt;/code&gt; folder, and into my &lt;code&gt;templates/&lt;/code&gt; folder.&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;Write a urlpattern that will cause my underscore templates to be run through the django template engine first.&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;Update the references to templates in my Javascript (I use RequireJS and the text plugin).&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;Move my underscore templates out of my &lt;code&gt;static/&lt;/code&gt; folder, and into my &lt;code&gt;templates/&lt;/code&gt; folder.&lt;/li&gt;
+&lt;li&gt;Write a urlpattern that will cause my underscore templates to be run through the django template engine first.&lt;/li&gt;
+&lt;li&gt;Update the references to templates in my Javascript (I use RequireJS and the text plugin).&lt;/li&gt;
 &lt;/ol&gt;
 
 &lt;p&gt;&lt;strong&gt;1. Move Underscore Templates&lt;/strong&gt;
 Previously, my project structure was something like this:&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;&amp;lt;code&amp;gt;
+&lt;p&gt;&lt;code&gt;
 app/
-+++ static/
-++++++ css/
-++++++ js/
-+++++++++- views/
-+++++++++- templates/
-++++++++++++-- underscore-template.html
-+++ templates/
-++++++ django-template.html
-&amp;lt;/code&amp;gt;
-&lt;/code&gt;&lt;/pre&gt;
+&amp;mdash; static/
+&amp;mdash;&amp;mdash; css/
+&amp;mdash;&amp;mdash; js/
+&amp;mdash;&amp;mdash;&amp;mdash;- views/
+&amp;mdash;&amp;mdash;&amp;mdash;- templates/
+&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;ndash; underscore-template.html
+&amp;mdash; templates/
+&amp;mdash;&amp;mdash; django-template.html
+&lt;/code&gt;&lt;/p&gt;
 
 &lt;p&gt;And I had Nginx serving everything inside of &lt;code&gt;static/&lt;/code&gt;, well, directly, using the following directive in my Nginx conf file:&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;&amp;lt;code&amp;gt;
-location /static {
+&lt;pre&gt;&lt;code&gt;location /static {
     alias /opt/app/static;
 }
-&amp;lt;/code&amp;gt;
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;Now, instead of this, I want Django to do its magic before Backbone and Underscore go to town on the templates. So I create a folder inside &lt;code&gt;app/templates/&lt;/code&gt; called &lt;code&gt;js/&lt;/code&gt;. I move all my underscore templates here. So now I have:&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;&amp;lt;code&amp;gt;
+&lt;pre&gt;
 app/
-+++ static/
-++++++ css/
-++++++ js/
-+++++++++- views/
-+++ templates/
-++++++ js/
-+++++++++- underscore-template.html
-++++++ django-template.html
-&amp;lt;/code&amp;gt;
-&lt;/code&gt;&lt;/pre&gt;
+--- static/
+------ css/
+------ js/
+--------- views/
+--- templates/
+------ js/
+--------- underscore-template.html
+--------- django-template.html
+&lt;/pre&gt;
 
 &lt;p&gt;&lt;strong&gt;2. Write a urlpattern&lt;/strong&gt;
 Now, I&amp;rsquo;m not positive this is the best way to do this, but it does work. Open up your &lt;code&gt;urls.py&lt;/code&gt; and add this line:&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;&amp;lt;code class=&amp;quot;language-python&amp;quot;&amp;gt;
-url(r&#39;^templates/(?P&amp;lt;path&amp;gt;\w+)&#39;, &#39;web.views.static&#39;),
-&amp;lt;/code&amp;gt;
+&lt;pre&gt;&lt;code&gt;url(r&#39;^templates/(?P&amp;lt;path&amp;gt;\w+)&#39;, &#39;web.views.static&#39;),
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;What happens now is that whenever Django receives a request for a URL that looks like &lt;em&gt;mysite.com/templates/some/thing.html&lt;/em&gt;, it assigns &lt;code&gt;some/thing.html&lt;/code&gt; to a variable &lt;code&gt;path&lt;/code&gt;, and passes that to our web view. So now I open up &lt;code&gt;app/web/views.py&lt;/code&gt; and append this code:&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;&amp;lt;code class=&amp;quot;language-python&amp;quot;&amp;gt;
-def static(request, path):
+&lt;pre&gt;&lt;code&gt;def static(request, path):
 
-    # Update this to use os.path
-    directory = &#39;/opt/app/&#39; + request.META[&#39;REQUEST_URI&#39;];
-    template = loader.get_template(directory)
+  # Update this to use os.path
+  directory = &#39;/opt/app/&#39; + request.META[&#39;REQUEST_URI&#39;];
+  template = loader.get_template(directory)
 
-    # This allows the user to set their language
-    if hasattr(request.user, &#39;lang&#39;):
-        request.session[&#39;django_language&#39;] = request.user.lang
+  # This allows the user to set their language
+  if hasattr(request.user, &#39;lang&#39;):
+    request.session[&#39;django_language&#39;] = request.user.lang
 
-    # I use this email_hash to generate gravatars, incidentally
-    context = RequestContext(request, {
-        &#39;email_hash&#39;: hashlib.md5(request.user.email).hexdigest() if request.user.is_authenticated() else &#39;&#39;
-    })
+  # I use this email_hash to generate gravatars, incidentally
+  context = RequestContext(request, {
+    &#39;email_hash&#39;: hashlib.md5(request.user.email).hexdigest() if request.user.is_authenticated() else &#39;&#39;
+  })
 
-    return HttpResponse(template.render(context))
-&amp;lt;/code&amp;gt;
+  return HttpResponse(template.render(context))
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;Now, we&amp;rsquo;re taking whatever request it was, grabbing that file, and passing it through &lt;code&gt;template.render&lt;/code&gt;. If needed, add this folder to your &lt;code&gt;settings.py&lt;/code&gt;:&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;&amp;lt;code class=&amp;quot;language-python&amp;quot;&amp;gt;
-TEMPLATE_DIRS = (
+&lt;pre&gt;&lt;code&gt;TEMPLATE_DIRS = (
     # Put strings here, like &amp;quot;/home/html/django_templates&amp;quot; or &amp;quot;C:/www/django/templates&amp;quot;.
     # Always use forward slashes, even on Windows.
     # Don&#39;t forget to use absolute paths, not relative paths.
-    &#39;/opt/app/templates/&#39;,
-    &#39;/opt/app/templates/js&#39;
+  &#39;/opt/app/templates/&#39;,
+  &#39;/opt/app/templates/js&#39;
 )
-&amp;lt;/code&amp;gt;
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;Now you can go into any of your underscore template files and mark them up using typical django syntax. Just make sure you remember to include &lt;code&gt;{% load i18n %}&lt;/code&gt; at the top of your underscore templates. For example:&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;&amp;lt;code class=&amp;quot;language-html&amp;quot;&amp;gt;
-{% load i18n %}
+&lt;pre&gt;&lt;code&gt;{% load i18n %}
 &amp;lt;!-- Page of Greek text for Reader view --&amp;gt;
 &amp;lt;div class=&amp;quot;page&amp;quot;&amp;gt;
 
-    &amp;lt;!-- Page corner, functions as navigation --&amp;gt;
-    &amp;lt;div class=&amp;quot;corner &amp;lt;%= side %&amp;gt;&amp;quot;&amp;gt;
-        &amp;lt;a href=&amp;quot;#&amp;quot; data-toggle=&amp;quot;tooltip&amp;quot; title=&amp;quot;&amp;lt;% side == &#39;left&#39; ? print(&#39;Previous&#39;) : print(&#39;Next&#39;) %&amp;gt; Page&amp;quot; data-placement=&amp;quot;&amp;lt;% side == &#39;left&#39; ? print(&#39;right&#39;) : print(&#39;left&#39;) %&amp;gt;&amp;quot;&amp;gt;&amp;lt;/a&amp;gt;
-    &amp;lt;/div&amp;gt;
+  &amp;lt;!-- Page corner, functions as navigation --&amp;gt;
+  &amp;lt;div class=&amp;quot;corner &amp;lt;%= side %&amp;gt;&amp;quot;&amp;gt;
+    &amp;lt;a href=&amp;quot;#&amp;quot; data-toggle=&amp;quot;tooltip&amp;quot; title=&amp;quot;&amp;lt;% side == &#39;left&#39; ? print(&#39;Previous&#39;) : print(&#39;Next&#39;) %&amp;gt; Page&amp;quot; data-placement=&amp;quot;&amp;lt;% side == &#39;left&#39; ? print(&#39;right&#39;) : print(&#39;left&#39;) %&amp;gt;&amp;quot;&amp;gt;&amp;lt;/a&amp;gt;
+  &amp;lt;/div&amp;gt;
 
-    &amp;lt;!-- Page header --&amp;gt;
-    &amp;lt;h1&amp;gt;&amp;lt;%= work %&amp;gt; &amp;lt;small&amp;gt;{% trans &amp;quot;by&amp;quot; %} &amp;lt;%= author %&amp;gt;{% trans &amp;quot;,&amp;quot; %} &amp;lt;a href=&amp;quot;#&amp;quot; data-toggle=&amp;quot;tooltip&amp;quot; title=&amp;quot;{% trans &#39;Jump to another section&#39; %}&amp;quot;&amp;gt;section&amp;lt;/a&amp;gt;&amp;lt;/small&amp;gt;&amp;lt;/h1&amp;gt;
-    &amp;lt;hr&amp;gt;
+  &amp;lt;!-- Page header --&amp;gt;
+  &amp;lt;h1&amp;gt;&amp;lt;%= work %&amp;gt; &amp;lt;small&amp;gt;{% trans &amp;quot;by&amp;quot; %} &amp;lt;%= author %&amp;gt;{% trans &amp;quot;,&amp;quot; %} &amp;lt;a href=&amp;quot;#&amp;quot; data-toggle=&amp;quot;tooltip&amp;quot; title=&amp;quot;{% trans &#39;Jump to another section&#39; %}&amp;quot;&amp;gt;section&amp;lt;/a&amp;gt;&amp;lt;/small&amp;gt;&amp;lt;/h1&amp;gt;
+  &amp;lt;hr&amp;gt;
 
-    &amp;lt;!-- Greek goes here! --&amp;gt;
-    &amp;lt;span class=&amp;quot;page-content&amp;quot;&amp;gt;
-        &amp;lt;% _.each(words, function(word) { %&amp;gt;
-            &amp;lt;% if (word.get(&#39;sentenceCTS&#39;) == cts) { %&amp;gt;
-                &amp;lt;span lang=&amp;quot;&amp;lt;%= word.get(&#39;lang&#39;) %&amp;gt;&amp;quot; data-cts=&amp;quot;&amp;lt;%= word.get(&#39;wordCTS&#39;) %&amp;gt;&amp;quot; class=&amp;quot;&amp;lt;% if (word.get(&#39;value&#39;).match(/[\.,-\·\/#!$%\^&amp;amp;\*;:{}=\-_`~()]/)) print(&#39;punct&#39;); %&amp;gt;&amp;quot;&amp;gt;&amp;lt;%= word.get(&#39;value&#39;) %&amp;gt;&amp;lt;/span&amp;gt; 
-            &amp;lt;% } %&amp;gt;
-        &amp;lt;% }); %&amp;gt;
-    &amp;lt;/span&amp;gt;
+  &amp;lt;!-- Greek goes here! --&amp;gt;
+  &amp;lt;span class=&amp;quot;page-content&amp;quot;&amp;gt;
+    &amp;lt;% _.each(words, function(word) { %&amp;gt;
+      &amp;lt;% if (word.get(&#39;sentenceCTS&#39;) == cts) { %&amp;gt;
+        &amp;lt;span lang=&amp;quot;&amp;lt;%= word.get(&#39;lang&#39;) %&amp;gt;&amp;quot; data-cts=&amp;quot;&amp;lt;%= word.get(&#39;wordCTS&#39;) %&amp;gt;&amp;quot; class=&amp;quot;&amp;lt;% if (word.get(&#39;value&#39;).match(/[\.,-\·\/#!$%\^&amp;amp;\*;:{}=\-_`~()]/)) print(&#39;punct&#39;); %&amp;gt;&amp;quot;&amp;gt;&amp;lt;%= word.get(&#39;value&#39;) %&amp;gt;&amp;lt;/span&amp;gt; 
+      &amp;lt;% } %&amp;gt;
+    &amp;lt;% }); %&amp;gt;
+  &amp;lt;/span&amp;gt;
 &amp;lt;/div&amp;gt;
-&amp;lt;/code&amp;gt;
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;In the long run, it may be worth your time to simply switch your html templates purely to Django. However, since the syntax of Underscore and Django don&amp;rsquo;t clash, it&amp;rsquo;s a viable solution as far as I&amp;rsquo;ve experienced.&lt;/p&gt;
@@ -1549,20 +1397,18 @@ TEMPLATE_DIRS = (
 
 &lt;p&gt;Just don&amp;rsquo;t forget to go into your javascript files and change the paths where you&amp;rsquo;re importing your templates from, so they&amp;rsquo;re no longer pointing to a static directory. For example:&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;&amp;lt;code class=&amp;quot;language-javascript&amp;quot;&amp;gt;
-define([&#39;jquery&#39;, &#39;underscore&#39;, &#39;backbone&#39;, &#39;text!/templates/js/underscore-template.html&#39;], function($, _, Backbone, Template) { 
+&lt;pre&gt;&lt;code&gt;define([&#39;jquery&#39;, &#39;underscore&#39;, &#39;backbone&#39;, &#39;text!/templates/js/underscore-template.html&#39;], function($, _, Backbone, Template) { 
 
-    var View = Backbone.View.extend({
-        tagName: &#39;div&#39;, 
-        template: _.template(Template),
-        render: function() {
-            this.$el.html(this.template(this.model));
-            return this;
-        }
-    });
-    return View;
+  var View = Backbone.View.extend({
+    tagName: &#39;div&#39;, 
+    template: _.template(Template),
+    render: function() {
+      this.$el.html(this.template(this.model));
+      return this;
+    }
+  });
+  return View;
 });
-&amp;lt;/code&amp;gt;
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;h1 id=&#34;supporting-bidirectional-languages:a8b69f0bd1cf7dfff86ea279c0ab2ec8&#34;&gt;Supporting bidirectional languages&lt;/h1&gt;
@@ -1575,75 +1421,67 @@ I&amp;rsquo;ll just give you a couple of pointers on how to make it easy to impl
 
 &lt;p&gt;Then, in my &lt;code&gt;app/templates/base.html&lt;/code&gt;, I make use of this template tag and template inheritance as so:&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;&amp;lt;code&amp;gt;
-{% load i18n %}
+&lt;pre&gt;&lt;code&gt;{% load i18n %}
 {% load set_var %}
 {% get_current_language_bidi as LANGUAGE_BIDI %}
 {% if LANGUAGE_BIDI %}
-    {% set dir = &amp;quot;rtl&amp;quot; %}
+  {% set dir = &amp;quot;rtl&amp;quot; %}
 {% else %}
-    {% set dir = &amp;quot;ltr&amp;quot; %}
+  {% set dir = &amp;quot;ltr&amp;quot; %}
 {% endif %}
 
 &amp;lt;!DOCTYPE html&amp;gt;
 &amp;lt;html dir=&amp;quot;{{ dir }}&amp;quot;&amp;gt;
     &amp;lt;head&amp;gt;
-    &amp;lt;meta charset=&amp;quot;utf-8&amp;quot;&amp;gt;
-    &amp;lt;meta name=&amp;quot;viewport&amp;quot; content=&amp;quot;width=device-width, initial-scale=1.0&amp;quot;&amp;gt;
-    &amp;lt;title&amp;gt;
-        {% trans &amp;quot;My app&amp;quot; %}
-    &amp;lt;/title&amp;gt;
+  &amp;lt;meta charset=&amp;quot;utf-8&amp;quot;&amp;gt;
+  &amp;lt;meta name=&amp;quot;viewport&amp;quot; content=&amp;quot;width=device-width, initial-scale=1.0&amp;quot;&amp;gt;
+  &amp;lt;title&amp;gt;
+    {% trans &amp;quot;My app&amp;quot; %}
+  &amp;lt;/title&amp;gt;
 
-    {% block css %}
-        &amp;lt;link href=&amp;quot;/static/css/{{ css_file }}.{{ dir }}.css&amp;quot; rel=&amp;quot;stylesheet&amp;quot;&amp;gt;
-    {% endblock %}
+  {% block css %}
+    &amp;lt;link href=&amp;quot;/static/css/{{ css_file }}.{{ dir }}.css&amp;quot; rel=&amp;quot;stylesheet&amp;quot;&amp;gt;
+  {% endblock %}
 
-    &amp;lt;script type=&amp;quot;text/javascript&amp;quot; src=&amp;quot;{% url &#39;django.views.i18n.javascript_catalog&#39; %}&amp;quot;&amp;gt;&amp;lt;/script&amp;gt;
-    &amp;lt;script data-main=&amp;quot;/static/js/main&amp;quot; src=&amp;quot;/static/js/lib/require.js&amp;quot;&amp;gt;&amp;lt;/script&amp;gt;
-    &amp;lt;script&amp;gt;var csrf_token = &amp;quot;{{ csrf_token }}&amp;quot;; var locale = &amp;quot;{{ LANGUAGE_CODE }}&amp;quot;; var dir = &amp;quot;{{ dir }}&amp;quot;; &amp;lt;/script&amp;gt;
+  &amp;lt;script type=&amp;quot;text/javascript&amp;quot; src=&amp;quot;{% url &#39;django.views.i18n.javascript_catalog&#39; %}&amp;quot;&amp;gt;&amp;lt;/script&amp;gt;
+  &amp;lt;script data-main=&amp;quot;/static/js/main&amp;quot; src=&amp;quot;/static/js/lib/require.js&amp;quot;&amp;gt;&amp;lt;/script&amp;gt;
+  &amp;lt;script&amp;gt;var csrf_token = &amp;quot;{{ csrf_token }}&amp;quot;; var locale = &amp;quot;{{ LANGUAGE_CODE }}&amp;quot;; var dir = &amp;quot;{{ dir }}&amp;quot;; &amp;lt;/script&amp;gt;
     &amp;lt;/head&amp;gt;
     &amp;lt;body&amp;gt;
         {% block content %} {% endblock %}
     &amp;lt;/body&amp;gt;
 &amp;lt;/html&amp;gt;
-&amp;lt;/code&amp;gt;
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;What do we have here?&lt;/p&gt;
 
 &lt;ol&gt;
-&lt;li&gt;&lt;p&gt;We&amp;rsquo;re using Django to get the direction our page is &amp;ndash; either ltr or rtl.&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;We&amp;rsquo;re making it possible to replace the CSS file based on the page we&amp;rsquo;re on and the text direction.&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;We make a couple of variables global (eek!) for use in our javascript.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;We&amp;rsquo;re using Django to get the direction our page is &amp;ndash; either ltr or rtl.&lt;/li&gt;
+&lt;li&gt;We&amp;rsquo;re making it possible to replace the CSS file based on the page we&amp;rsquo;re on and the text direction.&lt;/li&gt;
+&lt;li&gt;We make a couple of variables global (eek!) for use in our javascript.&lt;/li&gt;
 &lt;/ol&gt;
 
 &lt;p&gt;Now, you can take any page which inherits from your base template, and set the css_file. For example:&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;&amp;lt;code&amp;gt;
-{% extends &amp;quot;base.html&amp;quot; %}
+&lt;pre&gt;&lt;code&gt;{% extends &amp;quot;base.html&amp;quot; %}
 
-    {# Determine which CSS file to load #}
-    {% block css %}
-        {% with &#39;generic&#39; as css_file %}
-            {{ block.super }}
-        {% endwith %}
-    {% endblock %}
+  {# Determine which CSS file to load #}
+  {% block css %}
+    {% with &#39;generic&#39; as css_file %}
+      {{ block.super }}
+    {% endwith %}
+  {% endblock %}
 
-    {% block content %}
+  {% block content %}
 
-    &amp;amp;ltr;!-- Content here --&amp;gt;
+  &amp;amp;ltr;!-- Content here --&amp;gt;
 
-    {% endblock %}
-&amp;lt;/code&amp;gt;
+  {% endblock %}
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;Note: This assumes that you are generating your CSS files with a command such as this:&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;&amp;lt;code&amp;gt;
-$ sass generic.scss generic.ltr.css
-&amp;lt;/code&amp;gt;
+&lt;pre&gt;&lt;code&gt;$ sass generic.scss generic.ltr.css
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;And that inside of &lt;code&gt;generic.scss&lt;/code&gt; you&amp;rsquo;ve got an &lt;code&gt;@import &amp;quot;directional&amp;quot;&lt;/code&gt; wherein you switch the direction between LTR and RTL in order to generate your sets of CSS.&lt;/p&gt;
@@ -1654,9 +1492,9 @@ $ sass generic.scss generic.ltr.css
 
 &lt;hr /&gt;
 
-&lt;h2 id=&#34;questions-comments-mistakes:a8b69f0bd1cf7dfff86ea279c0ab2ec8&#34;&gt;Questions, Comments, Mistakes?&lt;/h2&gt;
+&lt;h2 id=&#34;questions-comments-corrections:a8b69f0bd1cf7dfff86ea279c0ab2ec8&#34;&gt;Questions, Comments, Corrections?&lt;/h2&gt;
 
-&lt;p&gt;Get in touch via the comments (preferable, so others can use them to troubleshoot), or Twitter at &lt;a href=&#34;http://www.twitter.com/monicalent&#34;&gt;@monicalent&lt;/a&gt;, or Google at &lt;a href=&#34;https://plus.google.com/+MonicaLent/&#34;&gt;+MonicaLent&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Get in touch via Twitter at &lt;a href=&#34;http://www.twitter.com/monicalent&#34;&gt;@monicalent&lt;/a&gt;.&lt;/p&gt;
 </description>
     </item>
     
@@ -1668,53 +1506,46 @@ $ sass generic.scss generic.ltr.css
       <guid>http://monicalent.com/blog/2014/06/15/parse-tree-editor-d3-editable-tree-layout/</guid>
       <description>
 
-&lt;p&gt;[caption id=&amp;ldquo;attachment_193&amp;rdquo; align=&amp;ldquo;aligncenter&amp;rdquo; width=&amp;ldquo;475&amp;rdquo;]&lt;a href=&#34;http://monicalent.com/blog/wp-content/uploads/2014/05/Screen-Shot-2014-05-20-at-4.26.31-PM.png&#34;&gt;&lt;img src=&#34;http://monicalent.com/blog/wp-content/uploads/2014/05/Screen-Shot-2014-05-20-at-4.26.31-PM.png&#34; alt=&#34;&#34; /&gt;&lt;/a&gt; &amp;ldquo;In this way, the Athenians came to the circumstances under which they grew in power.&amp;rdquo; The first sentence from Thucydides&amp;rsquo; &lt;a href=&#34;http://en.wikipedia.org/wiki/Pentecontaetia&#34;&gt;Pentecontaetia&lt;/a&gt;. [/caption]&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://monicalent.com/blog/wp-content/uploads/2014/05/Screen-Shot-2014-05-20-at-4.26.31-PM.png&#34; alt=&#34;Screenshot&#34; /&gt;
+&lt;blockquote&gt;&amp;ldquo;In this way, the Athenians came to the circumstances under which they grew in power.&amp;rdquo; The first sentence from Thucydides&amp;rsquo; &lt;a href=&#34;http://en.wikipedia.org/wiki/Pentecontaetia&#34;&gt;Pentecontaetia&lt;/a&gt;.&lt;/blockquote&gt;&lt;/p&gt;
 
 &lt;p&gt;This is a long post and chances are you only need information from part of it. Here&amp;rsquo;s a table of contents:&lt;/p&gt;
 
-&lt;!-- more --&gt;
+&lt;ol&gt;
+&lt;li&gt;Background
 
 &lt;ol&gt;
-&lt;li&gt;&lt;p&gt;Background&lt;/p&gt;
-
-&lt;ol&gt;
-&lt;li&gt;&lt;p&gt;Trees: In Linguistics and in d3&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;Our Incoming Data&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;Dependencies&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;Trees: In Linguistics and in d3&lt;/li&gt;
+&lt;li&gt;Our Incoming Data&lt;/li&gt;
+&lt;li&gt;Dependencies&lt;/li&gt;
 &lt;/ol&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;Base Code&lt;/p&gt;
+&lt;li&gt;Base Code
 
 &lt;ol&gt;
-&lt;li&gt;&lt;p&gt;Our HTML&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;Our Main for Require.js&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;Our JS Base&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;Our HTML&lt;/li&gt;
+&lt;li&gt;Our Main for Require.js&lt;/li&gt;
+&lt;li&gt;Our JS Base&lt;/li&gt;
 &lt;/ol&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;Key Functions&lt;/p&gt;
+&lt;li&gt;Key Functions
 
 &lt;ol&gt;
-&lt;li&gt;&lt;p&gt;Initialize Module&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;Convert Data&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;Render SVG canvas&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;Update Tree to Use our Data&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;Initialize Module&lt;/li&gt;
+&lt;li&gt;Convert Data&lt;/li&gt;
+&lt;li&gt;Render SVG canvas&lt;/li&gt;
+&lt;li&gt;Update Tree to Use our Data&lt;/li&gt;
 &lt;/ol&gt;&lt;/li&gt;
 &lt;/ol&gt;
+
+&lt;hr /&gt;
 
 &lt;p&gt;&lt;strong&gt;External Resources&lt;/strong&gt;&lt;/p&gt;
 
 &lt;ul&gt;
-&lt;li&gt;&lt;p&gt;&lt;a href=&#34;https://gist.github.com/mlent/4a08236e3d07514357c3&#34;&gt;View this code as a GitHub Gist&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://jsfiddle.net/6rH9b/2/&#34;&gt;View this code on JSFiddle&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://gist.github.com/mlent/4a08236e3d07514357c3&#34;&gt;View this code as a GitHub Gist&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://jsfiddle.net/6rH9b/2/&#34;&gt;View this code on JSFiddle&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
+
+&lt;hr /&gt;
 
 &lt;h2 id=&#34;background:054322c57cedc54446f668e9a774bd93&#34;&gt;Background&lt;/h2&gt;
 
@@ -1728,14 +1559,12 @@ $ sass generic.scss generic.ltr.css
 
 &lt;p&gt;We will get a sentence with words and punctuation as tokens. Each token will contain an ID for itself (&lt;code&gt;id&lt;/code&gt;) and an attribute &lt;code&gt;head&lt;/code&gt;, which refers to the &lt;code&gt;id&lt;/code&gt; of its parent. &lt;strong&gt;This is all we need to build the tree.&lt;/strong&gt; We do, however, have other data which we&amp;rsquo;ll display in order to show the user all the attributes of the tree. Here&amp;rsquo;s a look at what one of our words looks like in JSON (snipped):&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;&amp;lt;code class=&amp;quot;language-javascript&amp;quot;&amp;gt;
-{
+&lt;pre&gt;&lt;code&gt;{
    id: 1,
    head: 3,
    value: &amp;quot;οἱ&amp;quot;,
    relation: &amp;quot;ATR&amp;quot;
 }
-&amp;lt;/code&amp;gt;
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;h3 id=&#34;dependencies:054322c57cedc54446f668e9a774bd93&#34;&gt;Dependencies&lt;/h3&gt;
@@ -1749,11 +1578,9 @@ $ sass generic.scss generic.ltr.css
 &lt;p&gt;We&amp;rsquo;ve got three files on our hands:&lt;/p&gt;
 
 &lt;ol&gt;
-&lt;li&gt;&lt;p&gt;&lt;em&gt;index.html&lt;/em&gt; &amp;ndash; The place our tree appears!&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;&lt;em&gt;main.js&lt;/em&gt; &amp;ndash; Our require.js file which loads our dependencies.&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;&lt;em&gt;parsetree.js&lt;/em&gt; &amp;ndash; Our d3 code goes here.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;em&gt;index.html&lt;/em&gt; &amp;ndash; The place our tree appears!&lt;/li&gt;
+&lt;li&gt;&lt;em&gt;main.js&lt;/em&gt; &amp;ndash; Our require.js file which loads our dependencies.&lt;/li&gt;
+&lt;li&gt;&lt;em&gt;parsetree.js&lt;/em&gt; &amp;ndash; Our d3 code goes here.&lt;/li&gt;
 &lt;/ol&gt;
 
 &lt;h3 id=&#34;our-html:054322c57cedc54446f668e9a774bd93&#34;&gt;Our HTML&lt;/h3&gt;
@@ -1761,8 +1588,7 @@ $ sass generic.scss generic.ltr.css
 &lt;p&gt;&lt;strong&gt;index.html&lt;/strong&gt;
 Things such as the CSS, which we&amp;rsquo;ll use to style the tree, can go into a separate file if you&amp;rsquo;d like.&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;&amp;lt;code class=&amp;quot;language-html&amp;quot;&amp;gt;
-&amp;lt;!DOCTYPE html&amp;gt;
+&lt;pre&gt;&lt;code&gt;&amp;lt;!DOCTYPE html&amp;gt;
 &amp;lt;html&amp;gt;
    &amp;lt;head&amp;gt;
       &amp;lt;meta charset=&amp;quot;utf-8&amp;quot;&amp;gt;
@@ -1781,8 +1607,7 @@ Things such as the CSS, which we&amp;rsquo;ll use to style the tree, can go into
 &lt;p&gt;If you choose not to use Require, you can just make sure that d3.js loads before our parse tree editor.
 &lt;strong&gt;main.js&lt;/strong&gt;&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;&amp;lt;code class=&amp;quot;language-javascript&amp;quot;&amp;gt;
-requirejs.config({
+&lt;pre&gt;&lt;code&gt;requirejs.config({
     &#39;baseUrl&#39;: &#39;.&#39;,
     &#39;paths&#39;: {
         &#39;d3&#39;: &#39;//cdnjs.cloudflare.com/ajax/libs/d3/3.4.8/d3.min&#39;,
@@ -1804,15 +1629,13 @@ require([&#39;parsetree&#39;], function(parseTree) {
     new parseTree(&#39;div[data-toggle=&amp;quot;parsetree&amp;quot;]&#39;).init();
 
 });
-&amp;lt;/code&amp;gt;
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;h3 id=&#34;our-js-base-code:054322c57cedc54446f668e9a774bd93&#34;&gt;Our JS base code&lt;/h3&gt;
 
 &lt;p&gt;&lt;strong&gt;parsetree.js&lt;/strong&gt;&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;&amp;lt;code class=&amp;quot;language-javascript&amp;quot;&amp;gt;
-define([&#39;d3&#39;], function(d3) {
+&lt;pre&gt;&lt;code&gt;define([&#39;d3&#39;], function(d3) {
 
     var parsetree = function(selector, options) {
         this.el = document.querySelector(selector);
@@ -1824,7 +1647,6 @@ define([&#39;d3&#39;], function(d3) {
         return this;
     };
 });
-&amp;lt;/code&amp;gt;
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;h2 id=&#34;key-functions:054322c57cedc54446f668e9a774bd93&#34;&gt;Key Functions&lt;/h2&gt;
@@ -1833,8 +1655,7 @@ define([&#39;d3&#39;], function(d3) {
 
 &lt;h3 id=&#34;initializing-the-module:054322c57cedc54446f668e9a774bd93&#34;&gt;Initializing the Module&lt;/h3&gt;
 
-&lt;pre&gt;&lt;code&gt;&amp;lt;code class=&amp;quot;language-javascript&amp;quot;&amp;gt;
-define([&#39;d3&#39;], function(d3) {
+&lt;pre&gt;&lt;code&gt;define([&#39;d3&#39;], function(d3) {
 
     var parsetree = function(selector, options) {
         this.el = document.querySelector(selector);
@@ -1868,7 +1689,6 @@ define([&#39;d3&#39;], function(d3) {
     // By AMD standards, module exports are all lowercase
     return parsetree;
 });
-&amp;lt;/code&amp;gt;
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;Here we&amp;rsquo;re defining an AMD module which states that our only dependency is d3, and &lt;code&gt;parsetree&lt;/code&gt; is what we want to export. Typically you&amp;rsquo;ll want to load your data externally instead of hardcoding it into the module. Check out &lt;a href=&#34;https://github.com/mbostock/d3/wiki/Requests&#34;&gt;d3&amp;rsquo;s Request Documentation&lt;/a&gt; for useful information on this.&lt;/p&gt;
@@ -1877,8 +1697,7 @@ define([&#39;d3&#39;], function(d3) {
 
 &lt;p&gt;d3 gladly handles data that comes to it in a hierarchical format. For example, a JSON list of nodes, wherein each node has a nested array of nodes, called &lt;code&gt;children&lt;/code&gt;. There are samples available here: &lt;a href=&#34;https://github.com/mbostock/d3/wiki/Tree-Layout#children&#34;&gt;d3 Tree Layout documentation&lt;/a&gt;. This is what &lt;em&gt;our data&lt;/em&gt; will look after we&amp;rsquo;ve run the aforementioned &lt;code&gt;convertData&lt;/code&gt; function (described after this):&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;&amp;lt;code class=&amp;quot;language-javascript&amp;quot;&amp;gt;
-var words = [
+&lt;pre&gt;&lt;code&gt;var words = [
    { &amp;quot;id&amp;quot;: 0, &amp;quot;value&amp;quot;: &amp;quot;root&amp;quot;, &amp;quot;pos&amp;quot;: &amp;quot;root&amp;quot;,
       &amp;quot;children&amp;quot;: [
          { &amp;lt;strong style=&amp;quot;color: #F00&amp;quot;&amp;gt;&amp;quot;id&amp;quot;: 3&amp;lt;/strong&amp;gt;, &amp;quot;head&amp;quot;: 0, &amp;quot;value&amp;quot;: &amp;quot;εἶχον&amp;quot;, &amp;quot;relation&amp;quot;: &amp;quot;PRED&amp;quot;,
@@ -1896,13 +1715,11 @@ var words = [
       ]
    }
 ];
-&amp;lt;/code&amp;gt;
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;We will take our flat data, which you saw in our &lt;code&gt;init&lt;/code&gt; function, and transform it into hierarchical data, which you see above. This is done very simply for us, given the &lt;code&gt;id&lt;/code&gt; parameter and the &lt;code&gt;head&lt;/code&gt; parameter in our JS object (taken from &lt;a href=&#34;http://www.d3noob.org/2014/01/tree-diagrams-in-d3js_11.html&#34;&gt;Generating a tree diagram from ‘flat’ data&lt;/a&gt;). We&amp;rsquo;ll add that function to our module called &lt;code&gt;convertData&lt;/code&gt;:&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;&amp;lt;code class=&amp;quot;language-javascript&amp;quot;&amp;gt;
-parsetree.prototype.convertData = function(words) {
+&lt;pre&gt;&lt;code&gt;parsetree.prototype.convertData = function(words) {
 
     // Create a root node
     var rootNode = { &#39;id&#39;: 0, &#39;value&#39;: &#39;root&#39;, &#39;pos&#39;: &#39;root&#39; };
@@ -1927,15 +1744,13 @@ parsetree.prototype.convertData = function(words) {
 
     return treeData;
 };
-&amp;lt;/code&amp;gt;
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;Now our data is ready to feed to the tree! Let&amp;rsquo;s write a render function to create the DOM elements that will contain our SVG.&lt;/p&gt;
 
 &lt;h3 id=&#34;render-the-svg-elements:054322c57cedc54446f668e9a774bd93&#34;&gt;Render the SVG elements&lt;/h3&gt;
 
-&lt;pre&gt;&lt;code&gt;&amp;lt;code class=&amp;quot;language-javascript&amp;quot;&amp;gt;
-parsetree.prototype.render = function () {
+&lt;pre&gt;&lt;code&gt;parsetree.prototype.render = function () {
     // To keep multiple instances from stomping on each other&#39;s data/d3 references
     this.tree = d3.layout.tree().nodeSize([100, 50]);
 
@@ -1973,15 +1788,13 @@ parsetree.prototype.render = function () {
 
     return this;
 };
-&amp;lt;/code&amp;gt;
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;h3 id=&#34;update-the-tree-to-use-our-data:054322c57cedc54446f668e9a774bd93&#34;&gt;Update the Tree to Use our Data&lt;/h3&gt;
 
 &lt;p&gt;This is the most important function in our code. I&amp;rsquo;ll each plain each part in detail after you&amp;rsquo;ve seen the overview:&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;&amp;lt;code class=&amp;quot;language-javascript&amp;quot;&amp;gt;
-parsetree.prototype.update = function (source) {
+&lt;pre&gt;&lt;code&gt;parsetree.prototype.update = function (source) {
 
     // This function tells our tree to be oriented vertically instead of horizontally
     var diagonal = d3.svg.diagonal()
@@ -2089,40 +1902,34 @@ parsetree.prototype.update = function (source) {
         d.y0 = d.y;
     });
 };
-&amp;lt;/code&amp;gt;
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;&lt;strong&gt;Explanation of Update function&lt;/strong&gt;&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;&amp;lt;code class=&amp;quot;language-javascript&amp;quot;&amp;gt;
-    var nodes = this.tree(this.root).reverse(),
+&lt;pre&gt;&lt;code&gt;    var nodes = this.tree(this.root).reverse(),
         links = this.tree.links(nodes);
 
     nodes.forEach(function (d) {
         d.y = d.depth * 100;
     });
-&amp;lt;/code&amp;gt;
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;Here we&amp;rsquo;re passing our root into the d3 tree object in order to create nodes, and then passing those nodes in as links in the tree. d3 will do all of the calculation about where they&amp;rsquo;re supposed to go.&lt;/p&gt;
 
 &lt;p&gt;We then iterate over the nodes and adjust the y axis of each node based on its depth in the hierarchical data. Making &lt;code&gt;100&lt;/code&gt; bigger or smaller will adjust how &amp;ldquo;vertically stretched&amp;rdquo; your parse tree is.&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;&amp;lt;code class=&amp;quot;language-javascript&amp;quot;&amp;gt;
-    var node = this.svg.select(&#39;.canvas g&#39;)
+&lt;pre&gt;&lt;code&gt;    var node = this.svg.select(&#39;.canvas g&#39;)
         .selectAll(&#39;g.node&#39;)
         .data(nodes, function (d, i) {
             return d.id || (d.id = ++i);
         });
-&amp;lt;/code&amp;gt;
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;Here we&amp;rsquo;re performing a subselection within our &lt;code&gt;this.svg&lt;/code&gt; element. Since we perform all of our selections as subselections of that element, we&amp;rsquo;re making sure to be acting on a &lt;em&gt;specific&lt;/em&gt; instance of a tree rather than &lt;em&gt;any&lt;/em&gt; instance of a tree. You need to do this especially if you&amp;rsquo;d like to display more than one tree per page and be able to update them without their data/display clashing.&lt;/p&gt;
 
 &lt;p&gt;Performing &lt;code&gt;selectAll(&#39;g.node&#39;)&lt;/code&gt; looks for a group &lt;code&gt;&amp;lt;g&amp;gt;&lt;/code&gt; with the class &lt;code&gt;.node&lt;/code&gt; and binds data to each of the nodes previously declared as &lt;code&gt;var nodes = this.tree(this.root).reverse()&lt;/code&gt;. Since d3 is all about making selections and applying all actions at once, you&amp;rsquo;ll probably never need to loop through these nodes manually.&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;&amp;lt;code class=&amp;quot;language-javascript&amp;quot;&amp;gt;
-    var nodeEnter = node.enter()
+&lt;pre&gt;&lt;code&gt;    var nodeEnter = node.enter()
         .append(&#39;g&#39;)
         .attr(&#39;class&#39;, &#39;node&#39;)
         .attr(&#39;transform&#39;, function (d) {
@@ -2134,13 +1941,11 @@ parsetree.prototype.update = function (source) {
         .style(&#39;stroke&#39;, &#39;#000&#39;)
         .style(&#39;stroke-width&#39;, &#39;3px&#39;)
         .style(&#39;fill&#39;, &#39;#FFF&#39;);
-&amp;lt;/code&amp;gt;
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;The concept of &amp;ldquo;entering&amp;rdquo; and element in d3 is critical to being able to successfully update the tree. When you call &lt;code&gt;.enter()&lt;/code&gt; on a d3 selection, it will only return a selection &lt;strong&gt;if it did not previously exist.&lt;/strong&gt; That&amp;rsquo;s why you want to use this &lt;code&gt;nodeEnter&lt;/code&gt; variable when appending the circle SVG element &amp;ndash; that circle is only appended once, because element didn&amp;rsquo;t exist. When you update, &lt;code&gt;nodeEnter&lt;/code&gt; will return nothing, so that &lt;code&gt;nodeEnter.append()&lt;/code&gt; doesn&amp;rsquo;t happen every time you want to &lt;code&gt;update()&lt;/code&gt; the tree.&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;&amp;lt;code class=&amp;quot;language-javascript&amp;quot;&amp;gt;
-    // Our Greek Word
+&lt;pre&gt;&lt;code&gt;    // Our Greek Word
     nodeEnter.append(&#39;text&#39;)
         .attr(&#39;y&#39;, function (d, i) {
             return (d.pos == &#39;root&#39;) ? -30 : 15;
@@ -2174,35 +1979,29 @@ parsetree.prototype.update = function (source) {
         .text(function (d) {
             return d.relation;
         });
-&amp;lt;/code&amp;gt;
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;The same concept goes for our Greek words and our relationship attribute. We append those to the nodeEnter variable, and they go right into the same &lt;code&gt;&amp;lt;g&amp;gt;&lt;/code&gt; element as the circle. Here&amp;rsquo;s an example of what the SVG generated by d3 is going to look like (trimmed to remove the styling):&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;&amp;lt;code class=&amp;quot;language-html&amp;quot;&amp;gt;
-&amp;lt;g class=&amp;quot;node&amp;quot; transform=&amp;quot;translate(250,300)&amp;quot;&amp;gt;
+&lt;pre&gt;&lt;code&gt;&amp;lt;g class=&amp;quot;node&amp;quot; transform=&amp;quot;translate(250,300)&amp;quot;&amp;gt;
     &amp;lt;circle r=&amp;quot;10&amp;quot;&amp;gt;&amp;lt;/circle&amp;gt;
     &amp;lt;text y=&amp;quot;15&amp;quot; dy=&amp;quot;14px&amp;quot;&amp;gt;πράγματα&amp;lt;/text&amp;gt;
     &amp;lt;text y=&amp;quot;-30&amp;quot; dy=&amp;quot;12px&amp;quot;&amp;gt;OBJ&amp;lt;/text&amp;gt;
 &amp;lt;/g&amp;gt;
-&amp;lt;/code&amp;gt;
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;It&amp;rsquo;s important that everything go into this &lt;code&gt;&amp;lt;g&amp;gt;&lt;/code&gt; element so that when we want to edit our parse tree, the node itself, its greek text, and its relation attribute all move with it. If you want to include further fields, like a translation or POS, here&amp;rsquo;s the place to do it.&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;&amp;lt;code class=&amp;quot;language-javascript&amp;quot;&amp;gt;
-    var nodeUpdate = node.transition()
+&lt;pre&gt;&lt;code&gt;    var nodeUpdate = node.transition()
         .duration(this.options.duration || 500)
         .attr(&#39;transform&#39;, function (d) {
             return &#39;translate(&#39; + d.x + &#39;, &#39; + d.y + &#39;)&#39;;
         });
-&amp;lt;/code&amp;gt;
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;&lt;code&gt;nodeUpdate&lt;/code&gt; is code that will actually get executed the first time you run &lt;code&gt;this.update()&lt;/code&gt; and each subsequent time. In this case, it is performing a transition on the x, y coordinates of the node.&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;&amp;lt;code class=&amp;quot;language-javascript&amp;quot;&amp;gt;
-    var link = this.svg.select(&#39;.canvas g&#39;)
+&lt;pre&gt;&lt;code&gt;    var link = this.svg.select(&#39;.canvas g&#39;)
         .selectAll(&#39;path.link&#39;)
         .data(links, function (d) {
             return d.target.id;
@@ -2229,7 +2028,6 @@ parsetree.prototype.update = function (source) {
     link.transition()
         .duration(this.options.duration || 500)
         .attr(&#39;d&#39;, diagonal);
-&amp;lt;/code&amp;gt;
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;The same concepts apply to the links.&lt;/p&gt;
@@ -2238,9 +2036,9 @@ parsetree.prototype.update = function (source) {
 
 &lt;hr /&gt;
 
-&lt;h2 id=&#34;questions-comments-mistakes:054322c57cedc54446f668e9a774bd93&#34;&gt;Questions, Comments, Mistakes?&lt;/h2&gt;
+&lt;h2 id=&#34;questions-comments-corrections:054322c57cedc54446f668e9a774bd93&#34;&gt;Questions, Comments, Corrections?&lt;/h2&gt;
 
-&lt;p&gt;Get in touch via the comments (preferable, so others can use them to troubleshoot), or Twitter at &lt;a href=&#34;http://www.twitter.com/monicalent&#34;&gt;@monicalent&lt;/a&gt;, or Google at &lt;a href=&#34;https://plus.google.com/+MonicaLent/&#34;&gt;+MonicaLent&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Get in touch via Twitter at &lt;a href=&#34;http://www.twitter.com/monicalent&#34;&gt;@monicalent&lt;/a&gt;.&lt;/p&gt;
 </description>
     </item>
     
@@ -2254,33 +2052,31 @@ parsetree.prototype.update = function (source) {
 
 &lt;p&gt;I had some issues with libraries installed via npm (such as d3 and jsdom) causing segmentation faults in Mocha tests. Ultimately I realized that it wasn&amp;rsquo;t a problem with these node modules so much as it was with my node install itself. I had installed from source following &lt;a href=&#34;http://sekati.com/etc/install-nodejs-on-debian-squeeze&#34;&gt;this guide&lt;/a&gt;, but it wasn&amp;rsquo;t quit enough to get my node install right on Debian Squeeze.&lt;/p&gt;
 
-&lt;!-- more --&gt;
-
 &lt;h2 id=&#34;install-node-js:61f848b5e12f75f9e948cacef1bef456&#34;&gt;Install Node.js&lt;/h2&gt;
 
 &lt;h3 id=&#34;dependencies:61f848b5e12f75f9e948cacef1bef456&#34;&gt;Dependencies&lt;/h3&gt;
 
 &lt;p&gt;Pretty standard stuff &amp;ndash; make sure you&amp;rsquo;re up to date on these.&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;&amp;lt;code class=&amp;quot;language-bash&amp;quot;&amp;gt;$ sudo apt-get update &amp;amp;&amp;amp; apt-get install git-core curl build-essential openssl libssl-dev&amp;lt;/code&amp;gt;
+&lt;pre&gt;&lt;code&gt;$ sudo apt-get update &amp;amp;&amp;amp; apt-get install git-core curl build-essential openssl libssl-dev
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;h3 id=&#34;clone-the-git-repo:61f848b5e12f75f9e948cacef1bef456&#34;&gt;Clone the Git Repo&lt;/h3&gt;
 
 &lt;p&gt;Change into the directory you want to install node from. A good option, if in doubt, is to just go for &lt;code&gt;/opt&lt;/code&gt;.&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;&amp;lt;code class=&amp;quot;language-bash&amp;quot;&amp;gt;$ git clone https://github.com/joyent/node.git
-cd node&amp;lt;/code&amp;gt;
+&lt;pre&gt;&lt;code&gt;$ git clone https://github.com/joyent/node.git
+cd node
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;Check the &lt;a href=&#34;http://nodejs.org/download/&#34;&gt;Node.js Download Page&lt;/a&gt; and see what they say the latest version of Node is that we should be using. At the time of writing, this was &lt;strong&gt;v0.10.28&lt;/strong&gt;. Find this using &lt;code&gt;git tag&lt;/code&gt;:&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;&amp;lt;code class=&amp;quot;language-bash&amp;quot;&amp;gt;$ git tag&amp;lt;/code&amp;gt;
+&lt;pre&gt;&lt;code&gt;$ git tag
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;There may be a newer version in the Git repo than the one recommended on the Download page, however it may not be stable. Check it out:&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;&amp;lt;code class=&amp;quot;language-bash&amp;quot;&amp;gt;$ git checkout v0.10.28&amp;lt;/code&amp;gt;
+&lt;pre&gt;&lt;code&gt;$ git checkout v0.10.28
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;You should see &lt;strong&gt;(Stable)&lt;/strong&gt; after the version number once you perform this checkout.&lt;/p&gt;
@@ -2289,36 +2085,36 @@ cd node&amp;lt;/code&amp;gt;
 
 &lt;p&gt;Configure node. The section option &lt;code&gt;--without-snapshot&lt;/code&gt; should give you a faster build and alleviate some seg fault issues mentioned &lt;a href=&#34;http://www.armhf.com/node-js-for-the-beaglebone-black/&#34;&gt;elsewhere&lt;/a&gt; around the web.&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;&amp;lt;code class=&amp;quot;language-bash&amp;quot;&amp;gt;$ ./configure --openssl-libpath=/usr/lib/ssl --without-snapshot&amp;lt;/code&amp;gt;
+&lt;pre&gt;&lt;code&gt;$ ./configure --openssl-libpath=/usr/lib/ssl --without-snapshot
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;Now make and install (it could take some time to complete the make testing and process, as we&amp;rsquo;re compiling the source code).&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;&amp;lt;code class=&amp;quot;language-bash&amp;quot;&amp;gt;$ make
+&lt;pre&gt;&lt;code&gt;$ make
 $ make test
-$ make install&amp;lt;/code&amp;gt;
+$ make install
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;If it worked, you&amp;rsquo;ll be able to run both of these commands:&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;&amp;lt;code class=&amp;quot;language-bash&amp;quot;&amp;gt;$ node -v
-$ npm -v&amp;lt;/code&amp;gt;
+&lt;pre&gt;&lt;code&gt;$ node -v
+$ npm -v
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;h2 id=&#34;if-you-messed-up:61f848b5e12f75f9e948cacef1bef456&#34;&gt;If you messed up&amp;hellip;&lt;/h2&gt;
 
 &lt;p&gt;&amp;hellip;like me, and installed a totally wrong and unstable version, luckily there&amp;rsquo;s still hope. Change into the directory where you put the node source:&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;&amp;lt;code class=&amp;quot;language-bash&amp;quot;&amp;gt;$ make uninstall&amp;lt;/code&amp;gt;
+&lt;pre&gt;&lt;code&gt;$ make uninstall
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;Now you can switch branches, re-configure, and re-build the node source as needed. Just be sure to check with &lt;code&gt;node -v&lt;/code&gt; again after you&amp;rsquo;ve done the install to be sure everything worked. Good luck!&lt;/p&gt;
 
 &lt;hr /&gt;
 
-&lt;h2 id=&#34;questions-comments-mistakes:61f848b5e12f75f9e948cacef1bef456&#34;&gt;Questions, Comments, Mistakes?&lt;/h2&gt;
+&lt;h2 id=&#34;questions-comments-corrections:61f848b5e12f75f9e948cacef1bef456&#34;&gt;Questions, Comments, Corrections?&lt;/h2&gt;
 
-&lt;p&gt;Get in touch via the comments (preferable, so others can use them to troubleshoot), or Twitter at &lt;a href=&#34;http://www.twitter.com/monicalent&#34;&gt;@monicalent&lt;/a&gt;, or Google at &lt;a href=&#34;https://plus.google.com/+MonicaLent/&#34;&gt;+MonicaLent&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Get in touch via Twitter at &lt;a href=&#34;http://www.twitter.com/monicalent&#34;&gt;@monicalent&lt;/a&gt;.&lt;/p&gt;
 </description>
     </item>
     
@@ -2334,27 +2130,24 @@ $ npm -v&amp;lt;/code&amp;gt;
 
 &lt;p&gt;Before you read this guide, I would advise taking a look at &lt;a href=&#34;https://uwsgi.readthedocs.org/en/latest/tutorials/Django_and_nginx.html&#34;&gt;Setting up Django and your web server with uWSGI and nginx&lt;/a&gt;. It didn&amp;rsquo;t work &amp;ldquo;as advertised&amp;rdquo; for me, but was nonetheless very helpful.&lt;/p&gt;
 
-&lt;!-- more --&gt;
-
 &lt;h2 id=&#34;basic-installation:70def7930d5cd4b692cfce309764f367&#34;&gt;Basic Installation&lt;/h2&gt;
 
 &lt;p&gt;The fun begins when you simply install both components, nginx and uWSGI.&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;&amp;lt;code class=&amp;quot;language-bash&amp;quot;&amp;gt;$ sudo apt-get install nginx uwsgi uwsgi-plugin-python&amp;lt;/code&amp;gt;
+&lt;pre&gt;&lt;code&gt;$ sudo apt-get install nginx uwsgi uwsgi-plugin-python
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;Now, you cannot trust that the version of uWSGI you&amp;rsquo;ve just installed is the most recent. Even after running &lt;code&gt;apt-get update&lt;/code&gt; my package installer &lt;em&gt;still&lt;/em&gt; insisted on an ancient version of uWSGI, something like 0.8. You cannot even run &lt;code&gt;apt-get install uwsgi=1.9&lt;/code&gt; and expect it will find the correct version. The great part about this is that such an old version of uWSGI flat out does not work with nginx. So, check you have the most recent version of uWSGI installed:&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;&amp;lt;code class=&amp;quot;language-bash&amp;quot;&amp;gt;$ uwsgi --version&amp;lt;/code&amp;gt;
+&lt;pre&gt;&lt;code&gt;$ uwsgi --version
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;If you find anything besides the latest version (1.9, at the time of writing), you have to do a magic work around for this issue (acquired from &lt;a href=&#34;http://stackoverflow.com/questions/13965555/after-pip-installing-uwsgi-theres-no-etc-uwsgi-directory-how-can-i-use-apps&#34;&gt;this Stackoverflow question&lt;/a&gt;):&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;&amp;lt;code class=&amp;quot;language-bash&amp;quot;&amp;gt;
-$ pip install -U uwsgi
+&lt;pre&gt;&lt;code&gt;$ pip install -U uwsgi
 $ cd /usr/bin
 $ mv uwsgi uwsgi-old
-$ ln -s /usr/local/bin/uwsgi uwsgi&amp;lt;/code&amp;gt;
+$ ln -s /usr/local/bin/uwsgi uwsgi
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;h2 id=&#34;nginx-configuration:70def7930d5cd4b692cfce309764f367&#34;&gt;nginx Configuration&lt;/h2&gt;
@@ -2363,8 +2156,7 @@ $ ln -s /usr/local/bin/uwsgi uwsgi&amp;lt;/code&amp;gt;
 
 &lt;p&gt;In &lt;code&gt;/opt/app/extras/nginx.conf&lt;/code&gt;, place the following code:&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;&amp;lt;code&amp;gt;
-server {
+&lt;pre&gt;&lt;code&gt;server {
   listen  8000;
     server_name localhost;
     charset utf-8;
@@ -2380,35 +2172,27 @@ server {
       include     /opt/app/extras/uwsgi_params;
       uwsgi_param UWSGI_SCRIPT app.wsgi;
     }
-}&amp;lt;/code&amp;gt;
+}
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;I&amp;rsquo;ll explain all these settings in turn:&lt;/p&gt;
 
 &lt;ul&gt;
-&lt;li&gt;&lt;p&gt;&lt;strong&gt;listen&lt;/strong&gt;: The port that nginx is essentially broadcasting on. If you visit &lt;em&gt;www.yoursite.com:8000&lt;/em&gt;, in this case, you will trigger nginx to respond. If you don&amp;rsquo;t want to have to specify a port, or you want to update the configuration for production, just use port 80.&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;&lt;strong&gt;server_name&lt;/strong&gt;: Can generally be localhost, though alternatively could be the IP address of the server you are on.&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;&lt;strong&gt;charset&lt;/strong&gt;: utf-8 is suitable for most purposes.&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;&lt;strong&gt;access_log, error_log&lt;/strong&gt;: You can set these to basically any path that the &lt;code&gt;www-data&lt;/code&gt; Unix user can write to, though it makes sense it keep them out of your working directory so you don&amp;rsquo;t end up pushing them to source control.&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;&lt;strong&gt;location &lt;code&gt;/static&lt;/code&gt;&lt;/strong&gt;: This is just a location that we don&amp;rsquo;t need uWSGI to worry about. It keeps the code running faster if nginx knows it can server this directory straight, instead of through the interface.&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;&lt;strong&gt;uwsgi_pass&lt;/strong&gt;: The path to the socket that uWSGI and nginx will both access to communicate with one another (more on this later).&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;&lt;strong&gt;include&lt;/strong&gt;: Some uWSGI settings which are rather standard (see: &amp;ldquo;&lt;a href=&#34;http://uwsgi-docs.readthedocs.org/en/latest/Nginx.html#what-is-the-uwsgi-params-file&#34;&gt;What is the uWSGI params file?&lt;/a&gt;&amp;rdquo;).&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;&lt;strong&gt;uwsgi_param&lt;/strong&gt;: Specifies the uWSGI module you want to use&amp;ndash;this &lt;em&gt;must be available from the python path&lt;/em&gt;.**&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;listen&lt;/strong&gt;: The port that nginx is essentially broadcasting on. If you visit &lt;em&gt;www.yoursite.com:8000&lt;/em&gt;, in this case, you will trigger nginx to respond. If you don&amp;rsquo;t want to have to specify a port, or you want to update the configuration for production, just use port 80.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;server_name&lt;/strong&gt;: Can generally be localhost, though alternatively could be the IP address of the server you are on.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;charset&lt;/strong&gt;: utf-8 is suitable for most purposes.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;access_log, error_log&lt;/strong&gt;: You can set these to basically any path that the &lt;code&gt;www-data&lt;/code&gt; Unix user can write to, though it makes sense it keep them out of your working directory so you don&amp;rsquo;t end up pushing them to source control.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;location &lt;code&gt;/static&lt;/code&gt;&lt;/strong&gt;: This is just a location that we don&amp;rsquo;t need uWSGI to worry about. It keeps the code running faster if nginx knows it can server this directory straight, instead of through the interface.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;uwsgi_pass&lt;/strong&gt;: The path to the socket that uWSGI and nginx will both access to communicate with one another (more on this later).&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;include&lt;/strong&gt;: Some uWSGI settings which are rather standard (see: &amp;ldquo;&lt;a href=&#34;http://uwsgi-docs.readthedocs.org/en/latest/Nginx.html#what-is-the-uwsgi-params-file&#34;&gt;What is the uWSGI params file?&lt;/a&gt;&amp;rdquo;).&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;uwsgi_param&lt;/strong&gt;: Specifies the uWSGI module you want to use&amp;ndash;this &lt;em&gt;must be available from the python path&lt;/em&gt;.**&lt;/li&gt;
 &lt;/ul&gt;
 
 &lt;h2 id=&#34;uwsgi-configuration:70def7930d5cd4b692cfce309764f367&#34;&gt;uWSGI Configuration&lt;/h2&gt;
 
 &lt;p&gt;The uWSGI configuration is much pickier than the nginx configuration for several reasons. Hereafter, I&amp;rsquo;ll share the configuration that I use and discuss the errors that many of these specific configurations and values specifically fixed.&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;&amp;lt;code&amp;gt;
-[uwsgi]
+&lt;pre&gt;&lt;code&gt;[uwsgi]
 binary-path = /usr/local/bin/uwsgi
 chdir = /opt/app
 chmod-socket = 777
@@ -2437,7 +2221,7 @@ uid = www-data
 vacuum = true
 vhost = true
 virtualenv = /opt/app/env
-workers = 4&amp;lt;/code&amp;gt;
+workers = 4
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;Not all of these settings may be necessary, but it&amp;rsquo;s what I finally found works for me. Visit the official uWSGI documentation on &lt;a href=&#34;http://uwsgi-docs.readthedocs.org/en/latest/Options.html&#34;&gt;Configuration Options&lt;/a&gt; for a complete rundown. Here are settings I needed to resolve specific bugs.&lt;/p&gt;
@@ -2446,30 +2230,23 @@ workers = 4&amp;lt;/code&amp;gt;
 
 &lt;p&gt;&lt;strong&gt;chmod-socket, chown-socket, gid, uid, socket&lt;/strong&gt; For uWSGI and nginx to communicate over a socket, you need to specify the permissions and the owner of the socket. &lt;em&gt;777 as chmod-socket is much too liberal for production&lt;/em&gt;. However, you may have to mess around with this number to get it correct, so everything necessary can communicate. If you don&amp;rsquo;t take care of your socket configurations, you will get errors such as:&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;&amp;lt;code&amp;gt;
-(111: Connection refused) while connecting to upstream.&amp;lt;/code&amp;gt;
+&lt;pre&gt;&lt;code&gt;(111: Connection refused) while connecting to upstream.
+&lt;/code&gt;&lt;/pre&gt;
 
-
-
-
-
-&amp;lt;code&amp;gt;
-bind(): Permission denied [socket.c line 107]&amp;lt;/code&amp;gt;
+&lt;pre&gt;&lt;code&gt;bind(): Permission denied [socket.c line 107]
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;To create the space for the socket to exist, you just have to pick a persistent directory (e.g. &lt;em&gt;not&lt;/em&gt; &lt;code&gt;/run&lt;/code&gt; or &lt;code&gt;/tmp&lt;/code&gt;) and make &lt;code&gt;www-data&lt;/code&gt; (the user nginx runs as) the owner of it, as such:&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;&amp;lt;code class=&amp;quot;language-bash&amp;quot;&amp;gt;
-$ sudo mkdir /var/uwsgi
-$ sudo chown www-data:www-data /var/uwsgi&amp;lt;/code&amp;gt;
+&lt;pre&gt;&lt;code&gt;$ sudo mkdir /var/uwsgi
+$ sudo chown www-data:www-data /var/uwsgi
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;Make sure that your value for &lt;code&gt;socket&lt;/code&gt; in the uWSGI conf file corresponds to the value for &lt;code&gt;uwsgi_pass&lt;/code&gt; in the nginx conf file.&lt;/p&gt;
 
 &lt;p&gt;&lt;strong&gt;limit-as&lt;/strong&gt; Unix has some sort of built in limits for what it can transfer. You may need to set this value if you get errors such as:&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;&amp;lt;code&amp;gt;
-[error] 20739#0: *21 upstream prematurely closed connection while reading response header from upstream&amp;lt;/code&amp;gt;
+&lt;pre&gt;&lt;code&gt;[error] 20739#0: *21 upstream prematurely closed connection while reading response header from upstream
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;&lt;strong&gt;module&lt;/strong&gt; Refers to the uWSGI module, which must be on the Python Path. In the Nginx settings, you saw this same value corresponding to &lt;code&gt;uwsgi_param UWSGI_SCRIPT&lt;/code&gt;.&lt;/p&gt;
@@ -2480,18 +2257,16 @@ $ sudo chown www-data:www-data /var/uwsgi&amp;lt;/code&amp;gt;
 
 &lt;p&gt;Okay, so you should now have two working configuration files stored in a place such as &lt;code&gt;/opt/app/extras&lt;/code&gt;. Now, in order for nginx and uWSGI to automatically load when you use them as services, we have to sym link our files into directories that each looks in on startup.&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;&amp;lt;code class=&amp;quot;language-bash&amp;quot;&amp;gt;
-$ ln -s /opt/app/extras/nginx.conf /etc/nginx/sites-enabled/nginx.conf
-$ ln -s /opt/app/extras/uwsgi.conf /etc/uwsgi/apps-enabled/uwsgi.conf&amp;lt;/code&amp;gt;
+&lt;pre&gt;&lt;code&gt;$ ln -s /opt/app/extras/nginx.conf /etc/nginx/sites-enabled/nginx.conf
+$ ln -s /opt/app/extras/uwsgi.conf /etc/uwsgi/apps-enabled/uwsgi.conf
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;h2 id=&#34;testing-the-configuration:70def7930d5cd4b692cfce309764f367&#34;&gt;Testing the Configuration&lt;/h2&gt;
 
 &lt;p&gt;Now we should be able to test out the configuration. My advice is to comment out the &lt;code&gt;daemonize&lt;/code&gt; line in &lt;code&gt;uWSGI.conf&lt;/code&gt;, so you can see what&amp;rsquo;s happening while you start up uWSGI. Then start both services.&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;&amp;lt;code class=&amp;quot;language-bash&amp;quot;&amp;gt;
-$ service nginx restart
-$ uwsgi /opt/extras/uwsgi.conf&amp;lt;/code&amp;gt;
+&lt;pre&gt;&lt;code&gt;$ service nginx restart
+$ uwsgi /opt/extras/uwsgi.conf
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;You should then see uWSGI take over your entire terminal and tell you that it&amp;rsquo;s running correctly. Open up localhost or the IP address in the web browser and watch what happens. If you can load a page, congratulations! Sig int and uncomment the daemon line, and let it run.&lt;/p&gt;
@@ -2500,25 +2275,22 @@ $ uwsgi /opt/extras/uwsgi.conf&amp;lt;/code&amp;gt;
 
 &lt;p&gt;&lt;strong&gt;Error:&lt;/strong&gt;&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;&amp;lt;code&amp;gt;
-ImportError: No module named &#39;app.wsgi&#39;
-unable to load app 0 (mountpoint=&#39;&#39;) (callable not found or import error)&amp;lt;/code&amp;gt;
+&lt;pre&gt;&lt;code&gt;ImportError: No module named &#39;app.wsgi&#39;
+unable to load app 0 (mountpoint=&#39;&#39;) (callable not found or import error)
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;&lt;strong&gt;Problem:&lt;/strong&gt; You probably have a Python path issue, because it is not finding your WSGI app. Also, make sure your virtualenv is running!&lt;/p&gt;
 
 &lt;p&gt;&lt;strong&gt;Error:&lt;/strong&gt;&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;&amp;lt;code&amp;gt;
-uWSGI Error. Python application not found&amp;lt;/code&amp;gt;
+&lt;pre&gt;&lt;code&gt;uWSGI Error. Python application not found
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;&lt;strong&gt;Problem:&lt;/strong&gt; Your python path is probably still wrong to your app.wsgi. Make sure that nginx and uWSGI are finding your UWSGI app at all by checking their logs.&lt;/p&gt;
 
 &lt;p&gt;&lt;strong&gt;Error:&lt;/strong&gt;&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;&amp;lt;code&amp;gt;
-502 Bad Gateway&amp;lt;/code&amp;gt;
+&lt;pre&gt;&lt;code&gt;502 Bad Gateway
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;&lt;strong&gt;Problem:&lt;/strong&gt; Chances are that uWSGI isn&amp;rsquo;t actually running. The issue is that Nginx is trying to funnel requests through uWGSI, but uWSGI isn&amp;rsquo;t running to handle them with your Python app.&lt;/p&gt;
@@ -2526,26 +2298,17 @@ uWSGI Error. Python application not found&amp;lt;/code&amp;gt;
 &lt;p&gt;&lt;strong&gt;In general:&lt;/strong&gt;
 &lt;strong&gt;Make sure uWSGI is actually running.&lt;/strong&gt; It generally helps to look at the processes and see how many are running&amp;ndash;I had issues where I thought uWSGI was running, but it was &amp;ldquo;silently&amp;rdquo; failing because all the errors were being funneled into the logs. This means that nginx will be attempting to talk to uWSGI, but it cannot. You&amp;rsquo;ll get all sorts of non-descriptives errors of this.&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;&amp;lt;code class=&amp;quot;language-bash&amp;quot;&amp;gt;
-$ ps aux | grep uwsgi
-&amp;lt;/code&amp;gt;
+&lt;pre&gt;&lt;code&gt;$ ps aux | grep uwsgi
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;Will list all the processing running on your machine.&lt;/p&gt;
 
-&lt;h2 id=&#34;questions-comments-mistakes:70def7930d5cd4b692cfce309764f367&#34;&gt;Questions, Comments, Mistakes?&lt;/h2&gt;
+&lt;hr /&gt;
 
-&lt;p&gt;Get in touch via the comments (preferable, so others can use them to troubleshoot), or Twitter at &lt;a href=&#34;http://www.twitter.com/monicalent&#34;&gt;@monicalent&lt;/a&gt;, or Google at &lt;a href=&#34;https://plus.google.com/+MonicaLent/&#34;&gt;+MonicaLent&lt;/a&gt;.&lt;/p&gt;
+&lt;h2 id=&#34;questions-comments-corrections:70def7930d5cd4b692cfce309764f367&#34;&gt;Questions, Comments, Corrections?&lt;/h2&gt;
+
+&lt;p&gt;Get in touch via Twitter at &lt;a href=&#34;http://www.twitter.com/monicalent&#34;&gt;@monicalent&lt;/a&gt;.&lt;/p&gt;
 </description>
-    </item>
-    
-    <item>
-      <title>Create a server-side fallback for HTML5 Push State used with Backbone.js</title>
-      <link>http://monicalent.com/blog/2013/09/01/create-server-side-fallback-html5-push-state-backbone-js/</link>
-      <pubDate>Sun, 01 Sep 2013 15:47:08 +0000</pubDate>
-      
-      <guid>http://monicalent.com/blog/2013/09/01/create-server-side-fallback-html5-push-state-backbone-js/</guid>
-      <description></description>
     </item>
     
     <item>
@@ -2554,14 +2317,15 @@ $ ps aux | grep uwsgi
       <pubDate>Mon, 29 Jul 2013 11:59:40 +0000</pubDate>
       
       <guid>http://monicalent.com/blog/2013/07/29/using-a-custom-event-to-detect-fetch-errors-in-backbone-js/</guid>
-      <description>&lt;p&gt;One of Backbone&amp;rsquo;s major strengths as a javascript MVC framework is the way it helps you do event handling. By extension, it&amp;rsquo;s also great for handling errors that result from failed AJAX calls. As you can see in the &lt;a href=&#34;http://backbonejs.org/#Events-catalog&#34;&gt;Backbone.js documentation&lt;/a&gt;, the &lt;code&gt;error&lt;/code&gt; event is triggered when a model&amp;rsquo;s attempt to save fails server-side. However, there is no Backbone event that detects when the &lt;code&gt;fetch&lt;/code&gt; event fails. Since a fetch from the server is the first thing that happens when a page is loaded, you would need to know if it fails because that could indicate that the API is down or some other server error.&lt;/p&gt;
+      <description>
+
+&lt;p&gt;One of Backbone&amp;rsquo;s major strengths as a javascript MVC framework is the way it helps you do event handling. By extension, it&amp;rsquo;s also great for handling errors that result from failed AJAX calls. As you can see in the &lt;a href=&#34;http://backbonejs.org/#Events-catalog&#34;&gt;Backbone.js documentation&lt;/a&gt;, the &lt;code&gt;error&lt;/code&gt; event is triggered when a model&amp;rsquo;s attempt to save fails server-side. However, there is no Backbone event that detects when the &lt;code&gt;fetch&lt;/code&gt; event fails. Since a fetch from the server is the first thing that happens when a page is loaded, you would need to know if it fails because that could indicate that the API is down or some other server error.&lt;/p&gt;
 
 &lt;!-- more --&gt;
 
 &lt;p&gt;One way to handle this is that every time you call fetch, you specify an error function. However, this precludes us from being able to organize our failed fetches nicely within Views themselves, as we would with other events that occur on collections such as &lt;code&gt;add&lt;/code&gt; or &lt;code&gt;reset&lt;/code&gt;. For example:&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;&amp;lt;code class=&amp;quot;language-javascript&amp;quot;&amp;gt;
-MyApp.Views.Foo = Backbone.View.extend({
+&lt;pre&gt;&lt;code&gt;MyApp.Views.Foo = Backbone.View.extend({
   &#39;tagName&#39;: &#39;div&#39;,
   template: _.template(MyApp.Templates.foo_template),
   initialize: function() {
@@ -2575,13 +2339,11 @@ MyApp.Views.Foo = Backbone.View.extend({
     // Update DOM to denote failure to fetch models
   }
 });
-&amp;lt;/code&amp;gt;
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;You can trigger a &amp;lsquo;fail&amp;rsquo; event, or any other kind of event, by modifying your base collection. In this case, I am modifying the &lt;code&gt;fetch&lt;/code&gt; event handler to trigger a &lt;code&gt;fail&lt;/code&gt; event in the case that it fails.&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;&amp;lt;code class=&amp;quot;language-javascript&amp;quot;&amp;gt;
-MyApp.Collections.Base = Backbone.Collection.extend({
+&lt;pre&gt;&lt;code&gt;MyApp.Collections.Base = Backbone.Collection.extend({
   fetch: function(options) {
     var self = this;
     var opts =  { 
@@ -2601,10 +2363,15 @@ MyApp.Collections.Base = Backbone.Collection.extend({
     (_.bind(Backbone.Collection.prototype.fetch, this, _.extend({}, options, opts)))();
   }
 });
-&amp;lt;/code&amp;gt;
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;Looking at &lt;a href=&#34;http://backbonejs.org/docs/backbone.html#section-55&#34;&gt;Backbone.js annotated source code&lt;/a&gt; is really helpful to understand how to override certain functions.&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;h2 id=&#34;questions-comments-corrections:21e24b793f145e13b87d61cf878bb3f2&#34;&gt;Questions, Comments, Corrections?&lt;/h2&gt;
+
+&lt;p&gt;Get in touch via Twitter at &lt;a href=&#34;http://www.twitter.com/monicalent&#34;&gt;@monicalent&lt;/a&gt;.&lt;/p&gt;
 </description>
     </item>
     
@@ -2614,7 +2381,9 @@ MyApp.Collections.Base = Backbone.Collection.extend({
       <pubDate>Fri, 28 Jun 2013 16:40:14 +0000</pubDate>
       
       <guid>http://monicalent.com/blog/2013/06/28/quick-tip-use-jquery-to-complete-an-arbitrary-number-of-ajax-calls-before-firing-an-event/</guid>
-      <description>&lt;p&gt;Somewhat recently, I encountered an issue where my expected user input is an arbitrarily long list of words. While I could get the word count, I had no reliable way to know whether all of the ajax requests had been completed before firing an event that created a list of definitions for each word. I had several realizations in my quest:&lt;/p&gt;
+      <description>
+
+&lt;p&gt;Somewhat recently, I encountered an issue where my expected user input is an arbitrarily long list of words. While I could get the word count, I had no reliable way to know whether all of the ajax requests had been completed before firing an event that created a list of definitions for each word. I had several realizations in my quest:&lt;/p&gt;
 
 &lt;ol&gt;
 &lt;li&gt;&lt;p&gt;I could do the entire process synchronously. However, this meant that one bad ajax return or error could cause the entire process to hang. It also meant that slow and intensive requests would cause the application to perform especially poorly as well.&lt;/p&gt;&lt;/li&gt;
@@ -2628,42 +2397,40 @@ MyApp.Collections.Base = Backbone.Collection.extend({
 
 &lt;p&gt;Here is a simple way to address this problem, using jQuery.&lt;/p&gt;
 
-&lt;!-- more --&gt;
+&lt;p&gt;Inside the ajax call here, deal with the success and errors states for each call.
+Refer to &lt;a href=&#34;http://api.jquery.com/jQuery.ajax/&#34; target=&#34;_blank&#34;&gt;jQuery&amp;rsquo;s documentation on $.ajax&lt;/a&gt; if unfamiliar with it.&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;&amp;lt;code class=&amp;quot;language-javascript&amp;quot;&amp;gt;// Inside the ajax call here, deal with the success and errors states for each call. 
-// Refer to &amp;lt;a href=&amp;quot;http://api.jquery.com/jQuery.ajax/&amp;quot; target=&amp;quot;_blank&amp;quot;&amp;gt;jQuery&#39;s documentation on $.ajax&amp;lt;/a&amp;gt; if unfamiliar with it.
-
-var ajax_caller = function(data) {
+&lt;pre&gt;&lt;code&gt;var ajax_caller = function(data) {
     return $.ajax({
         url: data.url, 
         method: data.method
     });
-}&amp;lt;/code&amp;gt;
+};
+&lt;/code&gt;&lt;/pre&gt;
 
+&lt;p&gt;Create an array of &lt;a href=&#34;http://api.jquery.com/category/deferred-object/&#34; target=&#34;_blank&#34; title=&#34;jQuery Documentation for Deferred Objects&#34;&gt;deferred objects&lt;/a&gt;&lt;/p&gt;
 
-
-
-
-&amp;lt;code class=&amp;quot;language-javascript&amp;quot;&amp;gt;// Create an array of &amp;lt;a href=&amp;quot;http://api.jquery.com/category/deferred-object/&amp;quot; target=&amp;quot;_blank&amp;quot; title=&amp;quot;jQuery Documentation for Deferred Objects&amp;quot;&amp;gt;deferred objects&amp;lt;/a&amp;gt;
-
-var ajax_calls = [];
+&lt;pre&gt;&lt;code&gt;var ajax_calls = [];
 for (var i = 0; i &amp;lt; arbitrary_number; i++)
     ajax_calls.push(ajax_caller({
         url: &#39;/api/endpoint/&#39; + i,
         method: &#39;GET&#39;
-    }));&amp;lt;/code&amp;gt;
+    }));
+&lt;/code&gt;&lt;/pre&gt;
 
+&lt;p&gt;&lt;a href=&#34;http://api.jquery.com/jQuery.when/&#34; target=&#34;_blank&#34; title=&#34;jQuery Documentation for $.when&#34;&gt;$.when&lt;/a&gt; takes a comma separated list of deferred objects.&lt;/p&gt;
 
-
-
-
-&amp;lt;code class=&amp;quot;language-javascript&amp;quot;&amp;gt;// &amp;lt;a href=&amp;quot;http://api.jquery.com/jQuery.when/&amp;quot; target=&amp;quot;_blank&amp;quot; title=&amp;quot;jQuery Documentation for $.when&amp;quot;&amp;gt;$.when&amp;lt;/a&amp;gt; takes a comma separated list of deferred objects.
-// Apply unpacks array into a suitable list for $.when to handle.
-
+&lt;pre&gt;&lt;code&gt;// Apply unpacks array into a suitable list for $.when to handle.
 $.when.apply(this, ajax_calls).done(function() {
     // Event to be fired after all ajax calls complete
-});&amp;lt;/code&amp;gt;
+});
 &lt;/code&gt;&lt;/pre&gt;
+
+&lt;hr /&gt;
+
+&lt;h2 id=&#34;questions-comments-corrections:c606f275ada7dc66db9b03d21a7e8fdb&#34;&gt;Questions, Comments, Corrections?&lt;/h2&gt;
+
+&lt;p&gt;Get in touch via Twitter at &lt;a href=&#34;http://www.twitter.com/monicalent&#34;&gt;@monicalent&lt;/a&gt;.&lt;/p&gt;
 </description>
     </item>
     
@@ -2755,6 +2522,12 @@ MaxRequestsPerChild 0
 &lt;p&gt;Now, when I check for memory usage on my machine after a restart of apache, I see that there are fewer apache processes going (thanks to my changes to StartServers, MinSpareServers, and MaxSpareServers). However, each apache process is using a greater percentage of memory a piece. So it becomes a bit of a balancing game to figure out what the proper numbers to put in ought to be.&lt;/p&gt;
 
 &lt;p&gt;Hopefully, however, since MaxClients has been reduced from 150 to 40, I will not cause my machine to dip into swap memory to comply with client requests. Further, it should be killing the other connections rather than keeping them alive.&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;h2 id=&#34;questions-comments-corrections:845086cb80237fc9eb92e1c183d94e4e&#34;&gt;Questions, Comments, Corrections?&lt;/h2&gt;
+
+&lt;p&gt;Get in touch via Twitter at &lt;a href=&#34;http://www.twitter.com/monicalent&#34;&gt;@monicalent&lt;/a&gt;.&lt;/p&gt;
 </description>
     </item>
     

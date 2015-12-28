@@ -101,7 +101,9 @@ ga('send', 'pageview');
         <div class="post-content clearfix" itemprop="articleBody">
     
 
-    <p>Somewhat recently, I encountered an issue where my expected user input is an arbitrarily long list of words. While I could get the word count, I had no reliable way to know whether all of the ajax requests had been completed before firing an event that created a list of definitions for each word. I had several realizations in my quest:</p>
+    
+
+<p>Somewhat recently, I encountered an issue where my expected user input is an arbitrarily long list of words. While I could get the word count, I had no reliable way to know whether all of the ajax requests had been completed before firing an event that created a list of definitions for each word. I had several realizations in my quest:</p>
 
 <ol>
 <li><p>I could do the entire process synchronously. However, this meant that one bad ajax return or error could cause the entire process to hang. It also meant that slow and intensive requests would cause the application to perform especially poorly as well.</p></li>
@@ -115,42 +117,40 @@ ga('send', 'pageview');
 
 <p>Here is a simple way to address this problem, using jQuery.</p>
 
-<!-- more -->
+<p>Inside the ajax call here, deal with the success and errors states for each call.
+Refer to <a href="http://api.jquery.com/jQuery.ajax/" target="_blank">jQuery&rsquo;s documentation on $.ajax</a> if unfamiliar with it.</p>
 
-<pre><code>&lt;code class=&quot;language-javascript&quot;&gt;// Inside the ajax call here, deal with the success and errors states for each call. 
-// Refer to &lt;a href=&quot;http://api.jquery.com/jQuery.ajax/&quot; target=&quot;_blank&quot;&gt;jQuery's documentation on $.ajax&lt;/a&gt; if unfamiliar with it.
-
-var ajax_caller = function(data) {
+<pre><code>var ajax_caller = function(data) {
     return $.ajax({
         url: data.url, 
         method: data.method
     });
-}&lt;/code&gt;
+};
+</code></pre>
 
+<p>Create an array of <a href="http://api.jquery.com/category/deferred-object/" target="_blank" title="jQuery Documentation for Deferred Objects">deferred objects</a></p>
 
-
-
-
-&lt;code class=&quot;language-javascript&quot;&gt;// Create an array of &lt;a href=&quot;http://api.jquery.com/category/deferred-object/&quot; target=&quot;_blank&quot; title=&quot;jQuery Documentation for Deferred Objects&quot;&gt;deferred objects&lt;/a&gt;
-
-var ajax_calls = [];
+<pre><code>var ajax_calls = [];
 for (var i = 0; i &lt; arbitrary_number; i++)
     ajax_calls.push(ajax_caller({
         url: '/api/endpoint/' + i,
         method: 'GET'
-    }));&lt;/code&gt;
+    }));
+</code></pre>
 
+<p><a href="http://api.jquery.com/jQuery.when/" target="_blank" title="jQuery Documentation for $.when">$.when</a> takes a comma separated list of deferred objects.</p>
 
-
-
-
-&lt;code class=&quot;language-javascript&quot;&gt;// &lt;a href=&quot;http://api.jquery.com/jQuery.when/&quot; target=&quot;_blank&quot; title=&quot;jQuery Documentation for $.when&quot;&gt;$.when&lt;/a&gt; takes a comma separated list of deferred objects.
-// Apply unpacks array into a suitable list for $.when to handle.
-
+<pre><code>// Apply unpacks array into a suitable list for $.when to handle.
 $.when.apply(this, ajax_calls).done(function() {
     // Event to be fired after all ajax calls complete
-});&lt;/code&gt;
+});
 </code></pre>
+
+<hr />
+
+<h2 id="questions-comments-corrections:c606f275ada7dc66db9b03d21a7e8fdb">Questions, Comments, Corrections?</h2>
+
+<p>Get in touch via Twitter at <a href="http://www.twitter.com/monicalent">@monicalent</a>.</p>
 
 </div>
 

@@ -105,33 +105,31 @@ ga('send', 'pageview');
 
 <p>I had some issues with libraries installed via npm (such as d3 and jsdom) causing segmentation faults in Mocha tests. Ultimately I realized that it wasn&rsquo;t a problem with these node modules so much as it was with my node install itself. I had installed from source following <a href="http://sekati.com/etc/install-nodejs-on-debian-squeeze">this guide</a>, but it wasn&rsquo;t quit enough to get my node install right on Debian Squeeze.</p>
 
-<!-- more -->
-
 <h2 id="install-node-js:61f848b5e12f75f9e948cacef1bef456">Install Node.js</h2>
 
 <h3 id="dependencies:61f848b5e12f75f9e948cacef1bef456">Dependencies</h3>
 
 <p>Pretty standard stuff &ndash; make sure you&rsquo;re up to date on these.</p>
 
-<pre><code>&lt;code class=&quot;language-bash&quot;&gt;$ sudo apt-get update &amp;&amp; apt-get install git-core curl build-essential openssl libssl-dev&lt;/code&gt;
+<pre><code>$ sudo apt-get update &amp;&amp; apt-get install git-core curl build-essential openssl libssl-dev
 </code></pre>
 
 <h3 id="clone-the-git-repo:61f848b5e12f75f9e948cacef1bef456">Clone the Git Repo</h3>
 
 <p>Change into the directory you want to install node from. A good option, if in doubt, is to just go for <code>/opt</code>.</p>
 
-<pre><code>&lt;code class=&quot;language-bash&quot;&gt;$ git clone https://github.com/joyent/node.git
-cd node&lt;/code&gt;
+<pre><code>$ git clone https://github.com/joyent/node.git
+cd node
 </code></pre>
 
 <p>Check the <a href="http://nodejs.org/download/">Node.js Download Page</a> and see what they say the latest version of Node is that we should be using. At the time of writing, this was <strong>v0.10.28</strong>. Find this using <code>git tag</code>:</p>
 
-<pre><code>&lt;code class=&quot;language-bash&quot;&gt;$ git tag&lt;/code&gt;
+<pre><code>$ git tag
 </code></pre>
 
 <p>There may be a newer version in the Git repo than the one recommended on the Download page, however it may not be stable. Check it out:</p>
 
-<pre><code>&lt;code class=&quot;language-bash&quot;&gt;$ git checkout v0.10.28&lt;/code&gt;
+<pre><code>$ git checkout v0.10.28
 </code></pre>
 
 <p>You should see <strong>(Stable)</strong> after the version number once you perform this checkout.</p>
@@ -140,36 +138,36 @@ cd node&lt;/code&gt;
 
 <p>Configure node. The section option <code>--without-snapshot</code> should give you a faster build and alleviate some seg fault issues mentioned <a href="http://www.armhf.com/node-js-for-the-beaglebone-black/">elsewhere</a> around the web.</p>
 
-<pre><code>&lt;code class=&quot;language-bash&quot;&gt;$ ./configure --openssl-libpath=/usr/lib/ssl --without-snapshot&lt;/code&gt;
+<pre><code>$ ./configure --openssl-libpath=/usr/lib/ssl --without-snapshot
 </code></pre>
 
 <p>Now make and install (it could take some time to complete the make testing and process, as we&rsquo;re compiling the source code).</p>
 
-<pre><code>&lt;code class=&quot;language-bash&quot;&gt;$ make
+<pre><code>$ make
 $ make test
-$ make install&lt;/code&gt;
+$ make install
 </code></pre>
 
 <p>If it worked, you&rsquo;ll be able to run both of these commands:</p>
 
-<pre><code>&lt;code class=&quot;language-bash&quot;&gt;$ node -v
-$ npm -v&lt;/code&gt;
+<pre><code>$ node -v
+$ npm -v
 </code></pre>
 
 <h2 id="if-you-messed-up:61f848b5e12f75f9e948cacef1bef456">If you messed up&hellip;</h2>
 
 <p>&hellip;like me, and installed a totally wrong and unstable version, luckily there&rsquo;s still hope. Change into the directory where you put the node source:</p>
 
-<pre><code>&lt;code class=&quot;language-bash&quot;&gt;$ make uninstall&lt;/code&gt;
+<pre><code>$ make uninstall
 </code></pre>
 
 <p>Now you can switch branches, re-configure, and re-build the node source as needed. Just be sure to check with <code>node -v</code> again after you&rsquo;ve done the install to be sure everything worked. Good luck!</p>
 
 <hr />
 
-<h2 id="questions-comments-mistakes:61f848b5e12f75f9e948cacef1bef456">Questions, Comments, Mistakes?</h2>
+<h2 id="questions-comments-corrections:61f848b5e12f75f9e948cacef1bef456">Questions, Comments, Corrections?</h2>
 
-<p>Get in touch via the comments (preferable, so others can use them to troubleshoot), or Twitter at <a href="http://www.twitter.com/monicalent">@monicalent</a>, or Google at <a href="https://plus.google.com/+MonicaLent/">+MonicaLent</a>.</p>
+<p>Get in touch via Twitter at <a href="http://www.twitter.com/monicalent">@monicalent</a>.</p>
 
 </div>
 
