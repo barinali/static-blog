@@ -23,7 +23,7 @@ paginatePath = "page"
     twitter = "https://twitter.com/monicalent"
 
 [Permalinks]
-    post = "/:year/:month/:day/:filename/"
+    post = "/blog/:year/:month/:day/:filename/"
 
 [[menu.main]]
     name = "Blog"
