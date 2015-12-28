@@ -1,0 +1,653 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>2015s on mytitle</title>
+    <link>http://localhost:1313/2015/</link>
+    <description>Recent content in 2015s on mytitle</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <copyright>My Name</copyright>
+    <lastBuildDate>Mon, 03 Aug 2015 18:29:56 +0000</lastBuildDate>
+    <atom:link href="http://localhost:1313/2015/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Converting an Angular.js app from Require.js to Webpack</title>
+      <link>http://localhost:1313/2015/08/03/converting-angular-js-app-from-require-js-to-webpack/</link>
+      <pubDate>Mon, 03 Aug 2015 18:29:56 +0000</pubDate>
+      
+      <guid>http://localhost:1313/2015/08/03/converting-angular-js-app-from-require-js-to-webpack/</guid>
+      <description>
+
+&lt;p&gt;I&amp;rsquo;ve recently converted my webapp at work from Require.js to webpack, and although the initial setup was a little tricky, it clearly offers numerous benefits to make the switch when it comes to performance, loading times, and development workflow. In this post, I will only cover a basic switch from Require.js to Webpack. In a following post, I&amp;rsquo;ll go into lazy-loading with webpack and ui-router.&lt;/p&gt;
+
+&lt;h2 id=&#34;possible-require-js-setups-and-their-pitfalls:4eeaadf64fb7af65b4825f6f1945e386&#34;&gt;Possible Require.js setups, and their pitfalls&lt;/h2&gt;
+
+&lt;p&gt;In essence, there are two basic setups you can have for your Require.js if you plan to use lazy-loading. One where you try to bundle your code by module, and another where you make a request for every component required by file. Here&amp;rsquo;s an example:&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Option 1: Require everything needed on a component-basis.&lt;/strong&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;lt;code class=&amp;quot;language-javascript&amp;quot;&amp;gt;
+/*
+ * Presume &#39;app&#39; is an angular module, and the other included files are
+ * other Angular services.
+ */
+// FILE: feed/news_feed_service.js
+define([&#39;app&#39;, &#39;some/dependency&#39;, &#39;common/other_dep&#39;], function() {
+   var SERVICE_NAME = &#39;myService&#39;;
+   Service.$inject = [&#39;SomeDependency&#39;, &#39;OtherDep&#39;];
+   function Service(SomeDependency, OtherDep) {
+      // Do something
+   });
+   app.service(SERVICE_NAME, Service);
+});
+&amp;lt;/code&amp;gt;
+
+
+
+
+&amp;lt;code class=&amp;quot;language-javascript&amp;quot;&amp;gt;
+// FILE: app.js
+define([], function() {
+   var md = angular.module(&#39;NewsFeed&#39;, []);
+   md.config([
+      &#39;$controllerProvider&#39;,
+      &#39;$compileProvider&#39;,
+      &#39;$filterProvider&#39;,
+      &#39;$provide&#39;,
+      function($controllerProvider, $compileProvider, $filterProvider,
+      $provide) {
+        md.controller = $controllerProvider.register;
+        md.directive = $compileProvider.directive;
+        md.filter = $filterProvider.register;
+        md.factory = $provide.factory;
+        md.service = $provide.service;
+      }
+    ]);
+   return md;
+});
+&amp;lt;/code&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Pros:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;You only require what you need. So the first time you use this service, you will only get the service and its direct dependencies.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Cons:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;The number of requests will be mind-blowing for something like, say, a controller, that is requiring a couple services, which all also have dependencies.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;Number of requests is not solved by the build, because you would have to denote many many modules in the build process, and Require.js has no way of knowing what is already included by your app, so you run a high risk of loading a lot of duplicate data.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;strong&gt;Option 2: Require all your components into a module index.&lt;/strong&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;lt;code class=&amp;quot;language-javascript&amp;quot;&amp;gt;
+// FILE: feed/news_feed_service.js
+define([&#39;some/dependency&#39;, &#39;common/other_dep&#39;], function() {
+   var SERVICE_NAME = &#39;NewsFeedService&#39;;
+   Service.$inject = [&#39;SomeDependency&#39;, &#39;OtherDep&#39;];
+   function Service(SomeDependency, OtherDep) {
+      // Do something
+   });
+   return {
+     name: SERVICE_NAME,
+     component: Service
+   };
+});
+&amp;lt;/code&amp;gt;
+
+
+
+
+&amp;lt;code class=&amp;quot;language-javascript&amp;quot;&amp;gt;
+// FILE: app.js
+define([&#39;feed/news_feed_service&#39;], function(service) {
+   var md = angular.module(&#39;NewsFeed&#39;, []);
+   md.config([
+      &#39;$controllerProvider&#39;,
+      &#39;$compileProvider&#39;,
+      &#39;$filterProvider&#39;,
+      &#39;$provide&#39;,
+      function($controllerProvider, $compileProvider, $filterProvider,
+      $provide) {
+        md.controller = $controllerProvider.register;
+        md.directive = $compileProvider.directive;
+        md.filter = $filterProvider.register;
+        md.factory = $provide.factory;
+        md.service = $provide.service;
+      }
+    ]);
+    md.service(service.name, service.component);
+});
+&amp;lt;/code&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Pros:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;In your build step, you can specify each module, and Require.js will bundle it together. So you don&amp;rsquo;t have the problem of making a bunch of requests.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Cons:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;Dependencies between modules gets tricky. You have to make sure the other modules are loaded, but you don&amp;rsquo;t want to include them in the define() of your module index, because you will end up bundling in a lot of duplicate code. Even using &amp;lsquo;exclude&amp;rsquo; and &amp;lsquo;shallowExclude&amp;rsquo; options in the Require.js does not solve this, because you then have to manage loading all the dependencies of your app, making the routing code more complex.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;You&amp;rsquo;re always going to get code that you don&amp;rsquo;t need right away. It also can be inconvenient to make your modules granular enough to bring down the bundle size. Every module could end up with its own shared submodule, and so on. Eventually you are spending more time organizing and splitting your code than writing it. And with every &amp;ldquo;tiny module&amp;rdquo; you make, you have to adjust the build, and you&amp;rsquo;ll need more requests.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;brief-intro-to-webpack-for-require-js-users:4eeaadf64fb7af65b4825f6f1945e386&#34;&gt;Brief intro to Webpack for Require.js-users&lt;/h2&gt;
+
+&lt;p&gt;Enter webpack. It&amp;rsquo;s actually been around since about 2012, and has a lot of hype surrounding it as of late, especially with the presentation by Pete Hunt on &lt;a href=&#34;https://www.youtube.com/watch?v=VkTCL6Nqm6Y&#34;&gt;How Instagram.com works&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;What webpack can do:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;Traverse the dependency tree of your app and serve &amp;ldquo;chunks&amp;rdquo; of code (tiny .js files), based on &amp;ldquo;split points&amp;rdquo; that you put in your code. Read: Only necessary code, but usually in one request.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;You can effect the output files more by the architecture of your code, rather than a complex build process.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;Many other bonus features: Replace your grunt tool, parse and bundle SCSS, transpile your code from ES6 to ES5, populate your ng-cache, and much more!!&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;comparing-main-js-to-webpack-config-js-convert-your-app-by-changing-a-single-file:4eeaadf64fb7af65b4825f6f1945e386&#34;&gt;Comparing main.js to webpack.config.js: Convert your app by changing a single file!&lt;/h2&gt;
+
+&lt;p&gt;Ok, let&amp;rsquo;s get on to the practical stuff. How can you convert your app from Require.js to Webpack in one shot? Well, a big part of that depends on how your Require.js is setup. If you are bundling most things into your initial app.js, you&amp;rsquo;re in luck &amp;ndash; that&amp;rsquo;s the easiest case to convert. Otherwise, you may have to make some adjustments.&lt;/p&gt;
+
+&lt;p&gt;Start by installing webpack, of course:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;lt;code&amp;gt;npm install webpack -g&amp;lt;/code&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Here are an equivalent main.js and webpack.config.js (+ a bootstrap file):&lt;/p&gt;
+
+&lt;p&gt;File structure:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;lt;code&amp;gt;
+root/
++++ app/
+++++++ scripts/
++++++++++ main.js
++++++++++ app.js
+++++++ vendor/
++++ dist/
+++++++ scripts/
+&amp;lt;/code&amp;gt;
+
+
+
+
+
+&amp;lt;code class=&amp;quot;language-javascript&amp;quot;&amp;gt;
+require.config({
+  baseUrl: &#39;/scripts&#39;,
+  paths: {
+    angular: &#39;../vendor/angular/angular&#39;,
+    lodash: &#39;../vendor/lodash/lodash&#39;,
+    angularRoute: &#39;../vendor/angular-ui-router/release/angular-ui-router&#39;,
+    moment: &#39;../vendor/moment/min/moment-with-locales.min&#39;,
+    &#39;angular-moment&#39;: &#39;../vendor/angular-moment/angular-moment&#39;,
+  },
+  shim: {
+    angular: {
+      exports: &#39;angular&#39;
+    },
+    angularRoute: {
+      deps: [&#39;angular&#39;]
+    },
+    &#39;angular-moment&#39;: {
+      deps: [&#39;angular&#39;, &#39;moment&#39;]
+    },
+    lodash: {
+      exports: &#39;_&#39;
+    }
+  }
+});
+
+require([&#39;app&#39;], function() {
+  &#39;use strict&#39;;
+  angular.bootstrap(document, [&#39;Dashboard&#39;]);
+});
+&amp;lt;/code&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;File structure:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;lt;code&amp;gt;
+root/
++++ webpack.config.js
++++ app/
+++++++ scripts/
++++++++++ bootstrap.js
++++++++++ app.js
+++++++ vendor/
++++ dist/
+++++++ scripts/
++++++++++ app.js (built by webpack)
+&amp;lt;/code&amp;gt;
+
+
+
+
+
+&amp;lt;code class=&amp;quot;language-javascript&amp;quot;&amp;gt;
+var webpack = require(&#39;webpack&#39;);
+var path = require(&#39;path&#39;);
+
+module.exports = {
+  context: __dirname + &#39;/app/scripts&#39;,
+  entry: {
+    app: &#39;bootstrap.js&#39;
+  },
+  output: {
+    path: __dirname + &#39;/dist/scripts&#39;,
+    filename: &#39;[name].js&#39;,
+    publicPath: &#39;/scripts/&#39;
+  },
+  plugins: [
+    new webpack.ProvidePlugin({
+      _: &#39;lodash&#39;
+    })
+  ],
+  module: {
+    loaders: [
+      { test: /[\/]angular\.js$/, loader: &amp;quot;exports?angular&amp;quot; }
+    ]
+  },
+  resolve: {
+    extensions: [&#39;&#39;, &#39;.js&#39;],
+    root: [ __dirname + &#39;/app/scripts&#39; ],
+    alias: {
+      angular: __dirname + &#39;/app/vendor/angular/angular&#39;,
+      lodash: __dirname + &#39;/app/vendor/lodash/lodash&#39;,
+      angularRoute: __dirname + &#39;/app/vendor/angular-ui-router/release/angular-ui-router&#39;,
+      moment: __dirname + &#39;/app/vendor/moment/min/moment-with-locales.min&#39;,
+      &#39;angular-moment&#39;: __dirname + &#39;/app/vendor/angular-moment/angular-moment&#39;,
+    }
+  }
+};
+&amp;lt;/code&amp;gt;
+
+
+
+
+&amp;lt;code class=&amp;quot;language-javascript&amp;quot;&amp;gt;
+require(&#39;angular&#39;);
+require(&#39;./app&#39;);
+
+angular.bootstrap(document, [&#39;Dashboard&#39;]);
+&amp;lt;/code&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now, in both cases, you would end up with an app.js made by Require JS, and an app.js made by Webpack. Unlike require.js where you have to first load require.js, which then loads main.js, and boostraps your app, in Webpack you can just put your app.js in the script tag and it runs. Perhaps not a huge optimization, but it is one less request!&lt;/p&gt;
+
+&lt;p&gt;If your Require.js app is loaded lazily, and not ultimately all bundled into a single app.js, then you will have to wait until my follow-up post on lazy-loading Angular apps with webpack! It will also included information as impact webpack can have on your Angular build process, specifically regarding template loading and handling assets like SVGs.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Karma tests with AngularJS &#43; RequireJS</title>
+      <link>http://localhost:1313/2015/02/11/karma-tests-angular-js-require-j/</link>
+      <pubDate>Wed, 11 Feb 2015 15:53:00 +0000</pubDate>
+      
+      <guid>http://localhost:1313/2015/02/11/karma-tests-angular-js-require-j/</guid>
+      <description>
+
+&lt;p&gt;Setting up testing is usually a little painful &amp;ndash; but setting up testing when you&amp;rsquo;re using some kind of weird Angular + Require setup is even worse! Furthermore, the Karma documentation is a little bit terse, so it&amp;rsquo;s hard to tell exactly what combination of configuration settings will get you your intended result. Here&amp;rsquo;s how I accomplished this.&lt;/p&gt;
+
+&lt;h1 id=&#34;file-hierarchy:2281b5cb3a53149a7b95ad220e3ffbdc&#34;&gt;File Hierarchy&lt;/h1&gt;
+
+&lt;p&gt;Here is a typical, sample hierarchy. My top-level directory is something like /opt/some-app. However, since all of the configurations will use relative paths, this is not really important. All you need to know is that my project root contains &amp;ldquo;app&amp;rdquo; as a subdirectory.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;app/
+-- scripts/
++++- filters/my_filter.js
++++- app.js
++++- main.js
+-- test/
++++- spec/
+++++++ filters/my_filter_spec.js
+++++++ karma.conf.js
+++++++ test-app.js
+++++++ test-main.js
+Gruntfile.js
+package.json
+bower.json
+etc.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;As you can probably deduce, for this post I will discuss how we&amp;rsquo;ll test a filter, which is used in our app. Next let&amp;rsquo;s look at the key files in play here:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;my_filter.js&lt;/strong&gt; The filter we want to test.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;my_filter_spec.js&lt;/strong&gt; The file with our tests in it.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;**app.js ** Our Angular module.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;karma.conf.js&lt;/strong&gt; Configuration file, which tell the karma server what files to watch and serve.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;main.js vs. test-main.js&lt;/strong&gt; Main.js is our app&amp;rsquo;s real Requirejs configuration, which we want to mirror as closely as possible in &lt;code&gt;test-main.js&lt;/code&gt;, so that all our &lt;code&gt;define&lt;/code&gt; statements that work in our app also work in our tests.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&#34;setting-up-angular-modules-with-require:2281b5cb3a53149a7b95ad220e3ffbdc&#34;&gt;Setting up Angular modules with Require&lt;/h1&gt;
+
+&lt;!-- more --&gt;
+
+&lt;p&gt;In general, the thing to remember is that if you want to test something, each AMD module must return the function you want to test, so we can inject it later. I will assume you already have some kind of working Angular+Require setup that you want to test, and will gloss over the details of bootstrapping your core Angular module. Here&amp;rsquo;s just a tiny example of a &amp;ldquo;requireable&amp;rdquo; Angular module and a filter.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;1. Review the main.js for your Require setup&lt;/strong&gt;
+I&amp;rsquo;m going to assume you&amp;rsquo;re familiar with Require, and only discuss the parts of the Requirejs setup that we need to get testing to work.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;lt;code class=&amp;quot;language-javascript&amp;quot;&amp;gt;require.config({
+  baseUrl: &#39;/scripts&#39;,
+  paths: {
+    angular: &#39;../vendor/angular/angular&#39;  
+  },
+  shim: {
+    angular: { exports: &#39;angular&#39; }
+  }
+});
+&amp;lt;/code&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;So you see, we&amp;rsquo;re telling Require to start looking in &lt;code&gt;scripts/&lt;/code&gt; automatically, so this way, when we define a new module, Require will begin to resolve where to look for a file to include as a dependency by using this baseUrl.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;2. Define a module&lt;/strong&gt;
+This allows us to define components on a module at runtime. Once we create this module, we&amp;rsquo;ll be able to include it anywhere using &lt;code&gt;define([&#39;app&#39;], function() { ... })&lt;/code&gt; because main.js knows that &amp;ldquo;app&amp;rdquo; really means &amp;ldquo;scripts/app.js&amp;rdquo;.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;lt;code class=&amp;quot;language-javascript&amp;quot;&amp;gt;/* app/scripts/app.js */
+
+define([&#39;angular&#39;], function(angular) {
+  var module = angular.module(&#39;app&#39;, []);
+  module.config([&#39;$controllerProvider&#39;, 
+    &#39;$compileProvider&#39;, 
+    &#39;$filterProvider&#39;, 
+    &#39;$provide&#39;,
+    function($controllerProvider, $compileProvider, $filterProvider, $provide) {
+      module.controller = $controllerProvider.register;
+      module.directive = $compileProvider.directive;
+      module.filter = $filterProvider.register;
+      module.factory = $provide.factory;
+      module.service = $provide.service;
+     }
+ ]);
+
+ return module;
+
+});
+&amp;lt;/code&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;strong&gt;3. Create a filter, register it on the module&lt;/strong&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;lt;code class=&amp;quot;language-javascript&amp;quot;&amp;gt;/* app/scripts/filters/my_filter.js */
+
+define([&#39;app&#39;], function(app) {
+
+  var FILTER_NAME = &#39;myFilter&#39;;
+  var filter = function() {
+    return function(input, option) {
+      return input + option;
+    }
+  };
+
+  app.filter(FILTER_NAME, filter);
+  return filter;
+
+});
+&amp;lt;/code&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Okay, so now you have the three main &amp;ldquo;normal&amp;rdquo; components needed for this example:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;&lt;p&gt;main.js&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;my_filter.js&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;app.js&lt;/p&gt;&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;Now we create the &amp;ldquo;testing&amp;rdquo; counterparts:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;&lt;p&gt;test-main.js&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;my_filter_spec.js&lt;/p&gt;&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;&amp;hellip;and of course, the Karma configuration itself.&lt;/p&gt;
+
+&lt;h1 id=&#34;karma-conf-js:2281b5cb3a53149a7b95ad220e3ffbdc&#34;&gt;Karma.conf.js&lt;/h1&gt;
+
+&lt;p&gt;Now is a good time to install Karma and its variable components if you haven&amp;rsquo;t already.&lt;/p&gt;
+
+&lt;p&gt;`&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;npm install karma karma-jasmine karma-phantomjs-launcher karma-requirejs --save-dev
+npm install -g karma-cli
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;`&lt;/p&gt;
+
+&lt;p&gt;You can now navigate to &lt;code&gt;app/test/&lt;/code&gt; and run:&lt;/p&gt;
+
+&lt;p&gt;`&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;karma init&amp;lt;/code&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;When one of the prompts asks you whether you&amp;rsquo;re using RequireJS, say YES. This will generate the bases of our two important configuration files: &lt;code&gt;karma.conf.js&lt;/code&gt; and &lt;code&gt;test-main.js&lt;/code&gt;. Naturally, they won&amp;rsquo;t work out of the box, but we&amp;rsquo;ll get there.&lt;/p&gt;
+
+&lt;p&gt;Start by opening &lt;code&gt;karma.conf.js&lt;/code&gt;. This file has a bunch of interesting settings, which we will discuss in turn. First, I&amp;rsquo;ll show you the working configuration for our sample project:&lt;/p&gt;
+
+&lt;p&gt;`&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;module.exports = function(config) {
+  config.set({
+    basePath: &#39;../..&#39;,
+    frameworks: [&#39;jasmine, &#39;requirejs&#39;],
+    files: [
+      &#39;app/test/test-main.js&#39;,
+      { pattern: &#39;app/vendor/**/*.js&#39;, included: false },
+      { pattern: &#39;app/scripts/**/*.js&#39;, included: false },
+      { pattern: &#39;app/test/spec/**/*.js&#39;, included: false }
+    ],
+    exclude: [],
+    preprocessors: {},
+    reporters: [&#39;progress&#39;],
+    port: 9876,
+    colors: true,
+    logLevel: config.LOG_DEBUG,
+    autoWatch: true,
+    browsers: [&#39;PhantomJS&#39;],
+    singleRun: false
+  });
+};
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;`&lt;/p&gt;
+
+&lt;p&gt;Most importantly, we care about &lt;strong&gt;basePath&lt;/strong&gt;.  We want this to be the route of our project, so that Karma can find our angular files, vendor files, and test files, and &lt;strong&gt;serve them to Require&lt;/strong&gt;. This is the critical point. Only files that are served by Karma can be found during testing, when Require is trying to pull together your dependencies. This is why, for example, we have the following line in &lt;code&gt;files&lt;/code&gt;:&lt;/p&gt;
+
+&lt;p&gt;`&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;{ pattern: &#39;app/vendor/**/*.js&#39;, included: false }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;`&lt;/p&gt;
+
+&lt;p&gt;Because without this, when we setup test-main.js, we will get 404 WARN&amp;rsquo;s when trying to load Angular. &lt;strong&gt;As a rule, any file that you want to test, or that is a dependency of a file you want to test, must be picked up by Karma by matching an entry in &amp;ldquo;files&amp;rdquo;.&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;I heightened the &lt;code&gt;logLevel&lt;/code&gt; so we&amp;rsquo;ll get more verbose output during debugging, and turned &lt;code&gt;autoWatch&lt;/code&gt; to true, so that any changes to test-main.js are picked up. If you make changes to &lt;code&gt;karma.conf.js&lt;/code&gt;, you will have to kill Karma and start the process again for it to consider these changes.&lt;/p&gt;
+
+&lt;p&gt;Time for the first test! Try running karma with your configuration file. It should spit out a biiiiig long list of all the files that you&amp;rsquo;ve told it to serve (especially because of the &lt;code&gt;config.LOG_DEBUG&lt;/code&gt; setting).&lt;/p&gt;
+
+&lt;p&gt;`&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;karma start app/test/karma.conf.js
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;`&lt;/p&gt;
+
+&lt;p&gt;You should get output which says that it loaded your configuration file. If you get an error that it could not find the configuration file, make sure the file path after &amp;ldquo;karma start&amp;rdquo; is correct. I am running this from my top-level directory (/opt/some-app).&lt;/p&gt;
+
+&lt;p&gt;Now you can open up your browser at &lt;code&gt;http://localhost:9876&lt;/code&gt;. If your &lt;code&gt;karma start&lt;/code&gt; command is still running, you should see a cheerful green banner at the top of the screen.&lt;/p&gt;
+
+&lt;h1 id=&#34;test-main-js:2281b5cb3a53149a7b95ad220e3ffbdc&#34;&gt;test-main.js&lt;/h1&gt;
+
+&lt;p&gt;Think of &lt;code&gt;test-main.js&lt;/code&gt; as a way of overriding &lt;code&gt;main.js&lt;/code&gt; for the purpose of testing. This way, all your files keep the same &lt;code&gt;define&lt;/code&gt; statements, but they&amp;rsquo;re actually &amp;ldquo;looking somewhere else&amp;rdquo; for the purpose of testing.&lt;/p&gt;
+
+&lt;p&gt;First things first: &lt;strong&gt;The default karma+requirejs setup is wrong&lt;/strong&gt;. Particularly, the way it decides how the files being passed to &lt;code&gt;deps&lt;/code&gt; should be formatted. You will see a function called &lt;code&gt;fileToModule&lt;/code&gt;. DELETE IT. This tries to truncate the .js extension of your test files, which we actually don&amp;rsquo;t want it to do, because Karma actually make an HTTP request for &lt;code&gt;my_filter_spec&lt;/code&gt; instead of &lt;code&gt;my_filter_spec.js&lt;/code&gt;. Try this instead for collecting the test files:&lt;/p&gt;
+
+&lt;p&gt;`&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;var allTestFiles = [];
+var TEST_REGEXP = /(_spec|_test)\.js$/i;
+for (var file in window.__karma__.files) {
+  if (TEST_REGEXP.test(file)) allTestFiles.push(file);
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;`&lt;/p&gt;
+
+&lt;p&gt;The next important part of this file is &lt;strong&gt;baseUrl&lt;/strong&gt;. This is the long long loooong lost sibling of &lt;strong&gt;basePath&lt;/strong&gt; in &lt;code&gt;karma.conf.js&lt;/code&gt; &amp;ndash; it&amp;rsquo;s difficult to imagine when you&amp;rsquo;re looking at them, but they&amp;rsquo;re working together in some mysterious way.&lt;/p&gt;
+
+&lt;p&gt;For us, the following pairing works:
+`&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;/* karma.conf.js */
+basePath: &#39;../..&#39;
+
+/* test-main.js */
+baseUrl: &#39;/base/app/scripts&#39;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;`&lt;/p&gt;
+
+&lt;p&gt;This is because karma is serving our entire top-level directory at &lt;code&gt;/base&lt;/code&gt;. So, to mirror our normal &lt;code&gt;main.js&lt;/code&gt;, which has &lt;code&gt;baseUrl: &#39;/scripts&#39;&lt;/code&gt;, in &lt;code&gt;test-main.js&lt;/code&gt; we put &lt;code&gt;&#39;/base/app/scripts&#39;&lt;/code&gt;. &lt;strong&gt;So in both of our configurations for Require.js, Require is using our &amp;ldquo;scripts/&amp;rdquo; folder as a starting point.&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Following this logic, we can re-define where we want our paths in test-main to come from:&lt;/p&gt;
+
+&lt;p&gt;`&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;/* app/test/test-main.js */
+
+require.config({
+  baseUrl: &#39;/base/app/scripts&#39;,
+  deps: allTestFiles,
+  callback: window.__karma__.start,
+  paths: {
+    angular: &#39;/base/app/vendor/angular/angular&#39;
+  },
+  shim: {
+    angular: { exports: &#39;angular&#39; }
+  }
+});
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;`&lt;/p&gt;
+
+&lt;p&gt;Now this means, when we have a file with the following header:
+`&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;define([&#39;path/to/somewhere&#39;], function() { });
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;`&lt;/p&gt;
+
+&lt;p&gt;When it is loaded using &lt;code&gt;main.js&lt;/code&gt;, &amp;ldquo;path/to/somewhere&amp;rdquo; will load &lt;em&gt;&lt;a href=&#34;http://localhost:8080/scripts/path/to/somewhere&#34;&gt;http://localhost:8080/scripts/path/to/somewhere&lt;/a&gt;&lt;/em&gt; from your normal webserver. When using &lt;code&gt;test-main.js&lt;/code&gt;, the same file will require &lt;em&gt;&lt;a href=&#34;http://localhost:9876/base/app/scripts/path/to/somewhere&#34;&gt;http://localhost:9876/base/app/scripts/path/to/somewhere&lt;/a&gt;&lt;/em&gt; from karma. Meaning, the code can be used for running the app or for testing, with no modifications of the dependency paths in individual files!&lt;/p&gt;
+
+&lt;h1 id=&#34;our-first-spec-file:2281b5cb3a53149a7b95ad220e3ffbdc&#34;&gt;Our first spec file&lt;/h1&gt;
+
+&lt;p&gt;Now we finally get to try to tie everything together with our first spec file. Start off by installing &lt;code&gt;angular-mocks&lt;/code&gt;, as this will allow us to register our filter before we test it.&lt;/p&gt;
+
+&lt;p&gt;`&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;npm install angular-mocks --save-dev
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;`&lt;/p&gt;
+
+&lt;p&gt;Add this to your &lt;code&gt;test-main.js&lt;/code&gt; file under &amp;ldquo;paths&amp;rdquo;:&lt;/p&gt;
+
+&lt;p&gt;`&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;paths: {
+  angular: &#39;/base/app/vendor/angular/angular&#39;,
+  angularMocks: &#39;/base/app/vendor/angular-mocks/angular-mocks&#39;
+},
+shim: {
+  angular: { exports: &#39;angular&#39; },
+  angularMocks: { deps: [&#39;angular&#39;] }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;`&lt;/p&gt;
+
+&lt;p&gt;Once we include angularMocks as a dependency, we&amp;rsquo;ll have &lt;code&gt;angular.mock&lt;/code&gt; available on our instance of angular. We can use this to construct components on the fly as we test.&lt;/p&gt;
+
+&lt;p&gt;`&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;/* app/tests/spec/filters/my_filter_spec.js */
+
+define([&#39;angular&#39;,
+  &#39;filters/my_filter&#39;, 
+  &#39;angularMocks&#39;], 
+  function(angular, myFilter) {
+
+    describe(&#39;myFilter&#39;, function() {
+
+      // Here we register the function returned by the myFilter AMD module
+      beforeEach(angular.mock.module(function($filterProvider) {
+        $filterprovider.register(&#39;myFilter&#39;, myFilter);
+      }));
+
+      // Our first test!!!!
+      it(&#39;should not be null&#39;, inject(function($filter) {
+        expect($filter(&#39;myFilter&#39;)).not.toBeNull();
+      }));
+
+    });
+  }
+);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;`&lt;/p&gt;
+
+&lt;p&gt;Now it&amp;rsquo;s time to &lt;code&gt;karma start&lt;/code&gt; our tests!! You should see a very exciting message:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;lt;code&amp;gt;INFO [karma]: Karma v0.12.31 server started at http://localhost:9876/
+INFO [launcher]: Starting browser PhantomJS
+INFO [PhantomJS 1.9.8 (Mac OS X)]: Connected on socket W9ErxZ86IapgwQqqNiPw with id 48168125
+PhantomJS 1.9.8 (Mac OS X): Executed 1 of 1 SUCCESS (0.004 secs / 0.027 secs)
+&amp;lt;/code&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Once this works, you can go ahead and write a real test:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;lt;code class=&amp;quot;language-javascript&amp;quot;&amp;gt;it(&amp;quot;should concatenate strings&amp;quot;, inject(function($filter) {
+  expect($filter(&#39;myFilter&#39;)(&#39;a&#39;, &#39;b&#39;)).toBe(&#39;ab&#39;);
+});
+&amp;lt;/code&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;hr /&gt;
+
+&lt;h1 id=&#34;conclusion:2281b5cb3a53149a7b95ad220e3ffbdc&#34;&gt;Conclusion&lt;/h1&gt;
+
+&lt;p&gt;Clearly, this is just the tip of the iceberg, and there is a lot more work to be done to have a well-tested codebase with a combination of Angular and Require. Here are some additional resources on working with unit testing in an Angular+Require environment:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://engineering.radius.com/post/77677879234/testing-angularjs-in-a-requirejs-environment&#34;&gt;Testing AngularJS in a RequireJS environment&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Contains some good information about testing directives, filters, and controllers. For whatever reason, they are able to use the module exported by angularMocks, whereas I have to use &lt;code&gt;angular.mock&lt;/code&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

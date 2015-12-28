@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title>Django Tastypie: Tips, Tricks, and Troubleshooting &middot; Monica</title>
+        <meta name="description" content="A blog I made">
+        <meta name="HandheldFriendly" content="True">
+        <meta name="MobileOptimized" content="320">
+        <meta name="generator" content="Hugo 0.15" />
+        <meta name="robots" content="index,follow">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="http://localhost:1313/css/normalize.css">
+        <link rel="stylesheet" href="http://localhost:1313/css/highlight.css">
+        <link rel="stylesheet" href="http://localhost:1313/css/style.css">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&subset=latin,cyrillic-ext,latin-ext,cyrillic">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+    </head>
+    <body>
+        
+<script>
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'XXX', 'auto');
+ga('send', 'pageview');
+</script>
+
+
+        <div id="wrapper">
+            <header class="site-header">
+                <div class="container">
+                    <div class="site-title-wrapper">
+                        
+                            <h1 class="site-title">
+                                <a title="Django Tastypie: Tips, Tricks, and Troubleshooting" href="http://localhost:1313/">Django Tastypie: Tips, Tricks, and Troubleshooting</a>
+                            </h1>
+                        
+                        <a class="button-square" href="http://localhost:1313/index.xml"><i class="fa fa-rss"></i></a>
+                        
+                            <a class="button-square button-social hint--top" data-hint="Twitter" title="Twitter" href="https://twitter.com/monicalent">
+                                <i class="fa fa-twitter"></i>
+                            </a>
+                        
+                        
+                            <a class="button-square button-social hint--top" data-hint="Github" title="Github" href="https://github.com/mlent">
+                                <i class="fa fa-github-alt"></i>
+                            </a>
+                        
+                        
+                        
+                        
+                            <a class="button-square button-social hint--top" data-hint="Google+" title="Google+" href="https://google.com/&#43;MonicaLent">
+                                <i class="fa fa-google-plus"></i>
+                            </a>
+                        
+                    </div>
+
+                    <ul class="site-nav">
+                        
+    <li class="site-nav-item">
+        <a title="Blog" href="/">Blog</a>
+    </li>
+
+    <li class="site-nav-item">
+        <a title="Projects" href="http://monicalent.com/#work">Projects</a>
+    </li>
+
+    <li class="site-nav-item">
+        <a title="Contact" href="http://monicalent.com/#contact">Contact</a>
+    </li>
+
+    <li class="site-nav-item">
+        <a title="About" href="http://monicalent.com/#about">About</a>
+    </li>
+
+                    </ul>
+                </div>
+            </header>
+
+            <div id="container">
+
+<div class="container">
+    <article class="post-container" itemscope="" itemtype="http://schema.org/BlogPosting">
+        <header class="post-header">
+    <h1 class="post-title" itemprop="name headline">Django Tastypie: Tips, Tricks, and Troubleshooting</h1>
+    
+    <p class="post-date">
+        <span>Published <time datetime="2014-10-31" itemprop="datePublished">Fri, Oct 31, 2014</time></span>
+        <span>by</span>
+        <span itemscope="" itemprop="author" itemtype="http://schema.org/Person">
+            <span itemprop="name">
+                <a href="http://monicalent.com" itemprop="url" rel="author">Monica</a>
+            </span>
+        </span>
+    </p>
+</header>
+
+        <div class="post-content clearfix" itemprop="articleBody">
+    
+
+    
+
+<p>Tastypie is one of the most popular REST API frameworks for Django, and surprisingly easy to get up and running if you&rsquo;re already working with Django&rsquo;s Models. It can, however, be a bit difficult to debug, and produce some cryptic error messages. Here are a couple of tasks I&rsquo;ve had to figure out while working with this framework, tips for troubleshooting, and some general reflections.</p>
+
+<hr />
+
+<!-- more -->
+
+<h2 id="table-of-contents:237e1358bd1d0aa8a86292e50122607d">Table of Contents</h2>
+
+<ol>
+<li><p>Adding Fields to a Resource</p></li>
+
+<li><p>Mapping Attributes of an Object through a Reverse Relationship</p></li>
+
+<li><p>Filtering via Through Relationships</p></li>
+
+<li><p>Self-Referential Resources</p></li>
+</ol>
+
+<hr />
+
+<h2 id="adding-fields-to-a-resource:237e1358bd1d0aa8a86292e50122607d">Adding Fields to a Resource</h2>
+
+<p>It seems simple enough &ndash; and it is &ndash; but there are really a number of ways to do it, so you have to decide which is most appropriate for your use case.</p>
+
+<p><strong>1. Implementing the field-specific <code>dehydrate</code> function</strong></p>
+
+<pre><code>&lt;code class=&quot;language-python&quot;&gt;
+from tastypie import fields
+from tastypie.resources import ModelResource
+from app.models import MyModel
+
+class MyModelResource(ModelResource):
+    FOO = fields.CharField()
+
+    class Meta:
+        queryset = MyModel.objects.all()
+
+    def dehydrate_FOO(self, bundle):
+        return bundle.obj.data.FOO.upper()
+
+&lt;/code&gt;
+</code></pre>
+
+<p>Here, we work on the object referenced after the underscore in the function name (e.g. function <code>dehydrate_FOO</code> operates on the FOO field, accessible within the function as <code>bundle.obj</code>). Once you&rsquo;ve updated it in some way, Tastypie will automatically update <code>bundle.data['FOO']</code> for you.</p>
+
+<p><strong>2. Implementing the (resource-wide) <code>dehydrate</code> function</strong></p>
+
+<pre><code>&lt;code class=&quot;language-python&quot;&gt;
+from tastypie import fields
+from tastypie.resources import ModelResource
+from app.models import MyModel
+
+class MyModelResource(ModelResource):
+    class Meta:
+        queryset = MyModel.objects.all()
+
+    def dehydrate(self, bundle):
+        bundle.data['new_FOO'] = 'This came from nowhere!'
+        return bundle
+&lt;/code&gt;
+</code></pre>
+
+<p>This makes sense if you need to add a new field, which is based on the value of several other fields, or none of the other fields at all. In the example above, the string &lsquo;some data&rsquo; is not derived from any other field, so it makes sense to put it in the <code>dehydrate</code> function.</p>
+
+<p><strong>3. Additional methods</strong></p>
+
+<p>There are a couple different strategies floating around for adding fields manually to a Tastypie resource. Here are some resources you may find helpful, if you have</p>
+
+<ul>
+<li><p><a href="http://django-tastypie.readthedocs.org/en/latest/resources.html#dehydrate">Tastypie Documentation</a></p></li>
+
+<li><p><a href="http://fan-zf.blogspot.de/2013/07/add-extra-object-to-tastypie-returned.html">Blogpost on adding fields during alter_list_data_to_serialize</a></p></li>
+
+<li><p><a href="http://stackoverflow.com/questions/13302240/how-to-add-extra-object-to-tasty-pie-return-json-in-python-django">Stackoverflow Post: &ldquo;How to add extra object to Tastypie Return JSON&rdquo;</a></p></li>
+
+<li><p><a href="http://stackoverflow.com/questions/10693379/can-django-tastypie-display-a-different-set-of-fields-in-the-list-and-detail-vie">Stackoverflow Post: &ldquo;Can Tastypie display a different set of fields in List and Detail views?&rdquo;</a></p></li>
+</ul>
+
+<p><strong>Troubleshooting</strong></p>
+
+<blockquote>'Bundle' object does not support item assignment</blockquote>
+
+<p>This occurs because you are trying to assign a new field to <code>bundle</code> rather than to <code>bundle.data</code>. Make sure that when you are adding or removing fields from the bundle, particularly when implementing resource-wide <code>dehydrate</code>, you are operating on its <code>data</code> dictionary.</p>
+
+<pre><code>&lt;code class=&quot;language-python&quot;&gt;bundle['new_field'] = 'This will not work.'
+bundle.data['new_field'] = 'This works!'&lt;/code&gt;
+</code></pre>
+
+<hr />
+
+<h2 id="mapping-attributes-of-an-object-related-via-a-foreign-key-through-a-reverse-relationship:237e1358bd1d0aa8a86292e50122607d">Mapping attributes of an object, related via a foreign key, through a reverse relationship</h2>
+
+<p>This is a completely insane title for a section, so let me start by giving you a use-case.</p>
+
+<ul>
+<li><p>I have a list of <code>Grammar</code> topics (objects).</p></li>
+
+<li><p>I have content written for these topics in many languages.</p></li>
+
+<li><p>Each <code>Content</code> object has a <code>ForeignKey</code> relationship to a Grammar topic.</p></li>
+
+<li><p>When looking at the list view of Grammar topics, I want to see the languages and titles of corresponding available content.</p></li>
+</ul>
+
+<p><strong>My starting JSON</strong></p>
+
+<pre><code>&lt;code class=&quot;language-javascript&quot;&gt;
+{
+    meta: {
+        limit: 20,
+        next: &quot;/api/v1/grammar/?offset=20&amp;limit;=20&amp;format;=json&quot;,
+        offset: 0,
+        previous: null,
+        total_count: 1
+    },
+    objects: [
+        {
+            id: 18,
+            resource_uri: &quot;/api/v1/grammar/18/&quot;,
+            name: &quot;First Declension Nouns - Feminine (α-stem)&quot;,
+        }
+    ]
+}
+&lt;/code&gt;
+</code></pre>
+
+<p><strong>My target JSON</strong></p>
+
+<pre><code>&lt;code class=&quot;language-javascript&quot;&gt;
+{
+    meta: {
+        limit: 20,
+        next: &quot;/api/v1/grammar/?offset=20&amp;limit;=20&amp;format;=json&quot;,
+        offset: 0,
+        previous: null,
+        total_count: 1
+    },
+    objects: [
+        {
+            id: 18,
+            resource_uri: &quot;/api/v1/grammar/18/&quot;,
+            name: &quot;First Declension Nouns - Feminine (α-stem)&quot;,
+            titles: {
+                de: &quot;Die a-Deklination&quot;,
+                en: &quot;First Declension Nouns&quot;,
+                it: &quot;Sostantivi femminili&quot;
+            }
+        }
+    ]
+}
+&lt;/code&gt;
+</code></pre>
+
+<p>As you can see, the goal is to end up with a dictionary of related content titles, with the <code>short_code</code> of the language as their key. We&rsquo;ll achieve this by grabbing the content, filtering by the grammar relationship, and the ultimately mapping the full <code>Content</code> object into a short and sweet dictionary entry.</p>
+
+<p><strong>The Django Models</strong>
+For good measure, here are the relevant Django models.</p>
+
+<pre><code>&lt;code class=&quot;language-python&quot;&gt;
+from django.db import models
+import textwrap
+
+class Language(models.Model):
+    &quot;&quot;&quot; 
+    Languages that Content is available in.
+    &quot;&quot;&quot;
+    name = models.CharField(&quot;language name (english)&quot;, 
+                            max_length=200, 
+                            help_text='(e.g. German)')
+
+    short_code = models.CharField(&quot;shortcode&quot;, 
+                            max_length=5, 
+                            help_text='(e.g. \'de\')')
+
+    def __unicode__(self):
+        return unicode(self.name) or u''
+
+class Grammar(models.Model):
+    &quot;&quot;&quot;
+    A unit of learning.
+    &quot;&quot;&quot;
+    name = models.CharField(&quot;title of grammar section&quot;,
+                            max_length=200,
+                            help_text=textwrap.dedent(&quot;&quot;&quot;
+                                Short, descriptive title of the grammar
+                                concept.
+                            &quot;&quot;&quot;))
+
+    class Meta:
+        verbose_name = 'Grammar Topic'
+        ordering = ['name']
+
+    def __unicode__(self):
+        return unicode(self.name) or u''
+
+class Content(models.Model):
+    &quot;&quot;&quot;
+    Content refers to small chunks of information that the user is 
+    presented with inside a lesson.
+    &quot;&quot;&quot;
+    title = models.CharField(&quot;title&quot;,
+                            max_length=200,
+                            help_text=textwrap.dedent(&quot;&quot;&quot;
+                                Short, descriptive title of what 
+                                content is in this section.
+                            &quot;&quot;&quot;))
+
+    grammar_ref = models.ForeignKey(Grammar,
+                            verbose_name=&quot;grammar topic&quot;,
+                            null=True,
+                            blank=True,
+                            help_text=textwrap.dedent(&quot;&quot;&quot;
+                                The morphology directly described by 
+                                this content.
+                            &quot;&quot;&quot;))
+
+    source_lang = models.ForeignKey(Language,
+                            related_name='content_written_in',
+                            help_text=textwrap.dedent(&quot;&quot;&quot;
+                                Language the content is written in.
+                            &quot;&quot;&quot;))
+
+    target_lang = models.ForeignKey(Language,
+                            related_name='content_written_about',
+                            help_text='Language the content teaches.')
+
+    content = models.TextField(&quot;Learning Content&quot;,
+                            help_text=textwrap.dedent(&quot;&quot;&quot;
+                                Write this in Markdown.
+                            &quot;&quot;&quot;))
+    def __unicode__(self):
+        return unicode(self.title) or u''
+</code></pre>
+
+<p>`</p>
+
+<p><strong>api/grammar.py</strong> - <code>GrammarResource</code>
+I use the <code>dehydrate</code> function to add a new field to the resource object, and a helper function to reduce the list of content objects to something simpler.</p>
+
+<pre><code>&lt;code class=&quot;language-python&quot;&gt;
+from tastypie import fields
+from tastypie.resources import ModelResource
+from app.models import Grammar, Content
+from api.content import ContentResource
+
+class GrammarResource(ModelResource):
+    # Here we are using Reverse Relationships to grab content
+    # related to this grammar topic.
+    content = fields.ToManyField(ContentResource, 'content_set', 
+        related_name='content', blank=True, null=True, 
+        use_in='detail', full=True)
+
+    class Meta:
+        queryset = Grammar.objects.all()
+        allowed_methods = ['get']
+
+    # Dehydrate helper function
+    def build_title(self, memo, content):
+        lang = content.source_lang.short_code
+        memo[lang] = content
+        return memo
+
+    def dehydrate(self, bundle):
+        bundle.data['titles'] = reduce(self.build_title, 
+            Content.objects.filter(grammar_ref=bundle.obj), {})
+        return bundle
+&lt;/code&gt;
+</code></pre>
+
+<p>The code itself should be rather self explanatory if you are already comfortable with map/reduce. We&rsquo;re simply applying the function <code>build_title</code> to each item in the <code>Content.objects</code> list, which we pre-filter based on whether its grammar reference is the one we&rsquo;re currently working on. Lastly, we pass in <code>{}</code> as the initial value of our dictionary. Each language becomes a key in the dictionary, and each content title becomes a value.</p>
+
+<p>This is how we end up with:</p>
+
+<pre><code>&lt;code class=&quot;language-javascript&quot;&gt;
+titles: {
+    de: &quot;Die a-Deklination&quot;,
+    en: &quot;First Declension Nouns&quot;,
+    it: &quot;Sostantivi femminili&quot;
+}
+&lt;/code&gt;
+</code></pre>
+
+<p><strong>Additional Resources:</strong></p>
+
+<ul>
+<li><a href="http://django-tastypie.readthedocs.org/en/latest/fields.html?highlight=tomanyfield#tomanyfield">Tastypie Documentation on ToManyField</a></li>
+</ul>
+
+<hr />
+
+<h2 id="filtering-via-through-relationships:237e1358bd1d0aa8a86292e50122607d">Filtering via Through Relationships</h2>
+
+<p>One thing which Tastypie doesn&rsquo;t seem to support nicely out of the box is including the values of the through relationship to a model. Consider the following use-case:</p>
+
+<ul>
+<li><p>You have a <code>Task</code> model.</p></li>
+
+<li><p>You want to order these tasks using another model, <code>TaskSequence</code>.</p></li>
+
+<li><p>You relate a <code>Task</code> to a <code>TaskSequence</code> with metadata (through a &lsquo;through&rsquo; relationship, in a model named <code>TaskContext</code>, which includes information about the order of the tasks.</p></li>
+</ul>
+
+<p>If you just ask Tastypie for the <code>TaskSequence</code> (which is related to another Resource over a simple foreign key relationship, in our case, the same GrammarResource as above), you might end up with something like this:</p>
+
+<pre><code>&lt;code class=&quot;language-javascript&quot;&gt;
+{
+   id: 60,
+   name: &quot;The Aorist Tense&quot;,
+   query: &quot;pos=verb&amp;tense;=aor&quot;,
+   ref: &quot;s542,s546&quot;,
+   resource_uri: &quot;/api/v1/grammar/60/&quot;,
+   task_sequence: {
+      id: 2,
+      name: &quot;Verbs for Beginners&quot;,
+      resource_uri: &quot;&quot;,
+      tasks: [
+          {
+              endpoint: &quot;word&quot;,
+              hint_msg: &quot;Try again.&quot;,
+              id: 4,
+              name: &quot;identify_morph:person&quot;,
+              success_msg: &quot;Good job!&quot;
+          },
+          {
+              endpoint: &quot;word&quot;,
+              hint_msg: &quot;Try again.&quot;,
+              id: 5,
+              name: &quot;identify_morph:number&quot;
+              success_msg: &quot;Good job!&quot;
+          }
+    ]
+}
+</code></pre>
+
+<p>`</p>
+
+<p>However, we really need the information in the through relationship in order to determine the order of the tasks. Therefore, our target JSON is something like this instead:</p>
+
+<pre><code>&lt;code class=&quot;language-javascript&quot;&gt;
+{
+   id: 60,
+   name: &quot;The Aorist Tense&quot;,
+   query: &quot;pos=verb&amp;tense;=aor&quot;,
+   ref: &quot;s542,s546&quot;,
+   resource_uri: &quot;/api/v1/grammar/60/&quot;,
+   task_sequence: {
+      id: 2,
+      name: &quot;Verbs for Beginners&quot;,
+      resource_uri: &quot;&quot;,
+      tasks: [
+          {
+              id: 4,
+              max_attempts: 10,
+              order: 0,
+              resource_uri: &quot;&quot;,
+              target_accuracy: 0.5,
+              task: {
+                  endpoint: &quot;word&quot;,
+                  hint_msg: &quot;Try again.&quot;,
+                  id: 4,
+                  name: &quot;identify_morph:person&quot;,
+                  success_msg: &quot;Good job!&quot;
+              }
+          },
+          {
+              id: 5,
+              max_attempts: 5,
+              order: 1,
+              target_accuracy: 0.8,
+              task: {
+                  endpoint: &quot;word&quot;,
+                  hint_msg: &quot;Try again.&quot;,
+                  id: 5,
+                  name: &quot;identify_morph:number&quot;,
+                  success_msg: &quot;Good job!&quot;
+              }
+          }
+    ]
+}
+&lt;/code&gt;
+</code></pre>
+
+<p><strong>Relevant Resources</strong></p>
+
+<p>Take a look at the Tastypie resources for each of these three components (<code>Task</code>, <code>TaskSequence</code>, <code>TaskContext</code>). The most interesting code occurs in the <code>TaskSequenceResource</code>, where we filter on tasks related to the object in question &ndash; similarly to the example above.</p>
+
+<pre><code>&lt;code class=&quot;language-python&quot;&gt;
+&quot;&quot;&quot;
+Model Resource
+&quot;&quot;&quot;
+from tastypie import fields
+from tastypie.resources import ModelResource
+from app.models import Task
+
+class TaskResource(ModelResource):
+
+    class Meta:
+        queryset = Task.objects.all()
+        allowed_methods = ['get']
+&lt;/code&gt;
+
+
+
+
+
+&lt;code class=&quot;language-python&quot;&gt;
+&quot;&quot;&quot;
+Through Model
+&quot;&quot;&quot;
+from tastypie import fields
+from tastypie.resources import ModelResource
+from app.models import TaskContext
+
+class TaskContextResource(ModelResource):
+        task = fields.ToOneField('api.task.TaskResource', 
+                            'task', 
+                            full=True, 
+                            null=True, 
+                            blank=True)
+
+        class Meta:
+                queryset = TaskContext.objects.all()
+                allowed_methods = ['get']
+&lt;/code&gt;
+
+
+
+
+
+&lt;code class=&quot;language-python&quot;&gt;
+&quot;&quot;&quot;
+Model Sequence Resource
+&quot;&quot;&quot;
+from tastypie import fields
+from tastypie.resources import ModelResource
+from app.models import TaskSequence
+from api.task_context import TaskContextResource
+
+class TaskSequenceResource(ModelResource):
+    tasks = fields.ManyToManyField(TaskContextResource, 
+        attribute=lambda bundle: 
+        bundle.obj.tasks.through.objects.filter(
+            task_sequence=bundle.obj
+        ) or bundle.obj.tasks, 
+        full=True)
+
+    class Meta:
+        queryset = TaskSequence.objects.all()
+        allowed_methods = ['get']
+&lt;/code&gt;
+</code></pre>
+
+<p><strong>Troubleshooting</strong></p>
+
+<blockquote>object has no attribute 'through'</blockquote>
+
+<p>Be careful that you don&rsquo;t have <code>lambda bundle: bundle.obj.through.objects</code>. (Missing, in this example, &lsquo;tasks&rsquo;). You need to specify the name of the field that contains the related objects.</p>
+
+<p><strong>Additional Resources:</strong></p>
+
+<ul>
+<li><a href="http://django-tastypie.readthedocs.org/en/latest/fields.html?highlight=tomanyfield#tomanyfield">Tastypie Documentation on ToManyField</a></li>
+</ul>
+
+<h2 id="self-referential-resources:237e1358bd1d0aa8a86292e50122607d">Self-Referential Resources</h2>
+
+<p>Sometimes it makes perfect sense to have Models that refer to themselves. For example, may have a model Person, and this model may have a list of Relatives (which are also of type Person).</p>
+
+<p>The difficulty comes in when each of these Person models also has a list of Relatives. There are a couple of ways to deal with this without ending up with the following error:</p>
+
+<blockquote>
+Maximum recursion depth exceeded
+</blockquote>
+
+<p><strong>1. Make the relationship asymmetrical in the Model (and do not set full=True)</strong>
+In our example, this would mean that Person A can be related to Person B (e.g. in Person A&rsquo;s list of relatives) without Person B being related to Person A.</p>
+
+<p>This makes it pretty easy for Tastypie to deal with, so long as you do not need the full resources in the Person list view.</p>
+
+<p><strong>app/models.py</strong></p>
+
+<pre><code>&lt;code class=&quot;language-python&quot;&gt;
+from django.db import models
+
+class Person(models.Model):
+    relatives = models.ManyToManyField('self',
+        related_name='relates_to',
+        symmetrical=False,
+        null=True,
+        blank=True)
+&lt;/code&gt;
+</code></pre>
+
+<p><strong>api/person.py</strong></p>
+
+<pre><code>&lt;code class=&quot;language-python&quot;&gt;
+from tastypie import fields
+from tastypie.resources import ModelResource
+from myapp.models import Person
+
+
+class PersonResource(ModelResource):
+    relatives = fields.ToManyField('self', 'persons')
+
+    class Meta:
+        queryset = Person.objects.all()
+&lt;/code&gt;
+</code></pre>
+
+<p><strong>2. Use the <code>use_in</code> option</strong></p>
+
+<pre><code>&lt;code class=&quot;language-python&quot;&gt;
+from tastypie import fields
+from tastypie.resources import ModelResource
+from myapp.models import Person
+
+
+class PersonResource(ModelResource):
+    relatives = fields.ToManyField('self', 'persons', use_in='list')
+
+    class Meta:
+        queryset = Person.objects.all()
+&lt;/code&gt;
+</code></pre>
+
+<p>This is rather straightforward. This way, the relatives will never try to flesh themselves out into detail forms when you&rsquo;re viewing the Person resource as a list. However, this precludes you from seeing this same information in the detail view.</p>
+
+<p><strong>3. Create a &lsquo;shallow&rsquo; version of the resource</strong>
+But, if you need <code>full=True</code> on your list view, you&rsquo;re kind of out of luck. The easiest solution to prevent exceeding the maximum recursion depth is to create two resources. Consider:</p>
+
+<p><code>api/person.py</code></p>
+
+<pre><code>&lt;code class=&quot;language-python&quot;&gt;
+from tastypie import fields
+from tastypie.resources import ModelResource
+from myapp.models import Person
+from api.relative import RelativeResource
+
+class PersonResource(ModelResource):
+    relatives = fields.ManyToManyField(RelativeResource,
+        'related_person',
+         null=True,
+         blank=True,
+         full=True)
+
+    class Meta:
+       queryset = Person.objects.all()
+       allowed_methods = ['get']
+&lt;/code&gt;
+</code></pre>
+
+<p><code>api/relative.py</code></p>
+
+<pre><code>&lt;code class=&quot;language-python&quot;&gt;
+from tastypie import fields
+from tastypie.resources import ModelResource
+from myapp.models import Person
+
+class RelativeResource(ModelResource):
+    class Meta:
+       queryset = Person.objects.all()
+       allowed_methods = ['get']
+&lt;/code&gt;
+</code></pre>
+
+<p>Notice that only the person resource has <code>full=True</code>. This means that, because the relative resource will not try to fill out its own m2m fields, you won&rsquo;t run into infinite recursion.</p>
+
+<p><strong>Troubleshooting</strong></p>
+
+<blockquote>'Options' object has no attribute 'api_name'</blockquote>
+
+<p>Make sure you are pointing to the resource, rather than the model. This can happen if you meant to type, for example, PersonResource, but instead typed Person.</p>
+
+<p><strong>Additional Resources</strong></p>
+
+<ul>
+<li><a href="http://django-tastypie.readthedocs.org/en/latest/resources.html#reverse-relationships">Tastypie Documentation on Reverse Relationships</a> (scroll down a little for self-referential relationships)</li>
+</ul>
+
+<hr />
+
+<h2 id="questions-comments-mistakes:237e1358bd1d0aa8a86292e50122607d">Questions, Comments, Mistakes?</h2>
+
+<p>Get in touch via the comments (preferable, so others can use them to troubleshoot), or Twitter at <a href="http://www.twitter.com/monicalent">@monicalent</a>, or Google at <a href="https://plus.google.com/+MonicaLent/">+MonicaLent</a>.</p>
+
+</div>
+
+        <footer class="post-footer clearfix">
+    
+
+    <div class="share">
+        <a class="icon-twitter" href="http://twitter.com/share?text=Django%20Tastypie%3a%20Tips%2c%20Tricks%2c%20and%20Troubleshooting&url=http%3a%2f%2flocalhost%3a1313%2f2014%2f10%2f31%2fdjango-tastypie-reverse-relationships-filtering%2f"
+            onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+            <i class="fa fa-twitter"></i>
+            <span class="hidden">Twitter</span>
+        </a>
+
+        <a class="icon-facebook" href="https://www.facebook.com/sharer/sharer.php?u=http%3a%2f%2flocalhost%3a1313%2f2014%2f10%2f31%2fdjango-tastypie-reverse-relationships-filtering%2f"
+            onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+            <i class="fa fa-facebook"></i>
+            <span class="hidden">Facebook</span>
+        </a>
+
+        <a class="icon-google-plus" href="https://plus.google.com/share?url=http%3a%2f%2flocalhost%3a1313%2f2014%2f10%2f31%2fdjango-tastypie-reverse-relationships-filtering%2f"
+           onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
+           <i class="fa fa-google-plus"></i>
+            <span class="hidden">Google+</span>
+        </a>
+    </div>
+</footer>
+
+        
+    </article>
+</div>
+
+            </div>
+        </div>
+
+        <footer class="footer">
+            <div class="container">
+                <div class="site-title-wrapper">
+                    <h1 class="site-title">
+                        <a title="Django Tastypie: Tips, Tricks, and Troubleshooting" href="http://localhost:1313/">Django Tastypie: Tips, Tricks, and Troubleshooting</a>
+                    </h1>
+                    <a class="button-square button-jump-top js-jump-top" href="#">
+                        <i class="fa fa-angle-up"></i>
+                    </a>
+                </div>
+
+                <p class="footer-copyright">
+                    <span>&copy; 2015 / Powered by <a href="http://gohugo.io/">Hugo</a></span>
+                </p>
+                <p class="footer-copyright">
+                    <span><a href="https://github.com/roryg/ghostwriter">Ghostwriter theme</a> By <a href="http://jollygoodthemes.com">JollyGoodThemes</a></span>
+                    <span>/ <a href="https://github.com/jbub/ghostwriter">Ported</a> to Hugo By <a href="https://github.com/jbub">jbub</a></span>
+                </p>
+            </div>
+        </footer>
+
+        <script src="http://localhost:1313/js/jquery-1.11.3.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.5/highlight.min.js"></script>
+        <script src="http://localhost:1313/js/jquery.fitvids.js"></script>
+        <script src="http://localhost:1313/js/scripts.js"></script>
+    </body>
+</html>
+

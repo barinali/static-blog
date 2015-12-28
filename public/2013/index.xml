@@ -1,0 +1,461 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>2013s on mytitle</title>
+    <link>http://localhost:1313/2013/</link>
+    <description>Recent content in 2013s on mytitle</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <copyright>My Name</copyright>
+    <lastBuildDate>Fri, 06 Dec 2013 16:03:09 +0000</lastBuildDate>
+    <atom:link href="http://localhost:1313/2013/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Set up Nginx and uWSGI</title>
+      <link>http://localhost:1313/2013/12/06/set-up-nginx-and-uwsgi/</link>
+      <pubDate>Fri, 06 Dec 2013 16:03:09 +0000</pubDate>
+      
+      <guid>http://localhost:1313/2013/12/06/set-up-nginx-and-uwsgi/</guid>
+      <description>
+
+&lt;p&gt;When browsing the web, I often read that setting up nginx with uWSGI is incredibly easy to set up and get running. I absolutely did not find it so, as I had to deal with a lot of configuration issues. So here&amp;rsquo;s how I finally got these components working together on an instance of Ubuntu 12.04. &lt;em&gt;I ultimately hook this up to Django&lt;/em&gt;, but I&amp;rsquo;m sure the general principle would apply to other python frameworks with a WSGI interface.&lt;/p&gt;
+
+&lt;p&gt;Before you read this guide, I would advise taking a look at &lt;a href=&#34;https://uwsgi.readthedocs.org/en/latest/tutorials/Django_and_nginx.html&#34;&gt;Setting up Django and your web server with uWSGI and nginx&lt;/a&gt;. It didn&amp;rsquo;t work &amp;ldquo;as advertised&amp;rdquo; for me, but was nonetheless very helpful.&lt;/p&gt;
+
+&lt;!-- more --&gt;
+
+&lt;h2 id=&#34;basic-installation:70def7930d5cd4b692cfce309764f367&#34;&gt;Basic Installation&lt;/h2&gt;
+
+&lt;p&gt;The fun begins when you simply install both components, nginx and uWSGI.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;lt;code class=&amp;quot;language-bash&amp;quot;&amp;gt;$ sudo apt-get install nginx uwsgi uwsgi-plugin-python&amp;lt;/code&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now, you cannot trust that the version of uWSGI you&amp;rsquo;ve just installed is the most recent. Even after running &lt;code&gt;apt-get update&lt;/code&gt; my package installer &lt;em&gt;still&lt;/em&gt; insisted on an ancient version of uWSGI, something like 0.8. You cannot even run &lt;code&gt;apt-get install uwsgi=1.9&lt;/code&gt; and expect it will find the correct version. The great part about this is that such an old version of uWSGI flat out does not work with nginx. So, check you have the most recent version of uWSGI installed:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;lt;code class=&amp;quot;language-bash&amp;quot;&amp;gt;$ uwsgi --version&amp;lt;/code&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;If you find anything besides the latest version (1.9, at the time of writing), you have to do a magic work around for this issue (acquired from &lt;a href=&#34;http://stackoverflow.com/questions/13965555/after-pip-installing-uwsgi-theres-no-etc-uwsgi-directory-how-can-i-use-apps&#34;&gt;this Stackoverflow question&lt;/a&gt;):&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;lt;code class=&amp;quot;language-bash&amp;quot;&amp;gt;
+$ pip install -U uwsgi
+$ cd /usr/bin
+$ mv uwsgi uwsgi-old
+$ ln -s /usr/local/bin/uwsgi uwsgi&amp;lt;/code&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;nginx-configuration:70def7930d5cd4b692cfce309764f367&#34;&gt;nginx Configuration&lt;/h2&gt;
+
+&lt;p&gt;Both nginx and uWSGI require their own configuration files. Presuming my project name is &amp;ldquo;app&amp;rdquo;, I generally choose to develop within &lt;code&gt;/opt/app&lt;/code&gt;. Within, I create a directory called &lt;code&gt;extras&lt;/code&gt;, wherein I place my configuration files&amp;ndash;this way I can symbolically link them to the locations nginx/uWSGI expect them to be, and not have to copy changes over every time there&amp;rsquo;s a change to it by someone else in, say, a Github repository.&lt;/p&gt;
+
+&lt;p&gt;In &lt;code&gt;/opt/app/extras/nginx.conf&lt;/code&gt;, place the following code:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;lt;code&amp;gt;
+server {
+  listen  8000;
+    server_name localhost;
+    charset utf-8;
+    access_log /var/log/nginx/app.net_access.log;
+    error_log /var/log/nginx/app.net_error.log;
+
+    location  /static {
+      alias  /opt/app/static/;
+    }
+
+    location / {
+      uwsgi_pass  unix:///var/uwsgi/app.sock;
+      include     /opt/app/extras/uwsgi_params;
+      uwsgi_param UWSGI_SCRIPT app.wsgi;
+    }
+}&amp;lt;/code&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I&amp;rsquo;ll explain all these settings in turn:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;listen&lt;/strong&gt;: The port that nginx is essentially broadcasting on. If you visit &lt;em&gt;www.yoursite.com:8000&lt;/em&gt;, in this case, you will trigger nginx to respond. If you don&amp;rsquo;t want to have to specify a port, or you want to update the configuration for production, just use port 80.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;server_name&lt;/strong&gt;: Can generally be localhost, though alternatively could be the IP address of the server you are on.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;charset&lt;/strong&gt;: utf-8 is suitable for most purposes.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;access_log, error_log&lt;/strong&gt;: You can set these to basically any path that the &lt;code&gt;www-data&lt;/code&gt; Unix user can write to, though it makes sense it keep them out of your working directory so you don&amp;rsquo;t end up pushing them to source control.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;location &lt;code&gt;/static&lt;/code&gt;&lt;/strong&gt;: This is just a location that we don&amp;rsquo;t need uWSGI to worry about. It keeps the code running faster if nginx knows it can server this directory straight, instead of through the interface.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;uwsgi_pass&lt;/strong&gt;: The path to the socket that uWSGI and nginx will both access to communicate with one another (more on this later).&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;include&lt;/strong&gt;: Some uWSGI settings which are rather standard (see: &amp;ldquo;&lt;a href=&#34;http://uwsgi-docs.readthedocs.org/en/latest/Nginx.html#what-is-the-uwsgi-params-file&#34;&gt;What is the uWSGI params file?&lt;/a&gt;&amp;rdquo;).&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;uwsgi_param&lt;/strong&gt;: Specifies the uWSGI module you want to use&amp;ndash;this &lt;em&gt;must be available from the python path&lt;/em&gt;.**&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;uwsgi-configuration:70def7930d5cd4b692cfce309764f367&#34;&gt;uWSGI Configuration&lt;/h2&gt;
+
+&lt;p&gt;The uWSGI configuration is much pickier than the nginx configuration for several reasons. Hereafter, I&amp;rsquo;ll share the configuration that I use and discuss the errors that many of these specific configurations and values specifically fixed.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;lt;code&amp;gt;
+[uwsgi]
+binary-path = /usr/local/bin/uwsgi
+chdir = /opt/app
+chmod-socket = 777
+chown-socket = www-data
+
+# While debugging, it makes sense to comment out this line, 
+# so you see uWSGI errors in the terminal instead of having 
+# to go to the logs. Once your setup works, uncomment and it 
+# should smoothly switch to a daemon process.
+daemonize = /var/log/app/app_daemon.log
+
+die-on-term = true
+emperor = true
+enable-threads = true
+gid = www-data
+home = env
+limit-as = 512
+master = true
+module = app.wsgi
+pidfile = /opt/logs/uwsgi/master.pid
+processes = 2
+python-path = /opt/app
+socket = /var/uwsgi/app.sock 
+touch-reload = /opt/app/reload
+uid = www-data
+vacuum = true
+vhost = true
+virtualenv = /opt/app/env
+workers = 4&amp;lt;/code&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Not all of these settings may be necessary, but it&amp;rsquo;s what I finally found works for me. Visit the official uWSGI documentation on &lt;a href=&#34;http://uwsgi-docs.readthedocs.org/en/latest/Options.html&#34;&gt;Configuration Options&lt;/a&gt; for a complete rundown. Here are settings I needed to resolve specific bugs.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;binary-path&lt;/strong&gt; You need to tell uWSGI which binary to use in the case that it&amp;rsquo;s not in the default spot. Since we had to do some finagling with the uWSGI version, it is probably a good idea to specify the path here.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;chmod-socket, chown-socket, gid, uid, socket&lt;/strong&gt; For uWSGI and nginx to communicate over a socket, you need to specify the permissions and the owner of the socket. &lt;em&gt;777 as chmod-socket is much too liberal for production&lt;/em&gt;. However, you may have to mess around with this number to get it correct, so everything necessary can communicate. If you don&amp;rsquo;t take care of your socket configurations, you will get errors such as:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;lt;code&amp;gt;
+(111: Connection refused) while connecting to upstream.&amp;lt;/code&amp;gt;
+
+
+
+
+
+&amp;lt;code&amp;gt;
+bind(): Permission denied [socket.c line 107]&amp;lt;/code&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;To create the space for the socket to exist, you just have to pick a persistent directory (e.g. &lt;em&gt;not&lt;/em&gt; &lt;code&gt;/run&lt;/code&gt; or &lt;code&gt;/tmp&lt;/code&gt;) and make &lt;code&gt;www-data&lt;/code&gt; (the user nginx runs as) the owner of it, as such:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;lt;code class=&amp;quot;language-bash&amp;quot;&amp;gt;
+$ sudo mkdir /var/uwsgi
+$ sudo chown www-data:www-data /var/uwsgi&amp;lt;/code&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Make sure that your value for &lt;code&gt;socket&lt;/code&gt; in the uWSGI conf file corresponds to the value for &lt;code&gt;uwsgi_pass&lt;/code&gt; in the nginx conf file.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;limit-as&lt;/strong&gt; Unix has some sort of built in limits for what it can transfer. You may need to set this value if you get errors such as:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;lt;code&amp;gt;
+[error] 20739#0: *21 upstream prematurely closed connection while reading response header from upstream&amp;lt;/code&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;strong&gt;module&lt;/strong&gt; Refers to the uWSGI module, which must be on the Python Path. In the Nginx settings, you saw this same value corresponding to &lt;code&gt;uwsgi_param UWSGI_SCRIPT&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;python-path&lt;/strong&gt; As you&amp;rsquo;d expect, having the correct python path is very important for uWSGI to find your app&amp;rsquo;s WSGI file.&lt;/p&gt;
+
+&lt;h2 id=&#34;symlinking-the-conf-files:70def7930d5cd4b692cfce309764f367&#34;&gt;Symlinking the Conf files&lt;/h2&gt;
+
+&lt;p&gt;Okay, so you should now have two working configuration files stored in a place such as &lt;code&gt;/opt/app/extras&lt;/code&gt;. Now, in order for nginx and uWSGI to automatically load when you use them as services, we have to sym link our files into directories that each looks in on startup.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;lt;code class=&amp;quot;language-bash&amp;quot;&amp;gt;
+$ ln -s /opt/app/extras/nginx.conf /etc/nginx/sites-enabled/nginx.conf
+$ ln -s /opt/app/extras/uwsgi.conf /etc/uwsgi/apps-enabled/uwsgi.conf&amp;lt;/code&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;testing-the-configuration:70def7930d5cd4b692cfce309764f367&#34;&gt;Testing the Configuration&lt;/h2&gt;
+
+&lt;p&gt;Now we should be able to test out the configuration. My advice is to comment out the &lt;code&gt;daemonize&lt;/code&gt; line in &lt;code&gt;uWSGI.conf&lt;/code&gt;, so you can see what&amp;rsquo;s happening while you start up uWSGI. Then start both services.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;lt;code class=&amp;quot;language-bash&amp;quot;&amp;gt;
+$ service nginx restart
+$ uwsgi /opt/extras/uwsgi.conf&amp;lt;/code&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;You should then see uWSGI take over your entire terminal and tell you that it&amp;rsquo;s running correctly. Open up localhost or the IP address in the web browser and watch what happens. If you can load a page, congratulations! Sig int and uncomment the daemon line, and let it run.&lt;/p&gt;
+
+&lt;h2 id=&#34;troubleshooting:70def7930d5cd4b692cfce309764f367&#34;&gt;Troubleshooting&lt;/h2&gt;
+
+&lt;p&gt;&lt;strong&gt;Error:&lt;/strong&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;lt;code&amp;gt;
+ImportError: No module named &#39;app.wsgi&#39;
+unable to load app 0 (mountpoint=&#39;&#39;) (callable not found or import error)&amp;lt;/code&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;strong&gt;Problem:&lt;/strong&gt; You probably have a Python path issue, because it is not finding your WSGI app. Also, make sure your virtualenv is running!&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Error:&lt;/strong&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;lt;code&amp;gt;
+uWSGI Error. Python application not found&amp;lt;/code&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;strong&gt;Problem:&lt;/strong&gt; Your python path is probably still wrong to your app.wsgi. Make sure that nginx and uWSGI are finding your UWSGI app at all by checking their logs.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Error:&lt;/strong&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;lt;code&amp;gt;
+502 Bad Gateway&amp;lt;/code&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;strong&gt;Problem:&lt;/strong&gt; Chances are that uWSGI isn&amp;rsquo;t actually running. The issue is that Nginx is trying to funnel requests through uWGSI, but uWSGI isn&amp;rsquo;t running to handle them with your Python app.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;In general:&lt;/strong&gt;
+&lt;strong&gt;Make sure uWSGI is actually running.&lt;/strong&gt; It generally helps to look at the processes and see how many are running&amp;ndash;I had issues where I thought uWSGI was running, but it was &amp;ldquo;silently&amp;rdquo; failing because all the errors were being funneled into the logs. This means that nginx will be attempting to talk to uWSGI, but it cannot. You&amp;rsquo;ll get all sorts of non-descriptives errors of this.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;lt;code class=&amp;quot;language-bash&amp;quot;&amp;gt;
+$ ps aux | grep uwsgi
+&amp;lt;/code&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Will list all the processing running on your machine.&lt;/p&gt;
+
+&lt;h2 id=&#34;questions-comments-mistakes:70def7930d5cd4b692cfce309764f367&#34;&gt;Questions, Comments, Mistakes?&lt;/h2&gt;
+
+&lt;p&gt;Get in touch via the comments (preferable, so others can use them to troubleshoot), or Twitter at &lt;a href=&#34;http://www.twitter.com/monicalent&#34;&gt;@monicalent&lt;/a&gt;, or Google at &lt;a href=&#34;https://plus.google.com/+MonicaLent/&#34;&gt;+MonicaLent&lt;/a&gt;.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Create a server-side fallback for HTML5 Push State used with Backbone.js</title>
+      <link>http://localhost:1313/2013/09/01/create-server-side-fallback-html5-push-state-backbone-js/</link>
+      <pubDate>Sun, 01 Sep 2013 15:47:08 +0000</pubDate>
+      
+      <guid>http://localhost:1313/2013/09/01/create-server-side-fallback-html5-push-state-backbone-js/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Custom event for detecting fetch errors in Backbone.js</title>
+      <link>http://localhost:1313/2013/07/29/using-a-custom-event-to-detect-fetch-errors-in-backbone-js/</link>
+      <pubDate>Mon, 29 Jul 2013 11:59:40 +0000</pubDate>
+      
+      <guid>http://localhost:1313/2013/07/29/using-a-custom-event-to-detect-fetch-errors-in-backbone-js/</guid>
+      <description>&lt;p&gt;One of Backbone&amp;rsquo;s major strengths as a javascript MVC framework is the way it helps you do event handling. By extension, it&amp;rsquo;s also great for handling errors that result from failed AJAX calls. As you can see in the &lt;a href=&#34;http://backbonejs.org/#Events-catalog&#34;&gt;Backbone.js documentation&lt;/a&gt;, the &lt;code&gt;error&lt;/code&gt; event is triggered when a model&amp;rsquo;s attempt to save fails server-side. However, there is no Backbone event that detects when the &lt;code&gt;fetch&lt;/code&gt; event fails. Since a fetch from the server is the first thing that happens when a page is loaded, you would need to know if it fails because that could indicate that the API is down or some other server error.&lt;/p&gt;
+
+&lt;!-- more --&gt;
+
+&lt;p&gt;One way to handle this is that every time you call fetch, you specify an error function. However, this precludes us from being able to organize our failed fetches nicely within Views themselves, as we would with other events that occur on collections such as &lt;code&gt;add&lt;/code&gt; or &lt;code&gt;reset&lt;/code&gt;. For example:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;lt;code class=&amp;quot;language-javascript&amp;quot;&amp;gt;
+MyApp.Views.Foo = Backbone.View.extend({
+  &#39;tagName&#39;: &#39;div&#39;,
+  template: _.template(MyApp.Templates.foo_template),
+  initialize: function() {
+    MyApp.models.bind(&#39;fail&#39;, this.show_failure, this);
+  },
+  render: function() {
+    this.$el.html(this.template(this.model.toJSON()));
+    return this;
+  },
+  show_failure: function() {
+    // Update DOM to denote failure to fetch models
+  }
+});
+&amp;lt;/code&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;You can trigger a &amp;lsquo;fail&amp;rsquo; event, or any other kind of event, by modifying your base collection. In this case, I am modifying the &lt;code&gt;fetch&lt;/code&gt; event handler to trigger a &lt;code&gt;fail&lt;/code&gt; event in the case that it fails.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;lt;code class=&amp;quot;language-javascript&amp;quot;&amp;gt;
+MyApp.Collections.Base = Backbone.Collection.extend({
+  fetch: function(options) {
+    var self = this;
+    var opts =  { 
+      success: function() {
+        if (options &amp;amp;&amp;amp; options.success)
+          options.success(self);
+      },
+      error: function() {
+        // Allow views to respond to failed fetch calls
+        self.trigger(&#39;fail&#39;);
+        if (options &amp;amp;&amp;amp; options.error)
+          options.error(self);
+      } 
+    };
+
+    // Combine options and custom handlers, apply to fetch prototype, call.
+    (_.bind(Backbone.Collection.prototype.fetch, this, _.extend({}, options, opts)))();
+  }
+});
+&amp;lt;/code&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Looking at &lt;a href=&#34;http://backbonejs.org/docs/backbone.html#section-55&#34;&gt;Backbone.js annotated source code&lt;/a&gt; is really helpful to understand how to override certain functions.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Quick Tip: Use jQuery to Complete an Arbitrary Number of AJAX Calls Before Firing an Event</title>
+      <link>http://localhost:1313/2013/06/28/quick-tip-use-jquery-to-complete-an-arbitrary-number-of-ajax-calls-before-firing-an-event/</link>
+      <pubDate>Fri, 28 Jun 2013 16:40:14 +0000</pubDate>
+      
+      <guid>http://localhost:1313/2013/06/28/quick-tip-use-jquery-to-complete-an-arbitrary-number-of-ajax-calls-before-firing-an-event/</guid>
+      <description>&lt;p&gt;Somewhat recently, I encountered an issue where my expected user input is an arbitrarily long list of words. While I could get the word count, I had no reliable way to know whether all of the ajax requests had been completed before firing an event that created a list of definitions for each word. I had several realizations in my quest:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;&lt;p&gt;I could do the entire process synchronously. However, this meant that one bad ajax return or error could cause the entire process to hang. It also meant that slow and intensive requests would cause the application to perform especially poorly as well.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;Doing a simple for-loop of ajax requests would definitely not work, because the entire control structure would be done evaluating before even the first request completed.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;I couldn&amp;rsquo;t keep an internal counter, because the data returned by ajax&amp;rsquo;s success method basically gets eaten by the larger ajax object, which returns a deferred object. I had no way of passing an integer into the ajax object and then getting it back out.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;Since I wanted to do this asynchronously, I also couldn&amp;rsquo;t guarantee which ajax request would complete last, even if it was at the end of my list of requests to fire.&lt;/p&gt;&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;Here is a simple way to address this problem, using jQuery.&lt;/p&gt;
+
+&lt;!-- more --&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;lt;code class=&amp;quot;language-javascript&amp;quot;&amp;gt;// Inside the ajax call here, deal with the success and errors states for each call. 
+// Refer to &amp;lt;a href=&amp;quot;http://api.jquery.com/jQuery.ajax/&amp;quot; target=&amp;quot;_blank&amp;quot;&amp;gt;jQuery&#39;s documentation on $.ajax&amp;lt;/a&amp;gt; if unfamiliar with it.
+
+var ajax_caller = function(data) {
+    return $.ajax({
+        url: data.url, 
+        method: data.method
+    });
+}&amp;lt;/code&amp;gt;
+
+
+
+
+
+&amp;lt;code class=&amp;quot;language-javascript&amp;quot;&amp;gt;// Create an array of &amp;lt;a href=&amp;quot;http://api.jquery.com/category/deferred-object/&amp;quot; target=&amp;quot;_blank&amp;quot; title=&amp;quot;jQuery Documentation for Deferred Objects&amp;quot;&amp;gt;deferred objects&amp;lt;/a&amp;gt;
+
+var ajax_calls = [];
+for (var i = 0; i &amp;lt; arbitrary_number; i++)
+    ajax_calls.push(ajax_caller({
+        url: &#39;/api/endpoint/&#39; + i,
+        method: &#39;GET&#39;
+    }));&amp;lt;/code&amp;gt;
+
+
+
+
+
+&amp;lt;code class=&amp;quot;language-javascript&amp;quot;&amp;gt;// &amp;lt;a href=&amp;quot;http://api.jquery.com/jQuery.when/&amp;quot; target=&amp;quot;_blank&amp;quot; title=&amp;quot;jQuery Documentation for $.when&amp;quot;&amp;gt;$.when&amp;lt;/a&amp;gt; takes a comma separated list of deferred objects.
+// Apply unpacks array into a suitable list for $.when to handle.
+
+$.when.apply(this, ajax_calls).done(function() {
+    // Event to be fired after all ajax calls complete
+});&amp;lt;/code&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Avoiding the OOM Killer by limiting the number of Apache2 processes and clients</title>
+      <link>http://localhost:1313/2013/03/27/avoiding-the-oom-killer-by-limiting-the-number-of-apache2-processes/</link>
+      <pubDate>Wed, 27 Mar 2013 02:23:36 +0000</pubDate>
+      
+      <guid>http://localhost:1313/2013/03/27/avoiding-the-oom-killer-by-limiting-the-number-of-apache2-processes/</guid>
+      <description>
+
+&lt;h2 id=&#34;prologue:845086cb80237fc9eb92e1c183d94e4e&#34;&gt;Prologue&lt;/h2&gt;
+
+&lt;p&gt;Last week I had the following mortifying experience: I tried to ssh into my box hosted at RackSpace and nothing happened. It simply hung, and never prompted me for my password. Commence panic. I determined that port 22 was, in fact, open, and I was connecting to the machine at some point.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;lt;code&amp;gt;&amp;gt; nc -zw3 monicalent.com 22
+&amp;gt; Connection to monicalent.com 22 port [tcp/ssh] succeeded!
+
+&amp;gt; telnet monicalent.com 22
+&amp;gt; Trying 198.101.205.52...
+Connected to monicalent.com.&amp;lt;/code&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;But&amp;hellip;how can I fix whatever is wrong with this box if I can&amp;rsquo;t even ssh into it?!&lt;/p&gt;
+
+&lt;!-- more --&gt;
+
+&lt;p&gt;I was able to get into the box using RackSpace&amp;rsquo;s web terminal. While it didn&amp;rsquo;t allow me to type anything, I was able to get just enough information to determine what was causing the webserver, at least, not to respond:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;lt;code&amp;gt;[25020884.198143] Out of memory: kill process 4805 (apache2) score 46872 or a child
+[25020884.198150] Killed process 22433 (apache2)&amp;lt;/code&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Awesome. I&amp;rsquo;m out of memory. I scroll up only to find out what is actually killing the processes: &lt;strong&gt;OOM Killer&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;h2 id=&#34;problem:845086cb80237fc9eb92e1c183d94e4e&#34;&gt;Problem&lt;/h2&gt;
+
+&lt;p&gt;Here&amp;rsquo;s what I&amp;rsquo;ve learned. When you don&amp;rsquo;t have any memory left on your box, OOM Killer will try to figure out what process is causing the problem. Apache has some default settings in apache2.conf which are not okay for a box with as little memory as mine has (256 MB). So it will run a bunch of apache2 processes, using up a ton of my memory. Obviously, if you are actually expecting a lot of web traffic (unlike me), you&amp;rsquo;re just going to need a bigger box.&lt;/p&gt;
+
+&lt;p&gt;To see what processes are running on your machine, sorted by their memory usage, run the following command:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;lt;code class=&amp;quot;language-bash&amp;quot;&amp;gt;ps aux | awk &#39;{print $2, $4, $11}&#39; | sort -k2rn | head -n 15&amp;lt;/code&amp;gt;
+
+
+
+
+
+&amp;lt;code&amp;gt;30077 12.4 /usr/sbin/apache2
+29920 12.0 /usr/sbin/apache2
+31319 11.0 /usr/sbin/apache2
+31320 11.0 /usr/sbin/apache2
+29915 10.6 /usr/sbin/apache2
+29194 10.2 /usr/sbin/apache2
+915 2.1 /usr/sbin/mysqld
+31321 1.2 /usr/sbin/apache2
+29186 0.9 /usr/sbin/apache2
+2075 0.4 ps&amp;lt;/code&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Notice how Apache2 has a bunch of processes running, which are eating up double-digit percentages of my memory.&lt;/p&gt;
+
+&lt;h2 id=&#34;patch:845086cb80237fc9eb92e1c183d94e4e&#34;&gt;Patch&lt;/h2&gt;
+
+&lt;p&gt;Apache needs someone to tell it not to go overboard on creating all of these processes. When I open up /etc/apache2/apache2.conf, I find some interesting numbers.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;lt;code&amp;gt;&amp;lt;IfModule mpm_prefork_module&amp;gt; 
+StartServers 5 
+MinSpareServers 5 
+MaxSpareServers 10 
+MaxClients 150 
+MaxRequestsPerChild 0 
+&amp;lt;/IfModule&amp;gt;&amp;lt;/code&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Here&amp;rsquo;s a quick breakdown on what this means:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;StartServers: The number of server processes (as seen when we run &lt;code&gt;ps aux&lt;/code&gt; or &lt;code&gt;top&lt;/code&gt;) that apache starts automatically.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;MinSpareServers: The minimum number of server processes apache will keep running in reserve, so they can be used as needed.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;MaxSpareServers: The maximum number of server processes apache will keep running in reserve. Any processes in excess of this will be killed.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;MaxClients: The maximum number of requests (GET, POST, etc.) that can be fielded at the same time. MaxKeepAliveRequests, earlier in this file, determines how many requests each connection can make before it has to re-establish. While keeping these numbers high is good for performance for your end-user, it&amp;rsquo;s bad if you have a baby-sized server like me.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;MaxRequestsPerChild: Number of requests a child process will handle before terminating.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Now, for a small server like mine, there is no way it&amp;rsquo;s going to handle 150 clients simultaneously. Furthermore, it doesn&amp;rsquo;t need to start with a dozen apache2 processes waiting for action it&amp;rsquo;s never going to get. Following the &lt;a href=&#34;http://articles.slicehost.com/2010/5/19/configuring-the-apache-mpm-on-ubuntu&#34;&gt;recommendations&lt;/a&gt; of the folks at Slicehost, along with other resources, I use the following settings.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;lt;code&amp;gt;&amp;lt;IfModule mpm_prefork_module&amp;gt;
+StartServers 2
+MinSpareServers 2
+MaxSpareServers 5
+MaxClients 40
+MaxRequestsPerChild 0
+&amp;lt;/IfModule&amp;gt;&amp;lt;/code&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now, when I check for memory usage on my machine after a restart of apache, I see that there are fewer apache processes going (thanks to my changes to StartServers, MinSpareServers, and MaxSpareServers). However, each apache process is using a greater percentage of memory a piece. So it becomes a bit of a balancing game to figure out what the proper numbers to put in ought to be.&lt;/p&gt;
+
+&lt;p&gt;Hopefully, however, since MaxClients has been reduced from 150 to 40, I will not cause my machine to dip into swap memory to comply with client requests. Further, it should be killing the other connections rather than keeping them alive.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
