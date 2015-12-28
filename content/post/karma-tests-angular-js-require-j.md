@@ -30,6 +30,7 @@ package.json
 bower.json
 etc.
 </pre>
+
 As you can probably deduce, for this post I will discuss how we'll test a filter, which is used in our app. Next let's look at the key files in play here:
 
 * **my_filter.js** The filter we want to test.
@@ -63,9 +64,11 @@ So you see, we're telling Require to start looking in `scripts/` automatically, 
 This allows us to define components on a module at runtime. Once we create this module, we'll be able to include it anywhere using `define(['app'], function() { ... })` because main.js knows that "app" really means "scripts/app.js".
     
 <pre><code class="language-javascript">/* app/scripts/app.js */
+
 define(['angular'], function(angular) {
   var module = angular.module('app', []);
-  module.config(['$controllerProvider', 
+  module.config([
+    '$controllerProvider',
     '$compileProvider', 
     '$filterProvider', 
     '$provide',
@@ -290,3 +293,8 @@ Clearly, this is just the tip of the iceberg, and there is a lot more work to be
 * [Testing AngularJS in a RequireJS environment](http://engineering.radius.com/post/77677879234/testing-angularjs-in-a-requirejs-environment)
 * Contains some good information about testing directives, filters, and controllers. For whatever reason, they are able to use the module exported by angularMocks, whereas I have to use `angular.mock`.
 
+* * *
+
+## Questions, Comments, Corrections?
+
+Get in touch via Twitter at [@monicalent](http://www.twitter.com/monicalent).

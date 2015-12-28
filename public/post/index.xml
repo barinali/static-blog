@@ -301,21 +301,23 @@ package.json
 bower.json
 etc.
 &lt;/pre&gt;
-As you can probably deduce, for this post I will discuss how we&#39;ll test a filter, which is used in our app. Next let&#39;s look at the key files in play here:
 
-* **my_filter.js** The filter we want to test.
-* **my_filter_spec.js** The file with our tests in it.
-* **app.js** Our Angular module.
-* **karma.conf.js** Configuration file, which tell the karma server what files to watch and serve.
-* **main.js** vs. **test-main.js** Main.js is our app&#39;s real Requirejs configuration, which we want to mirror as closely as possible in `test-main.js`, so that all our `define` statements that work in our app also work in our tests.
+&lt;p&gt;As you can probably deduce, for this post I will discuss how we&amp;rsquo;ll test a filter, which is used in our app. Next let&amp;rsquo;s look at the key files in play here:&lt;/p&gt;
 
-# Setting up Angular modules with Require
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;my_filter.js&lt;/strong&gt; The filter we want to test.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;my_filter_spec.js&lt;/strong&gt; The file with our tests in it.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;app.js&lt;/strong&gt; Our Angular module.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;karma.conf.js&lt;/strong&gt; Configuration file, which tell the karma server what files to watch and serve.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;main.js&lt;/strong&gt; vs. &lt;strong&gt;test-main.js&lt;/strong&gt; Main.js is our app&amp;rsquo;s real Requirejs configuration, which we want to mirror as closely as possible in &lt;code&gt;test-main.js&lt;/code&gt;, so that all our &lt;code&gt;define&lt;/code&gt; statements that work in our app also work in our tests.&lt;/li&gt;
+&lt;/ul&gt;
 
-In general, the thing to remember is that if you want to test something, each AMD module must return the function you want to test, so we can inject it later. I will assume you already have some kind of working Angular+Require setup that you want to test, and will gloss over the details of bootstrapping your core Angular module. Here&#39;s just a tiny example of a &#34;requireable&#34; Angular module and a filter.
+&lt;h1 id=&#34;setting-up-angular-modules-with-require:2281b5cb3a53149a7b95ad220e3ffbdc&#34;&gt;Setting up Angular modules with Require&lt;/h1&gt;
 
-**1. Review the main.js for your Require setup**
-I&#39;m going to assume you&#39;re familiar with Require, and only discuss the parts of the Requirejs setup that we need to get testing to work.
+&lt;p&gt;In general, the thing to remember is that if you want to test something, each AMD module must return the function you want to test, so we can inject it later. I will assume you already have some kind of working Angular+Require setup that you want to test, and will gloss over the details of bootstrapping your core Angular module. Here&amp;rsquo;s just a tiny example of a &amp;ldquo;requireable&amp;rdquo; Angular module and a filter.&lt;/p&gt;
 
+&lt;p&gt;&lt;strong&gt;1. Review the main.js for your Require setup&lt;/strong&gt;
+I&amp;rsquo;m going to assume you&amp;rsquo;re familiar with Require, and only discuss the parts of the Requirejs setup that we need to get testing to work.&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-javascript&#34;&gt;require.config({
   baseUrl: &#39;/scripts&#39;,
@@ -334,9 +336,11 @@ I&#39;m going to assume you&#39;re familiar with Require, and only discuss the p
 This allows us to define components on a module at runtime. Once we create this module, we&amp;rsquo;ll be able to include it anywhere using &lt;code&gt;define([&#39;app&#39;], function() { ... })&lt;/code&gt; because main.js knows that &amp;ldquo;app&amp;rdquo; really means &amp;ldquo;scripts/app.js&amp;rdquo;.&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-javascript&#34;&gt;/* app/scripts/app.js */
+
 define([&#39;angular&#39;], function(angular) {
   var module = angular.module(&#39;app&#39;, []);
-  module.config([&#39;$controllerProvider&#39;, 
+  module.config([
+    &#39;$controllerProvider&#39;,
     &#39;$compileProvider&#39;, 
     &#39;$filterProvider&#39;, 
     &#39;$provide&#39;,
@@ -567,6 +571,12 @@ PhantomJS 1.9.8 (Mac OS X): Executed 1 of 1 SUCCESS (0.004 secs / 0.027 secs)
 &lt;li&gt;&lt;a href=&#34;http://engineering.radius.com/post/77677879234/testing-angularjs-in-a-requirejs-environment&#34;&gt;Testing AngularJS in a RequireJS environment&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;Contains some good information about testing directives, filters, and controllers. For whatever reason, they are able to use the module exported by angularMocks, whereas I have to use &lt;code&gt;angular.mock&lt;/code&gt;.&lt;/li&gt;
 &lt;/ul&gt;
+
+&lt;hr /&gt;
+
+&lt;h2 id=&#34;questions-comments-corrections:2281b5cb3a53149a7b95ad220e3ffbdc&#34;&gt;Questions, Comments, Corrections?&lt;/h2&gt;
+
+&lt;p&gt;Get in touch via Twitter at &lt;a href=&#34;http://www.twitter.com/monicalent&#34;&gt;@monicalent&lt;/a&gt;.&lt;/p&gt;
 </description>
     </item>
     
