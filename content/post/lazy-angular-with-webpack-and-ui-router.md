@@ -1,8 +1,22 @@
 +++
 date = "2015-12-28T11:41:00-07:00"
 title = "Lazy-loading an Angular application in bundles with UI Router and Webpack"
-
+draft = true
 +++
+
+## TOC
+* [General approach and tradeoffs]({{< relref "#general-approach-and-tradeoffs" >}})
+* [Architecture of your Angular application]({{< relref "#architecture-of-your-angular-application" >}})
+  * [Component-based vs Traditional]({{< relref "#component-based-vs-traditional" >}})
+* [Registering Angular components lazily]({{< relref "#registering-angular-components-lazily" >}})
+  * [Keeping our own registry of components]({{< relref "#keeping-our-own-registry-of-components" >}})
+* [Bundling templates and populating the `$templateCache`]({{< relref "#bundling-templates-and-populating-the-templatecache" >}})
+* [Handling common code]({{< relref "#handling-common-code" >}})
+* [Using Webpack's local styles (optional)]({{< relref "#using-webpacks-local-styles-optional" >}})
+* [Loading bundles with UI Router]({{< relref "#loading-bundles-with-ui-router" >}})
+* [Configuring Webpack]({{< relref "#configuring-webpack" >}})
+* [Development and production builds]({{< relref "#development-and-production-builds" >}})
+* [Conclusion]({{< relref "#conclusion" >}})
 
 ## General approach and tradeoffs
 
@@ -18,8 +32,10 @@ This approach is not perfect, and has some pros and cons. Briefly:
 
 * **Pros:**
   * Smaller, and therefore faster, initial page load
+  * Fewer requests to the server, since most of your code is bundled together
   * Lends itself nicely to a feature-organized codebase
   * Load what you need\*
+
 * **Cons:**
   * It's up to you to organize your code optimally
   * Sometimes you will have to download the same code more than once
@@ -36,8 +52,7 @@ If you put this somewhere in your code, you will see that this affects the outpu
 
 Our basic approach is to put these `require.ensure` blocks inside the `resolve` function, which is available to us from [UI Router](https://github.com/angular-ui/ui-router). Since navigation will not complete until the promises returned by each of the functions passed to `resolve`, this is where we can load our async chunks. 
 
-    const configs = {
-      'main.componentA': {
+    $stateProvider.$state('main.componentA', {
         url: '/component-a',
         template: `<component-a></component-a>`,
         resolve: {
@@ -51,18 +66,21 @@ Our basic approach is to put these `require.ensure` blocks inside the `resolve` 
               * will follow!
               */
               require('component-a');
+              require('component-b');
+              require('component-c');
+              require('component-d');
               defer.resolve();
-            }, 'Bundle-A'); // Final string gives bundle a nice name,
-                            // instead just a number.
+            }, 'Bundle-ABCD'); // Final string gives bundle a nice name,
+                               // instead just a number.
 
             return defer.promise;
           }]
         },
       }
-    };
+    });
 
 ## Architecture of your Angular application
-The first thing to start thinking about is what belongs in your bundles. **You need to have your application designed in a module-friendly (e.g. component-based) way**. Some discussion about the _why_ and _how_ follows &mdash; feel free to skip if you've already purged standalone templates and controllers from your code. Otherwise, you'll see some ideas for refactoring, but don't worry if your codebase is too far-gone to refactor at once -- **we'll also handle how to lazy-load this "traditional" angular setup as well as component-based.**
+The first thing to start thinking about is what belongs in your bundles. **You need to have your application designed in a module-friendly (e.g. component-based) way**. Some discussion about the _why_ and _how_ follows &mdash; feel free to skip if you've already purged standalone templates and controllers from your code. Otherwise, you'll see some ideas for refactoring, but don't worry if your codebase is too far-gone to refactor at once -- **we'll also handle how to lazy-load this "traditional" angular setup as well as component-based.** This is a conversion you can make gradually as well.
 
 Since the premise of this article is how to load your code lazily, it makes sense that the easily way to do this is if all the code for your various routes are grouped together already. Meaning, instead of this:
 
@@ -97,7 +115,7 @@ Perhaps you can already see how nicely the second set of files would translate i
 Now, this second example shows a somewhat traditional approach to how you may want to organize your code. You've got a controller, a template, and probably a service. However, this can get a little bit tricky if you think about how we want to lazy-load. Consider our UI-router block again:
 
 ```
-const configs = {
+$stateProvider.$state('main.componentA', {
   'main.profile': {
     url: '/profile',
     templateUrl: '/profile/profile.html',
@@ -112,7 +130,7 @@ const configs = {
       }]
     },
   }
-};
+});
 ```
 ```
 <!-- profile.html -->
