@@ -2,6 +2,7 @@
 author = "Monica"
 comments = true
 date = "2014-10-31 17:54:27+00:00"
+tags = ["python", "django", "django tastypie"]
 slug = "django-tastypie-reverse-relationships-filtering"
 title = "Django Tastypie: Tips, Tricks, and Troubleshooting"
 wordpress_id = 326

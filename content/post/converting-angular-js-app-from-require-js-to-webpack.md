@@ -2,6 +2,7 @@
 author = "Monica"
 type = "post"
 comments = true
+tags = ["angular", "webpack", "require js"]
 date = "2015-08-03 18:29:56+00:00"
 slug = "converting-angular-js-app-from-require-js-to-webpack"
 title = "Converting an Angular.js app from Require.js to Webpack"

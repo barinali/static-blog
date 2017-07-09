@@ -5,6 +5,7 @@ date = "2014-08-10 12:02:59+00:00"
 slug = "internationalization-with-django-backbone-underscore-template-and-sass-ltr-and-rtl-languages"
 title = "Internationalization with Django, Backbone, Underscore templates, and Sass (LTR and RTL languages)"
 wordpress_id = 288
+tags = ["django", "internationalization", "backbone", "underscore"]
 +++
 
 Let's be honest: No developer wakes up in the morning and thinks, "Oh goody! Today I get to internationalize my giant website with tons of content and files. I bet supporting right-to-left languages is going to be a blast." 
