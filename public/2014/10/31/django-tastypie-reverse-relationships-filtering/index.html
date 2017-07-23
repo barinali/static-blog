@@ -131,7 +131,7 @@ ga('send', 'pageview');
 from tastypie.resources import ModelResource
 from app.models import MyModel</p>
 
-<pre><code>class MyModelResource(ModelResource):
+<pre><code class="language-python">class MyModelResource(ModelResource):
     FOO = fields.CharField()
 
     class Meta:
@@ -145,7 +145,7 @@ from app.models import MyModel</p>
 
 <p><strong>2. Implementing the (resource-wide) <code>dehydrate</code> function</strong></p>
 
-<pre><code>from tastypie import fields
+<pre><code class="language-python">from tastypie import fields
 from tastypie.resources import ModelResource
 from app.models import MyModel
 
@@ -177,7 +177,7 @@ class MyModelResource(ModelResource):
 
 <p>This occurs because you are trying to assign a new field to <code>bundle</code> rather than to <code>bundle.data</code>. Make sure that when you are adding or removing fields from the bundle, particularly when implementing resource-wide <code>dehydrate</code>, you are operating on its <code>data</code> dictionary.</p>
 
-<pre><code>bundle['new_field'] = 'This will not work.'
+<pre><code class="language-python">bundle['new_field'] = 'This will not work.'
 bundle.data['new_field'] = 'This works!'
 </code></pre>
 
@@ -196,19 +196,19 @@ bundle.data['new_field'] = 'This works!'
 
 <p><strong>My starting JSON</strong></p>
 
-<pre><code>{
-    meta: {
-        limit: 20,
-        next: &quot;/api/v1/grammar/?offset=20&amp;limit;=20&amp;format;=json&quot;,
-        offset: 0,
-        previous: null,
-        total_count: 1
+<pre><code class="language-json">{
+    &quot;meta&quot;: {
+        &quot;limit&quot;: 20,
+        &quot;next&quot;: &quot;/api/v1/grammar/?offset=20&amp;limit=20&amp;format=json&quot;,
+        &quot;offset&quot;: 0,
+        &quot;previous&quot;: null,
+        &quot;total_count&quot;: 1
     },
-    objects: [
+    &quot;objects&quot;: [
         {
-            id: 18,
-            resource_uri: &quot;/api/v1/grammar/18/&quot;,
-            name: &quot;First Declension Nouns - Feminine (α-stem)&quot;,
+            &quot;id&quot;: 18,
+            &quot;resource_uri&quot;: &quot;/api/v1/grammar/18/&quot;,
+            &quot;name&quot;: &quot;First Declension Nouns - Feminine (α-stem)&quot;,
         }
     ]
 }
@@ -219,7 +219,7 @@ bundle.data['new_field'] = 'This works!'
 <pre><code>{
     meta: {
         limit: 20,
-        next: &quot;/api/v1/grammar/?offset=20&amp;limit;=20&amp;format;=json&quot;,
+        next: &quot;/api/v1/grammar/?offset=20&amp;limit=20&amp;format=json&quot;,
         offset: 0,
         previous: null,
         total_count: 1
@@ -244,7 +244,7 @@ bundle.data['new_field'] = 'This works!'
 <p><strong>The Django Models</strong>
 For good measure, here are the relevant Django models.</p>
 
-<pre><code>from django.db import models
+<pre><code class="language-python">from django.db import models
 import textwrap
 
 class Language(models.Model):
@@ -322,7 +322,7 @@ class Content(models.Model):
 <p><strong>api/grammar.py</strong> - <code>GrammarResource</code>
 I use the <code>dehydrate</code> function to add a new field to the resource object, and a helper function to reduce the list of content objects to something simpler.</p>
 
-<pre><code>from tastypie import fields
+<pre><code class="language-python">from tastypie import fields
 from tastypie.resources import ModelResource
 from app.models import Grammar, Content
 from api.content import ContentResource
@@ -348,7 +348,6 @@ class GrammarResource(ModelResource):
         bundle.data['titles'] = reduce(self.build_title, 
             Content.objects.filter(grammar_ref=bundle.obj), {})
         return bundle
-&lt;/code&gt;
 </code></pre>
 
 <p>The code itself should be rather self explanatory if you are already comfortable with map/reduce. We&rsquo;re simply applying the function <code>build_title</code> to each item in the <code>Content.objects</code> list, which we pre-filter based on whether its grammar reference is the one we&rsquo;re currently working on. Lastly, we pass in <code>{}</code> as the initial value of our dictionary. Each language becomes a key in the dictionary, and each content title becomes a value.</p>
@@ -460,7 +459,7 @@ class GrammarResource(ModelResource):
 
 <p>Take a look at the Tastypie resources for each of these three components (<code>Task</code>, <code>TaskSequence</code>, <code>TaskContext</code>). The most interesting code occurs in the <code>TaskSequenceResource</code>, where we filter on tasks related to the object in question &ndash; similarly to the example above.</p>
 
-<pre><code>&quot;&quot;&quot;
+<pre><code class="language-python">&quot;&quot;&quot;
 Model Resource
 &quot;&quot;&quot;
 from tastypie import fields
@@ -475,7 +474,7 @@ class TaskResource(ModelResource):
 
 </code></pre>
 
-<pre><code>&quot;&quot;&quot;
+<pre><code class="language-python">&quot;&quot;&quot;
 Through Model
 &quot;&quot;&quot;
 from tastypie import fields
@@ -495,7 +494,7 @@ class TaskContextResource(ModelResource):
 
 </code></pre>
 
-<pre><code>&quot;&quot;&quot;
+<pre><code class="language-python">&quot;&quot;&quot;
 Model Sequence Resource
 &quot;&quot;&quot;
 from tastypie import fields
@@ -543,7 +542,7 @@ In our example, this would mean that Person A can be related to Person B (e.g. i
 
 <p>This makes it pretty easy for Tastypie to deal with, so long as you do not need the full resources in the Person list view.</p>
 
-<pre><code># app/models.py
+<pre><code class="language-python"># app/models.py
 
 from django.db import models
 
@@ -555,7 +554,7 @@ class Person(models.Model):
         blank=True)
 </code></pre>
 
-<pre><code># api/person.py
+<pre><code class="language-python"># api/person.py
 
 from tastypie import fields
 from tastypie.resources import ModelResource
@@ -589,7 +588,7 @@ class PersonResource(ModelResource):
 <p><strong>3. Create a &lsquo;shallow&rsquo; version of the resource</strong>
 But, if you need <code>full=True</code> on your list view, you&rsquo;re kind of out of luck. The easiest solution to prevent exceeding the maximum recursion depth is to create two resources. Consider:</p>
 
-<pre><code># api/person.py
+<pre><code class="language-python"># api/person.py
 
 from tastypie import fields
 from tastypie.resources import ModelResource
@@ -609,7 +608,7 @@ class PersonResource(ModelResource):
 
 </code></pre>
 
-<pre><code># api/relative.py
+<pre><code class="language-python"># api/relative.py
     
 from tastypie import fields
 from tastypie.resources import ModelResource

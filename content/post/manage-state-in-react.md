@@ -2,7 +2,7 @@
 author = "Monica"
 date = "2017-07-23T14:29:42+02:00"
 tags = ["react", "redux", "javascript"]
-title = "How to better manage and eliminate state without Redux"
+title = "How to manage and eliminate React state without Redux"
 description = "These patterns and strategies will help you eliminate or manage state in your React app in a cleaner way, without Redux."
 +++
 

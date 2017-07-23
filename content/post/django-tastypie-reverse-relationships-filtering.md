@@ -31,30 +31,34 @@ from tastypie import fields
 from tastypie.resources import ModelResource
 from app.models import MyModel
 
-    class MyModelResource(ModelResource):
-        FOO = fields.CharField()
+```python
+class MyModelResource(ModelResource):
+    FOO = fields.CharField()
 
-        class Meta:
-            queryset = MyModel.objects.all()
+    class Meta:
+        queryset = MyModel.objects.all()
 
-        def dehydrate_FOO(self, bundle):
-            return bundle.obj.data.FOO.upper()
+    def dehydrate_FOO(self, bundle):
+        return bundle.obj.data.FOO.upper()
+```
 
 Here, we work on the object referenced after the underscore in the function name (e.g. function `dehydrate_FOO` operates on the FOO field, accessible within the function as `bundle.obj`). Once you've updated it in some way, Tastypie will automatically update `bundle.data['FOO']` for you.
 
 **2. Implementing the (resource-wide) `dehydrate` function**
 
-    from tastypie import fields
-    from tastypie.resources import ModelResource
-    from app.models import MyModel
-    
-    class MyModelResource(ModelResource):
-        class Meta:
-            queryset = MyModel.objects.all()
-    
-        def dehydrate(self, bundle):
-            bundle.data['new_FOO'] = 'This came from nowhere!'
-            return bundle
+```python
+from tastypie import fields
+from tastypie.resources import ModelResource
+from app.models import MyModel
+
+class MyModelResource(ModelResource):
+    class Meta:
+        queryset = MyModel.objects.all()
+
+    def dehydrate(self, bundle):
+        bundle.data['new_FOO'] = 'This came from nowhere!'
+        return bundle
+```
 
 This makes sense if you need to add a new field, which is based on the value of several other fields, or none of the other fields at all. In the example above, the string 'some data' is not derived from any other field, so it makes sense to put it in the `dehydrate` function.
 
@@ -73,8 +77,10 @@ There are a couple different strategies floating around for adding fields manual
 
 This occurs because you are trying to assign a new field to `bundle` rather than to `bundle.data`. Make sure that when you are adding or removing fields from the bundle, particularly when implementing resource-wide `dehydrate`, you are operating on its `data` dictionary. 
 
-    bundle['new_field'] = 'This will not work.'
-    bundle.data['new_field'] = 'This works!'
+```python
+bundle['new_field'] = 'This will not work.'
+bundle.data['new_field'] = 'This works!'
+```
 
 * * *
 
@@ -89,29 +95,31 @@ This is a completely insane title for a section, so let me start by giving you a
 
 **My starting JSON**
 
-    {
-        meta: {
-            limit: 20,
-            next: "/api/v1/grammar/?offset=20&limit;=20&format;=json",
-            offset: 0,
-            previous: null,
-            total_count: 1
-        },
-        objects: [
-            {
-                id: 18,
-                resource_uri: "/api/v1/grammar/18/",
-                name: "First Declension Nouns - Feminine (α-stem)",
-            }
-        ]
-    }
+```json
+{
+    "meta": {
+        "limit": 20,
+        "next": "/api/v1/grammar/?offset=20&limit=20&format=json",
+        "offset": 0,
+        "previous": null,
+        "total_count": 1
+    },
+    "objects": [
+        {
+            "id": 18,
+            "resource_uri": "/api/v1/grammar/18/",
+            "name": "First Declension Nouns - Feminine (α-stem)",
+        }
+    ]
+}
+```
 
 **My target JSON**
 
     {
         meta: {
             limit: 20,
-            next: "/api/v1/grammar/?offset=20&limit;=20&format;=json",
+            next: "/api/v1/grammar/?offset=20&limit=20&format=json",
             offset: 0,
             previous: null,
             total_count: 1
@@ -135,110 +143,113 @@ As you can see, the goal is to end up with a dictionary of related content title
 **The Django Models**
 For good measure, here are the relevant Django models.
 
-    from django.db import models
-    import textwrap
-    
-    class Language(models.Model):
-        """ 
-        Languages that Content is available in.
-        """
-        name = models.CharField("language name (english)", 
-                                max_length=200, 
-                                help_text='(e.g. German)')
-    
-        short_code = models.CharField("shortcode", 
-                                max_length=5, 
-                                help_text='(e.g. \'de\')')
-    
-        def __unicode__(self):
-            return unicode(self.name) or u''
-    
-    class Grammar(models.Model):
-        """
-        A unit of learning.
-        """
-        name = models.CharField("title of grammar section",
-                                max_length=200,
-                                help_text=textwrap.dedent("""
-                                    Short, descriptive title of the grammar
-                                    concept.
-                                """))
-    
-        class Meta:
-            verbose_name = 'Grammar Topic'
-            ordering = ['name']
-    
-        def __unicode__(self):
-            return unicode(self.name) or u''
-    
-    class Content(models.Model):
-        """
-        Content refers to small chunks of information that the user is 
-        presented with inside a lesson.
-        """
-        title = models.CharField("title",
-                                max_length=200,
-                                help_text=textwrap.dedent("""
-                                    Short, descriptive title of what 
-                                    content is in this section.
-                                """))
-    
-        grammar_ref = models.ForeignKey(Grammar,
-                                verbose_name="grammar topic",
-                                null=True,
-                                blank=True,
-                                help_text=textwrap.dedent("""
-                                    The morphology directly described by 
-                                    this content.
-                                """))
-    
-        source_lang = models.ForeignKey(Language,
-                                related_name='content_written_in',
-                                help_text=textwrap.dedent("""
-                                    Language the content is written in.
-                                """))
-    
-        target_lang = models.ForeignKey(Language,
-                                related_name='content_written_about',
-                                help_text='Language the content teaches.')
-    
-        content = models.TextField("Learning Content",
-                                help_text=textwrap.dedent("""
-                                    Write this in Markdown.
-                                """))
-        def __unicode__(self):
-            return unicode(self.title) or u''
+```python
+from django.db import models
+import textwrap
+
+class Language(models.Model):
+    """ 
+    Languages that Content is available in.
+    """
+    name = models.CharField("language name (english)", 
+                            max_length=200, 
+                            help_text='(e.g. German)')
+
+    short_code = models.CharField("shortcode", 
+                            max_length=5, 
+                            help_text='(e.g. \'de\')')
+
+    def __unicode__(self):
+        return unicode(self.name) or u''
+
+class Grammar(models.Model):
+    """
+    A unit of learning.
+    """
+    name = models.CharField("title of grammar section",
+                            max_length=200,
+                            help_text=textwrap.dedent("""
+                                Short, descriptive title of the grammar
+                                concept.
+                            """))
+
+    class Meta:
+        verbose_name = 'Grammar Topic'
+        ordering = ['name']
+
+    def __unicode__(self):
+        return unicode(self.name) or u''
+
+class Content(models.Model):
+    """
+    Content refers to small chunks of information that the user is 
+    presented with inside a lesson.
+    """
+    title = models.CharField("title",
+                            max_length=200,
+                            help_text=textwrap.dedent("""
+                                Short, descriptive title of what 
+                                content is in this section.
+                            """))
+
+    grammar_ref = models.ForeignKey(Grammar,
+                            verbose_name="grammar topic",
+                            null=True,
+                            blank=True,
+                            help_text=textwrap.dedent("""
+                                The morphology directly described by 
+                                this content.
+                            """))
+
+    source_lang = models.ForeignKey(Language,
+                            related_name='content_written_in',
+                            help_text=textwrap.dedent("""
+                                Language the content is written in.
+                            """))
+
+    target_lang = models.ForeignKey(Language,
+                            related_name='content_written_about',
+                            help_text='Language the content teaches.')
+
+    content = models.TextField("Learning Content",
+                            help_text=textwrap.dedent("""
+                                Write this in Markdown.
+                            """))
+    def __unicode__(self):
+        return unicode(self.title) or u''
+```
 
 **api/grammar.py** - `GrammarResource`
 I use the `dehydrate` function to add a new field to the resource object, and a helper function to reduce the list of content objects to something simpler.
 
-    from tastypie import fields
-    from tastypie.resources import ModelResource
-    from app.models import Grammar, Content
-    from api.content import ContentResource
-    
-    class GrammarResource(ModelResource):
-        # Here we are using Reverse Relationships to grab content
-        # related to this grammar topic.
-        content = fields.ToManyField(ContentResource, 'content_set', 
-            related_name='content', blank=True, null=True, 
-            use_in='detail', full=True)
-    
-        class Meta:
-            queryset = Grammar.objects.all()
-            allowed_methods = ['get']
-    
-        # Dehydrate helper function
-        def build_title(self, memo, content):
-            lang = content.source_lang.short_code
-            memo[lang] = content
-            return memo
-    
-        def dehydrate(self, bundle):
-            bundle.data['titles'] = reduce(self.build_title, 
-                Content.objects.filter(grammar_ref=bundle.obj), {})
-            return bundle
-    </code>
+```python
+from tastypie import fields
+from tastypie.resources import ModelResource
+from app.models import Grammar, Content
+from api.content import ContentResource
+
+class GrammarResource(ModelResource):
+    # Here we are using Reverse Relationships to grab content
+    # related to this grammar topic.
+    content = fields.ToManyField(ContentResource, 'content_set', 
+        related_name='content', blank=True, null=True, 
+        use_in='detail', full=True)
+
+    class Meta:
+        queryset = Grammar.objects.all()
+        allowed_methods = ['get']
+
+    # Dehydrate helper function
+    def build_title(self, memo, content):
+        lang = content.source_lang.short_code
+        memo[lang] = content
+        return memo
+
+    def dehydrate(self, bundle):
+        bundle.data['titles'] = reduce(self.build_title, 
+            Content.objects.filter(grammar_ref=bundle.obj), {})
+        return bundle
+```
 
 The code itself should be rather self explanatory if you are already comfortable with map/reduce. We're simply applying the function `build_title` to each item in the `Content.objects` list, which we pre-filter based on whether its grammar reference is the one we're currently working on. Lastly, we pass in `{}` as the initial value of our dictionary. Each language becomes a key in the dictionary, and each content title becomes a value.
 
@@ -341,7 +352,7 @@ However, we really need the information in the through relationship in order to 
 
 Take a look at the Tastypie resources for each of these three components (`Task`, `TaskSequence`, `TaskContext`). The most interesting code occurs in the `TaskSequenceResource`, where we filter on tasks related to the object in question -- similarly to the example above.
 
-```
+```python
 """
 Model Resource
 """
@@ -356,7 +367,7 @@ class TaskResource(ModelResource):
         allowed_methods = ['get']
 
 ```
-```
+```python
 """
 Through Model
 """
@@ -375,8 +386,8 @@ class TaskContextResource(ModelResource):
                 queryset = TaskContext.objects.all()
                 allowed_methods = ['get']
 
- ```
- ```
+```
+```python
 """
 Model Sequence Resource
 """
@@ -423,7 +434,7 @@ In our example, this would mean that Person A can be related to Person B (e.g. i
 
 This makes it pretty easy for Tastypie to deal with, so long as you do not need the full resources in the Person list view.
 
-```
+```python
 # app/models.py
 
 from django.db import models
@@ -435,7 +446,7 @@ class Person(models.Model):
         null=True,
         blank=True)
 ```
-```
+```python
 # api/person.py
 
 from tastypie import fields
@@ -469,7 +480,7 @@ This is rather straightforward. This way, the relatives will never try to flesh 
 **3. Create a 'shallow' version of the resource**
 But, if you need `full=True` on your list view, you're kind of out of luck. The easiest solution to prevent exceeding the maximum recursion depth is to create two resources. Consider:
 
-```
+```python
 # api/person.py
 
 from tastypie import fields
@@ -489,7 +500,7 @@ class PersonResource(ModelResource):
        allowed_methods = ['get']
 
 ```
-```
+```python
 # api/relative.py
     
 from tastypie import fields
