@@ -15,9 +15,8 @@ paginatePath = "page"
     tag = "tags"
 
 [Params]
-    intro = true
     headline = "Blog"
-    description = "A blog I made"
+    description = "My tech blog, covering javascript, python, and fun unix tricks I learn while developing software."
     github = "https://github.com/mlent"
     gplus = "https://google.com/+MonicaLent"
     twitter = "https://twitter.com/monicalent"
@@ -31,14 +30,9 @@ paginatePath = "page"
     weight = 1
 
 [[menu.main]]
-    name = "Projects"
-    url = "http://monicalent.com/#work"
+    name = "Website"
+    url = "http://monicalent.com/"
     weight = 2
-
-[[menu.main]]
-    name = "Contact"
-    url = "http://monicalent.com/#contact"
-    weight = 3
 
 [[menu.main]]
     name = "About"
