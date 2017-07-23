@@ -247,10 +247,10 @@ MyShop extends Component {
   }
 
   componentWillMount() {
-    Promise.all[
+    Promise.all([
       api.shop.getProducts(),
       api.shop.getCurrentOrder()
-    ].then(([products, order]) => {
+    ]).then(([products, order]) => {
       // Benefit 1: No pre-processing of our data from the server
       this.setState({ products, order });
     });
