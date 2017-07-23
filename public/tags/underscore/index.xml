@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Underscore on Blog</title>
+    <link>http://monicalent.com/blog/tags/underscore/</link>
+    <description>Recent content in Underscore on Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <copyright>Monica Lent</copyright>
+    <lastBuildDate>Sun, 10 Aug 2014 12:02:59 +0000</lastBuildDate>
+    
+	<atom:link href="http://monicalent.com/blog/tags/underscore/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Internationalization with Django, Backbone, Underscore templates, and Sass (LTR and RTL languages)</title>
+      <link>http://monicalent.com/blog/2014/08/10/internationalization-with-django-backbone-underscore-template-and-sass-ltr-and-rtl-languages/</link>
+      <pubDate>Sun, 10 Aug 2014 12:02:59 +0000</pubDate>
+      
+      <guid>http://monicalent.com/blog/2014/08/10/internationalization-with-django-backbone-underscore-template-and-sass-ltr-and-rtl-languages/</guid>
+      <description>Let&amp;rsquo;s be honest: No developer wakes up in the morning and thinks, &amp;ldquo;Oh goody! Today I get to internationalize my giant website with tons of content and files. I bet supporting right-to-left languages is going to be a blast.&amp;rdquo;
+However, I&amp;rsquo;m here to tell you that it&amp;rsquo;s not nearly as bad as you would expect.
+In fact, Django makes it downright easy to do. Unfortunately, there&amp;rsquo;s not a lot of information on the web about internationalizing (also known as i18n) in Django besides the official documentation.</description>
+    </item>
+    
+  </channel>
+</rss>

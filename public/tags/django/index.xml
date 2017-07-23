@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Django on Blog</title>
+    <link>http://monicalent.com/blog/tags/django/</link>
+    <description>Recent content in Django on Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <copyright>Monica Lent</copyright>
+    <lastBuildDate>Fri, 31 Oct 2014 17:54:27 +0000</lastBuildDate>
+    
+	<atom:link href="http://monicalent.com/blog/tags/django/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Django Tastypie: Tips, Tricks, and Troubleshooting</title>
+      <link>http://monicalent.com/blog/2014/10/31/django-tastypie-reverse-relationships-filtering/</link>
+      <pubDate>Fri, 31 Oct 2014 17:54:27 +0000</pubDate>
+      
+      <guid>http://monicalent.com/blog/2014/10/31/django-tastypie-reverse-relationships-filtering/</guid>
+      <description>Tastypie is one of the most popular REST API frameworks for Django, and surprisingly easy to get up and running if you&amp;rsquo;re already working with Django&amp;rsquo;s Models. It can, however, be a bit difficult to debug, and produce some cryptic error messages. Here are a couple of tasks I&amp;rsquo;ve had to figure out while working with this framework, tips for troubleshooting, and some general reflections.
+Table of Contents  Adding Fields to a Resource Mapping Attributes of an Object through a Reverse Relationship Filtering via Through Relationships Self-Referential Resources  Adding Fields to a Resource It seems simple enough &amp;ndash; and it is &amp;ndash; but there are really a number of ways to do it, so you have to decide which is most appropriate for your use case.</description>
+    </item>
+    
+    <item>
+      <title>Internationalization with Django, Backbone, Underscore templates, and Sass (LTR and RTL languages)</title>
+      <link>http://monicalent.com/blog/2014/08/10/internationalization-with-django-backbone-underscore-template-and-sass-ltr-and-rtl-languages/</link>
+      <pubDate>Sun, 10 Aug 2014 12:02:59 +0000</pubDate>
+      
+      <guid>http://monicalent.com/blog/2014/08/10/internationalization-with-django-backbone-underscore-template-and-sass-ltr-and-rtl-languages/</guid>
+      <description>Let&amp;rsquo;s be honest: No developer wakes up in the morning and thinks, &amp;ldquo;Oh goody! Today I get to internationalize my giant website with tons of content and files. I bet supporting right-to-left languages is going to be a blast.&amp;rdquo;
+However, I&amp;rsquo;m here to tell you that it&amp;rsquo;s not nearly as bad as you would expect.
+In fact, Django makes it downright easy to do. Unfortunately, there&amp;rsquo;s not a lot of information on the web about internationalizing (also known as i18n) in Django besides the official documentation.</description>
+    </item>
+    
+  </channel>
+</rss>
