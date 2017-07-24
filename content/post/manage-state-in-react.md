@@ -240,7 +240,7 @@ the server.
 import api from 'api';
 import { without, concat } from 'lodash';
 
-MyShop extends Component {
+class MyShop extends Component {
   constructor(props) {
     super(props);
     this.state = { order: {}, products: [] };
