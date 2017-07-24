@@ -853,7 +853,7 @@ class Container extends Component {
       return null;
     }
 
-    return createElement(component, { ...originalProps, resolvedProps });
+    return createElement(component, { ...originalProps, ...resolvedProps });
   }
 }
 
