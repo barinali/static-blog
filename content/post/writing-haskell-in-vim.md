@@ -1,12 +1,122 @@
 +++
 title = "Writing Haskell with Vim"
 description = "Tools you can you use with Vim to make writing Haskell more fun, plus troubleshooting tips"
-author = ""
-tags = [
-]
+author = "Monica Lent"
+tags = ["haskell", "stack", "vim", "ale", "linting"]
 date = "2017-10-28T16:06:04+02:00"
 
 +++
+
+Getting started writing any new language is easier with the help of your editor.
+In the case of linters, they can teach you the language's idioms and best
+practices while you write your first lines of code. Here's how to set up
+a new project in Haskell and configure vim for Haskell.
+
+## Basic vim setup for Haskell
+
+What you're going to need:
+
+- Vim 8
+- Your `.vimrc`
+- A vim package manager (here I use vundle)
+  - Airline (Vim status bar)
+  - Ale (Linting engine)
+- Haskell / ghc
+- Stack
+- ghc-mod, hlint, hdevtools, hfmt
+
+This tutorial assumes you already have Vim 8 installed.
+
+### Install vundle
+
+If you don't already have a package manager for vim, you can pick
+just about any on the market. I'm using Vundle, which is easy to add
+by amending your `.vimrc` with just a few lines.
+
+```
+set rtp+=~/.vim/bundle/Vundle.vim
+call vundle#begin()
+
+Plugin 'gmarik/Vundle.vim'
+
+call vundle#end()
+```
+
+### Install Airline and Ale
+
+There are two plugins for Vim that will make writing Haskell more fruitful,
+and that's [Airline](https://github.com/vim-airline/vim-airline) and
+[ALE](https://github.com/w0rp/ale).
+
+Airline provides you with a sexy status bar inside your vim that integrates
+with ALE, a linting engine which will asyncronously run your code through
+a few different Haskell linters and report the information back to you
+inside vim itself.
+
+To get started, update your `.vimrc` and, while the file is open, you execute
+`:PluginInstall`.
+
+```
+set rtp+=~/.vim/bundle/Vundle.vim
+call vundle#begin()
+
+Plugin 'gmarik/Vundle.vim'
+Plugin 'w0rp/ale'
+Plugin 'vim-airline/vim-airline'
+
+call vundle#end()
+
+let g:airline#extensions#ale#enabled = 1
+```
+
+This last line enables Airline to report ALE information to you.
+
+### Install Haskell and relevant tooling
+
+After you've installed Haskell system-wide, you can also install
+[Stack](https://docs.haskellstack.org/en/stable/README/). If you're familiar
+with [Python](/blog/tags/python/)'s virtualenv and pip, it's a little bit
+similar in that Stack gives you an isolated environment and a package
+manager, but in one tool.
+
+```
+# Install Stack
+❯ curl -sSL https://get.haskellstack.org/ | sh
+```
+
+If you're creating a new project, you do do this with:
+
+```
+# Create a new project, if needed
+❯ stack new my-project # Directory must not already exist
+❯ cd my-project
+❯ stack setup
+❯ stack build
+❯ stack exec my-project-exe
+```
+
+Note that your directory now contains a `my-project.cabal` file. This file
+is what informs your linters where your modules are. If you create
+more modules, you need to expose them through this file.
+
+Otherwise, continue to install the tools that ALE is going to use
+to lint our Haskell files.
+
+```
+stack install ghc-mod hlint hdevtools hfmt
+```
+
+Some of these may already be installed on your system, but will be copied
+to a directory where you can access them directly through the commandline.
+For instance, if you want to run `hlint` on your code, all you have to do
+now is execute:
+
+```
+❯ hlint src 
+No hints
+```
+
+That's what happens if your code is suuuuuper clean! You can also run
 
 ## Troubleshooting
 
@@ -20,14 +130,12 @@ exported by your other modules (including modules in the same directory!)
 
 If you're having this problem, you'll see lines like:
 
-```bash
-Failed to load interface for YourModuleName. Use -v to see a list of the files searched for.
-```
+    Failed to load interface for YourModuleName. Use -v to see a list of the files searched for.
 
 In vim. If you use `:ALEInfo` and <kbd>Shift</kbd> + <kbd>G</kbd>, you'll find
 more details about the error which looks something like this:
 
-```bash
+```
 (finished - exit code 1) ['/usr/local/bin/zsh', '-c', 'stack ghc -- -fno-code -v0 ''/tmp/vvzQVxy/8/Cli.hs''']
 <<<OUTPUT STARTS>>>
   /tmp/vvzQVxy/8/Cli.hs:7:1: error:
@@ -38,6 +146,25 @@ more details about the error which looks something like this:
 
 A simple fix for this is to edit your `.vimrc` and 
 
-    let g:ale_linters ={
-          \   'haskell': ['ghc', 'stack-ghc', 'ghc-mod', 'hlint', 'hdevtools', 'hfmt'],
-          \}
+```
+let g:ale_linters = {
+    \   'haskell': ['ghc', 'stack-ghc', 'ghc-mod', 'hlint', 'hdevtools', 'hfmt'],
+    \}
+```
+
+### Executable named my-project-exec not found on path
+
+This error isn't specific to the vim setup, but is something you might
+encounter while working with Haskell and Stack.
+
+```
+❯ stack exec my-project-exec
+Executable named my-project-exec not found on path: ["/opt/bstats/.stack-work/install/x86_64-osx/lts-9.10/8.0.2/bin","/private/var/root/.stack/snapshots/x86_64-osx/lts-9.10/8.0.2/bin","/private/var/root/.stack/programs/x86_64-osx/ghc-8.0.2/bin","/private/var/root/google-cloud-sdk/bin","/usr/local/bin","/usr/local/bin","/usr/bin","/bin","/usr/sbin","/sbin","/private/var/root/google-cloud-sdk/bin","/usr/local/opt/go/libexec/bin","/var/root/Go/bin","/usr/local/opt/go/libexec/bin","/private/var/root/.local/bin","/var/root/Go/bin"]
+```
+
+The solution is to take care when executing `stack exec` take note that you type `my-project-exe` and
+not `my-project-exec`.
+
+## That's a wrap!
+
+Stay tuned for more tips on writing your first Haskell project.
