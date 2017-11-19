@@ -7,20 +7,16 @@
         <meta name="description" content="These patterns and strategies will help you manage or eliminate state in your React app in a cleaner way, without Redux.">
         <meta name="HandheldFriendly" content="True">
         <meta name="MobileOptimized" content="320">
-        <meta name="generator" content="Hugo 0.21" />
+        <meta name="generator" content="Hugo 0.30.2" />
         <meta name="robots" content="index,follow">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href="http://monicalent.com/blog/css/normalize.css">
         
-        <meta name="twitter:card" content="summary" />
-        <meta name="twitter:site" content="@monicalent" />
-        <meta name="twitter:title" content="How to manage or eliminate React state without Redux by Monica" />
-        <meta name="twitter:description" content="These patterns and strategies will help you manage or eliminate state in your React app in a cleaner way, without Redux." />
-        <meta name="twitter:image" content="http://monicalent.com/assets/images/image01.jpg" />
-        <link rel="stylesheet" href="http://monicalent.com/blog/css/prism.css">
-        <link rel="stylesheet" href="http://monicalent.com/blog/css/style.css">
+        <link rel="stylesheet" href="http://monicalent.com/blog/dist/styles.css">
+        <link rel="stylesheet" href="http://monicalent.com/blog/dist/prism.css">
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&subset=latin,cyrillic-ext,latin-ext,cyrillic">
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+        
+        
     </head>
     <body>
         
@@ -41,7 +37,7 @@ ga('send', 'pageview');
                     <div class="site-title-wrapper">
                         
                             <h1 class="site-title">
-                                <a title="How to manage or eliminate React state without Redux" href="http://monicalent.com/blog/">How to manage or eliminate React state without Redux</a>
+                                <a title="Blog" href="http://monicalent.com/blog/">Blog</a>
                             </h1>
                         
                         <a class="button-square" href="http://monicalent.com/blog/index.xml"><i class="fa fa-rss"></i></a>
@@ -49,6 +45,7 @@ ga('send', 'pageview');
                             <a class="button-square button-social hint--top" data-hint="Twitter" title="Twitter" href="https://twitter.com/monicalent">
                                 <i class="fa fa-twitter"></i>
                             </a>
+                        
                         
                         
                             <a class="button-square button-social hint--top" data-hint="Github" title="Github" href="https://github.com/mlent">
@@ -61,6 +58,7 @@ ga('send', 'pageview');
                             <a class="button-square button-social hint--top" data-hint="Google+" title="Google+" href="https://google.com/&#43;MonicaLent">
                                 <i class="fa fa-google-plus"></i>
                             </a>
+                        
                         
                     </div>
 
@@ -95,13 +93,37 @@ ga('send', 'pageview');
     <p class="post-date">
         <span>Published <time datetime="2017-07-23" itemprop="datePublished">Sun, Jul 23, 2017</time></span>
         <span>by</span>
-        <span itemscope="" itemprop="author" itemtype="http://schema.org/Person">
+        <span itemscope="" itemprop="author" itemtype="https://schema.org/Person">
             <span itemprop="name">
                 <a href="http://monicalent.com" itemprop="url" rel="author">Monica</a>
             </span>
         </span>
     </p>
 </header>
+
+<div>
+  <center class="share" style="float: none; margin-bottom: 20px">
+    <span>Share this post:</span>
+    <a class="icon-twitter" href="http://twitter.com/share?text=How%20to%20manage%20or%20eliminate%20%23React%20state%20without%20%23Redux%20by%20%40monicalent&url=http%3a%2f%2fmonicalent.com%2fblog%2f2017%2f07%2f23%2fmanage-state-in-react%2f"
+                            onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+      <i class="fa fa-twitter"></i>
+      <span class="hidden">Twitter</span>
+    </a>
+
+    <a class="icon-facebook" href="https://www.facebook.com/sharer/sharer.php?u=http%3a%2f%2fmonicalent.com%2fblog%2f2017%2f07%2f23%2fmanage-state-in-react%2f"
+                             onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+      <i class="fa fa-facebook"></i>
+      <span class="hidden">Facebook</span>
+    </a>
+
+    <a class="icon-google-plus" href="https://plus.google.com/share?url=http%3a%2f%2fmonicalent.com%2fblog%2f2017%2f07%2f23%2fmanage-state-in-react%2f"
+                                onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
+      <i class="fa fa-google-plus"></i>
+      <span class="hidden">Google+</span>
+    </a>
+  </center>
+</div>
+
 
         <div class="post-content clearfix" itemprop="articleBody">
     
@@ -1027,34 +1049,45 @@ please feel free to reach out to me on twitter! <a href="https://twitter.com/mon
         <p class="post-tags">
             <span>Tagged:</span>
             
-                 <a href="/blog/tags/react/">react</a>
             
-                 <a href="/blog/tags/redux/">redux</a>
+                <a href="/blog/tags/react/">react</a>, 
             
-                 <a href="/blog/tags/javascript/">javascript</a>
+                <a href="/blog/tags/redux/">redux</a>, 
+            
+                <a href="/blog/tags/javascript/">javascript</a>
             
         </p>
     
 
-    <div class="share">
-        <a class="icon-twitter" href="http://twitter.com/share?text=How%20to%20manage%20or%20eliminate%20React%20state%20without%20Redux&url=http%3a%2f%2fmonicalent.com%2fblog%2f2017%2f07%2f23%2fmanage-state-in-react%2f"
+<div class="share">
+    <span>Share this post:</span>
+    
+        <a class="icon-twitter" href="https://twitter.com/share?text=How%20to%20manage%20or%20eliminate%20React%20state%20without%20Redux&url=http%3a%2f%2fmonicalent.com%2fblog%2f2017%2f07%2f23%2fmanage-state-in-react%2f"
             onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
             <i class="fa fa-twitter"></i>
             <span class="hidden">Twitter</span>
         </a>
+    
 
+    
         <a class="icon-facebook" href="https://www.facebook.com/sharer/sharer.php?u=http%3a%2f%2fmonicalent.com%2fblog%2f2017%2f07%2f23%2fmanage-state-in-react%2f"
             onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
             <i class="fa fa-facebook"></i>
             <span class="hidden">Facebook</span>
         </a>
+    
 
+    
         <a class="icon-google-plus" href="https://plus.google.com/share?url=http%3a%2f%2fmonicalent.com%2fblog%2f2017%2f07%2f23%2fmanage-state-in-react%2f"
-           onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
-           <i class="fa fa-google-plus"></i>
+          onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
+          <i class="fa fa-google-plus"></i>
             <span class="hidden">Google+</span>
         </a>
-    </div>
+    
+    
+</div>
+
+
 </footer>
 
 
@@ -1069,7 +1102,7 @@ please feel free to reach out to me on twitter! <a href="https://twitter.com/mon
             <div class="container">
                 <div class="site-title-wrapper">
                     <h1 class="site-title">
-                        <a title="How to manage or eliminate React state without Redux" href="http://monicalent.com/blog/">How to manage or eliminate React state without Redux</a>
+                        <a title="Blog" href="http://monicalent.com/blog/">Blog</a>
                     </h1>
                     <a class="button-square button-jump-top js-jump-top" href="#">
                         <i class="fa fa-angle-up"></i>
@@ -1077,16 +1110,19 @@ please feel free to reach out to me on twitter! <a href="https://twitter.com/mon
                 </div>
 
                 <p class="footer-copyright">
-                    <span>&copy; 2017 Monica Lent</span>
+                    <span>&copy; 2017 / Powered by <a href="https://gohugo.io/">Hugo</a></span>
+                </p>
+                <p class="footer-copyright">
+                    <span><a href="https://github.com/roryg/ghostwriter">Ghostwriter theme</a> By <a href="http://jollygoodthemes.com">JollyGoodThemes</a></span>
+                    <span>/ <a href="https://github.com/jbub/ghostwriter">Ported</a> to Hugo By <a href="https://github.com/jbub">jbub</a></span>
                 </p>
             </div>
         </footer>
 
         <script src="http://monicalent.com/blog/js/jquery-1.11.3.min.js"></script>
-        
         <script src="http://monicalent.com/blog/js/jquery.fitvids.js"></script>
-        <script src="http://monicalent.com/blog/js/scripts.js"></script>
         <script src="http://monicalent.com/blog/js/prism.js"></script>
+        <script src="http://monicalent.com/blog/js/scripts.js"></script>
     </body>
 </html>
 

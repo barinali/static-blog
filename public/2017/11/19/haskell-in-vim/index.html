@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title>Writing Haskell with Vim &middot; Monica</title>
+        <meta name="description" content="Tools you can you use with Vim to make writing Haskell more fun, plus troubleshooting tips">
+        <meta name="HandheldFriendly" content="True">
+        <meta name="MobileOptimized" content="320">
+        <meta name="generator" content="Hugo 0.30.2" />
+        <meta name="robots" content="index,follow">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        <link rel="stylesheet" href="http://monicalent.com/blog/dist/styles.css">
+        <link rel="stylesheet" href="http://monicalent.com/blog/dist/prism.css">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&subset=latin,cyrillic-ext,latin-ext,cyrillic">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+        
+        
+    </head>
+    <body>
+        
+<script>
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-40399378-2', 'auto');
+ga('send', 'pageview');
+</script>
+
+
+        <div id="wrapper">
+            <header class="site-header">
+                <div class="container">
+                    <div class="site-title-wrapper">
+                        
+                            <h1 class="site-title">
+                                <a title="Blog" href="http://monicalent.com/blog/">Blog</a>
+                            </h1>
+                        
+                        <a class="button-square" href="http://monicalent.com/blog/index.xml"><i class="fa fa-rss"></i></a>
+                        
+                            <a class="button-square button-social hint--top" data-hint="Twitter" title="Twitter" href="https://twitter.com/monicalent">
+                                <i class="fa fa-twitter"></i>
+                            </a>
+                        
+                        
+                        
+                            <a class="button-square button-social hint--top" data-hint="Github" title="Github" href="https://github.com/mlent">
+                                <i class="fa fa-github-alt"></i>
+                            </a>
+                        
+                        
+                        
+                        
+                            <a class="button-square button-social hint--top" data-hint="Google+" title="Google+" href="https://google.com/&#43;MonicaLent">
+                                <i class="fa fa-google-plus"></i>
+                            </a>
+                        
+                        
+                    </div>
+
+                    <ul class="site-nav">
+                        
+    <li class="site-nav-item">
+        <a title="Blog" href="/blog/">Blog</a>
+    </li>
+
+    <li class="site-nav-item">
+        <a title="Website" href="http://monicalent.com/">Website</a>
+    </li>
+
+    <li class="site-nav-item">
+        <a title="About" href="http://monicalent.com/#about">About</a>
+    </li>
+
+                    </ul>
+                </div>
+            </header>
+
+            <div id="container">
+
+
+<div class="container">
+    <article class="post-container" itemscope="" itemtype="http://schema.org/BlogPosting">
+        <header class="post-header">
+    <h1 class="post-title" itemprop="name headline">Writing Haskell with Vim</h1>
+    
+        <p class="post-description" itemprop="description">Tools you can you use with Vim to make writing Haskell more fun, plus troubleshooting tips</p>
+    
+    <p class="post-date">
+        <span>Published <time datetime="2017-11-19" itemprop="datePublished">Sun, Nov 19, 2017</time></span>
+        <span>by</span>
+        <span itemscope="" itemprop="author" itemtype="https://schema.org/Person">
+            <span itemprop="name">
+                <a href="http://monicalent.com" itemprop="url" rel="author">Monica</a>
+            </span>
+        </span>
+    </p>
+</header>
+
+<div>
+  <center class="share" style="float: none; margin-bottom: 20px">
+    <span>Share this post:</span>
+    <a class="icon-twitter" href="http://twitter.com/share?text=How%20to%20manage%20or%20eliminate%20%23React%20state%20without%20%23Redux%20by%20%40monicalent&url=http%3a%2f%2fmonicalent.com%2fblog%2f2017%2f07%2f23%2fmanage-state-in-react%2f"
+                            onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+      <i class="fa fa-twitter"></i>
+      <span class="hidden">Twitter</span>
+    </a>
+
+    <a class="icon-facebook" href="https://www.facebook.com/sharer/sharer.php?u=http%3a%2f%2fmonicalent.com%2fblog%2f2017%2f07%2f23%2fmanage-state-in-react%2f"
+                             onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+      <i class="fa fa-facebook"></i>
+      <span class="hidden">Facebook</span>
+    </a>
+
+    <a class="icon-google-plus" href="https://plus.google.com/share?url=http%3a%2f%2fmonicalent.com%2fblog%2f2017%2f07%2f23%2fmanage-state-in-react%2f"
+                                onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
+      <i class="fa fa-google-plus"></i>
+      <span class="hidden">Google+</span>
+    </a>
+  </center>
+</div>
+
+
+        <div class="post-content clearfix" itemprop="articleBody">
+    
+
+    
+
+<p>Getting started writing any new language is easier with the help of your editor.
+In the case of linters, they can teach you the language&rsquo;s idioms and best
+practices while you write your first lines of code. Here&rsquo;s how to set up
+a new project in Haskell and configure vim for Haskell.</p>
+
+<h2 id="basic-vim-setup-for-haskell">Basic vim setup for Haskell</h2>
+
+<p>What you&rsquo;re going to need:</p>
+
+<ul>
+<li>Vim 8</li>
+<li>Your <code>.vimrc</code></li>
+<li>A vim package manager (here I use vundle)
+
+<ul>
+<li>Airline (Vim status bar)</li>
+<li>ALE (Linting engine)</li>
+<li>ghcmod-vim (Reveal types inline)</li>
+</ul></li>
+<li>Haskell / ghc</li>
+<li>Stack</li>
+<li>ghc-mod, hlint, hdevtools, hfmt</li>
+</ul>
+
+<p>This tutorial assumes you already have Vim 8 installed.</p>
+
+<h3 id="install-vundle">Install vundle</h3>
+
+<p>If you don&rsquo;t already have a package manager for vim, you can pick
+just about any on the market. I&rsquo;m using Vundle, which is easy to add
+by amending your <code>.vimrc</code> with just a few lines.</p>
+
+<pre><code class="language-vim">set rtp+=~/.vim/bundle/Vundle.vim
+call vundle#begin()
+
+Plugin 'gmarik/Vundle.vim'
+
+call vundle#end()
+</code></pre>
+
+<h3 id="install-your-haskell-friendly-vim-plugins">Install your Haskell-friendly vim plugins</h3>
+
+<p>There are a few plugins for Vim that will make writing Haskell more fruitful,
+including <a href="https://github.com/vim-airline/vim-airline">Airline</a> and
+<a href="https://github.com/w0rp/ale">ALE</a>.</p>
+
+<p>Airline provides you with a sexy status bar inside your vim that integrates
+with ALE, a linting engine which will asyncronously run your code through
+a few different Haskell linters and report the information back to you
+inside vim itself.</p>
+
+<p>GchMod-vim can reveal types inside your code, and this plugin depends
+on <code>vimproc</code> which you&rsquo;ll install with vundle and compile by
+going into <code>~/.vim/bundle/vimproc</code> and running <code>make</code>.</p>
+
+<p>To get started, update your <code>.vimrc</code> and, while the file is open, you execute
+<code>:PluginInstall</code>.</p>
+
+<pre><code class="language-vim">set rtp+=~/.vim/bundle/Vundle.vim
+call vundle#begin()
+
+Plugin 'gmarik/Vundle.vim'
+&quot; Plugin 'mlent/ale' -- Has a small change for multi-line ghc errors, see below
+Plugin 'w0rp/ale'
+Plugin 'vim-airline/vim-airline'
+Plugin 'eagletmt/ghcmod-vim'
+Plugin 'Shougo/vimproc'
+
+call vundle#end()
+
+let g:airline#extensions#ale#enabled = 1
+
+nnoremap &lt;Leader&gt;ht :GhcModType&lt;cr&gt;
+nnoremap &lt;Leader&gt;htc :GhcModTypeClear&lt;cr&gt;
+autocmd FileType haskell nnoremap &lt;buffer&gt; &lt;leader&gt;? :call ale#cursor#ShowCursorDetail()&lt;cr&gt;
+</code></pre>
+
+<p>This first line after the plugins list enables Airline to report ALE
+information to you.</p>
+
+<p>The second two are conveniet ways to call the ghc type checker and get that
+information inside vim.</p>
+
+<p>And the last line allows you to show multi-line errors in vim by combining
+your <code>&lt;Leader&gt;</code> key + ?. Unfortunately this only works if you use <a href="https://github.com/mlent/ale">my
+fork of ALE</a>, but there are changes coming
+in the next ALE release which should make this work with the main repository.
+For example:</p>
+
+<pre><code class="language-bash">  Couldn't match expected typeIO [FilePath]’
+  with actual typeFilePath -&gt; IO [FilePath]’
+  Probable cause: getDirectoryContents is applied to too few arguments
+    In the expression: getDirectoryContents
+    In an equation for findPost: findPosts x = getDirectoryContents
+</code></pre>
+
+<h3 id="install-haskell-and-relevant-tooling">Install Haskell and relevant tooling</h3>
+
+<p>After you&rsquo;ve installed Haskell system-wide, you can also install
+<a href="https://docs.haskellstack.org/en/stable/README/">Stack</a>. If you&rsquo;re familiar
+with <a href="/blog/tags/python/">Python</a>&rsquo;s virtualenv and pip, it&rsquo;s a little bit
+similar in that Stack gives you an isolated environment and a package
+manager, but in one tool.</p>
+
+<pre><code class="language-bash"># Install Stack
+❯ curl -sSL https://get.haskellstack.org/ | sh
+</code></pre>
+
+<p>If you&rsquo;re creating a new project, you do do this with:</p>
+
+<pre><code class="language-bash"># Create a new project, if needed
+❯ stack new my-project # Directory must not already exist
+❯ cd my-project
+❯ stack setup
+❯ stack build
+❯ stack exec my-project-exe
+</code></pre>
+
+<p>Note that your directory now contains a <code>my-project.cabal</code> file. This file
+is what informs your linters where your modules are. If you create
+more modules, you need to expose them through this file.</p>
+
+<p>Otherwise, continue to install the tools that ALE is going to use
+to lint our Haskell files.</p>
+
+<pre><code class="language-bash">stack install ghc-mod hlint hdevtools hfmt
+</code></pre>
+
+<p>Some of these may already be installed on your system, but will be copied
+to a directory where you can access them directly through the commandline.
+For instance, if you want to run <code>hlint</code> on your code, all you have to do
+now is execute:</p>
+
+<pre><code class="language-bash">❯ hlint src 
+No hints
+</code></pre>
+
+<p>That&rsquo;s what happens if your code is suuuuuper clean! You can also run</p>
+
+<h2 id="troubleshooting">Troubleshooting</h2>
+
+<h3 id="ale-vim-cannot-find-modules">Ale/vim cannot find modules</h3>
+
+<p>Since Ale/vim are running against files stored in <code>/tmp</code>, in means they
+don&rsquo;t have sufficient context to find your <code>.cabal</code> file in your project
+root. Since that&rsquo;s where your library directory and exports are declared,
+it&rsquo;s missing the information needed to determine the names and functions
+exported by your other modules (including modules in the same directory!)</p>
+
+<p>If you&rsquo;re having this problem, you&rsquo;ll see lines like:</p>
+
+<pre><code class="language-bash">Failed to load interface for YourModuleName. Use -v to see a list of the files searched for.
+</code></pre>
+
+<p>In vim. If you use <code>:ALEInfo</code> and <kbd>Shift</kbd> + <kbd>G</kbd>, you&rsquo;ll find
+more details about the error which looks something like this:</p>
+
+<pre><code class="language-bash">(finished - exit code 1) ['/usr/local/bin/zsh', '-c', 'stack ghc -- -fno-code -v0 ''/tmp/vvzQVxy/8/Cli.hs''']
+&lt;&lt;&lt;OUTPUT STARTS&gt;&gt;&gt;
+  /tmp/vvzQVxy/8/Cli.hs:7:1: error:
+  Failed to load interface for YourModuleName
+  Use -v to see a list of the files searched for.
+&lt;&lt;&lt;OUTPUT ENDS&gt;&gt;&gt;
+</code></pre>
+
+<p>A simple fix for this is to edit your <code>.vimrc</code> and</p>
+
+<pre><code class="language-vim">let g:ale_linters = {
+    \   'haskell': ['stack-ghc', 'ghc-mod', 'hlint', 'hdevtools', 'hfmt'],
+    \}
+</code></pre>
+
+<h3 id="executable-named-my-project-exec-not-found-on-path">Executable named my-project-exec not found on path</h3>
+
+<p>This error isn&rsquo;t specific to the vim setup, but is something you might
+encounter while working with Haskell and Stack.</p>
+
+<pre><code class="language-bash">❯ stack exec my-project-exec
+Executable named my-project-exec not found on path: [&quot;/opt/bstats/.stack-work/install/x86_64-osx/lts-9.10/8.0.2/bin&quot;,&quot;/private/var/root/.stack/snapshots/x86_64-osx/lts-9.10/8.0.2/bin&quot;,&quot;/private/var/root/.stack/programs/x86_64-osx/ghc-8.0.2/bin&quot;,&quot;/private/var/root/google-cloud-sdk/bin&quot;,&quot;/usr/local/bin&quot;,&quot;/usr/local/bin&quot;,&quot;/usr/bin&quot;,&quot;/bin&quot;,&quot;/usr/sbin&quot;,&quot;/sbin&quot;,&quot;/private/var/root/google-cloud-sdk/bin&quot;,&quot;/usr/local/opt/go/libexec/bin&quot;,&quot;/var/root/Go/bin&quot;,&quot;/usr/local/opt/go/libexec/bin&quot;,&quot;/private/var/root/.local/bin&quot;,&quot;/var/root/Go/bin&quot;]
+</code></pre>
+
+<p>The solution is to take care when executing <code>stack exec</code> take note that you type <code>my-project-exe</code> and
+not <code>my-project-exec</code>.</p>
+
+<h2 id="that-s-a-wrap">That&rsquo;s a wrap!</h2>
+
+<p>Stay tuned for more tips on writing your first Haskell project.</p>
+
+<hr />
+
+<h2 id="questions-comments-corrections">Questions, Comments, Corrections?</h2>
+
+<p>Get in touch via Twitter at <a href="http://www.twitter.com/monicalent">@monicalent</a>.</p>
+
+</div>
+
+        <footer class="post-footer clearfix">
+    
+        <p class="post-tags">
+            <span>Tagged:</span>
+            
+            
+                <a href="/blog/tags/haskell/">haskell</a>, 
+            
+                <a href="/blog/tags/stack/">stack</a>, 
+            
+                <a href="/blog/tags/vim/">vim</a>, 
+            
+                <a href="/blog/tags/ale/">ale</a>, 
+            
+                <a href="/blog/tags/linting/">linting</a>
+            
+        </p>
+    
+
+<div class="share">
+    <span>Share this post:</span>
+    
+        <a class="icon-twitter" href="https://twitter.com/share?text=Writing%20Haskell%20with%20Vim&url=http%3a%2f%2fmonicalent.com%2fblog%2f2017%2f11%2f19%2fhaskell-in-vim%2f"
+            onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+            <i class="fa fa-twitter"></i>
+            <span class="hidden">Twitter</span>
+        </a>
+    
+
+    
+        <a class="icon-facebook" href="https://www.facebook.com/sharer/sharer.php?u=http%3a%2f%2fmonicalent.com%2fblog%2f2017%2f11%2f19%2fhaskell-in-vim%2f"
+            onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+            <i class="fa fa-facebook"></i>
+            <span class="hidden">Facebook</span>
+        </a>
+    
+
+    
+        <a class="icon-google-plus" href="https://plus.google.com/share?url=http%3a%2f%2fmonicalent.com%2fblog%2f2017%2f11%2f19%2fhaskell-in-vim%2f"
+          onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
+          <i class="fa fa-google-plus"></i>
+            <span class="hidden">Google+</span>
+        </a>
+    
+    
+</div>
+
+
+</footer>
+
+
+        
+    </article>
+</div>
+
+            </div>
+        </div>
+
+        <footer class="footer">
+            <div class="container">
+                <div class="site-title-wrapper">
+                    <h1 class="site-title">
+                        <a title="Blog" href="http://monicalent.com/blog/">Blog</a>
+                    </h1>
+                    <a class="button-square button-jump-top js-jump-top" href="#">
+                        <i class="fa fa-angle-up"></i>
+                    </a>
+                </div>
+
+                <p class="footer-copyright">
+                    <span>&copy; 2017 / Powered by <a href="https://gohugo.io/">Hugo</a></span>
+                </p>
+                <p class="footer-copyright">
+                    <span><a href="https://github.com/roryg/ghostwriter">Ghostwriter theme</a> By <a href="http://jollygoodthemes.com">JollyGoodThemes</a></span>
+                    <span>/ <a href="https://github.com/jbub/ghostwriter">Ported</a> to Hugo By <a href="https://github.com/jbub">jbub</a></span>
+                </p>
+            </div>
+        </footer>
+
+        <script src="http://monicalent.com/blog/js/jquery-1.11.3.min.js"></script>
+        <script src="http://monicalent.com/blog/js/jquery.fitvids.js"></script>
+        <script src="http://monicalent.com/blog/js/prism.js"></script>
+        <script src="http://monicalent.com/blog/js/scripts.js"></script>
+    </body>
+</html>
+

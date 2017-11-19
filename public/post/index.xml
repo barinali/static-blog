@@ -7,10 +7,21 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>Monica Lent</copyright>
-    <lastBuildDate>Sun, 23 Jul 2017 14:29:42 +0200</lastBuildDate>
+    <lastBuildDate>Sun, 19 Nov 2017 12:06:04 +0200</lastBuildDate>
     
 	<atom:link href="http://monicalent.com/blog/post/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Writing Haskell with Vim</title>
+      <link>http://monicalent.com/blog/2017/11/19/haskell-in-vim/</link>
+      <pubDate>Sun, 19 Nov 2017 12:06:04 +0200</pubDate>
+      
+      <guid>http://monicalent.com/blog/2017/11/19/haskell-in-vim/</guid>
+      <description>Getting started writing any new language is easier with the help of your editor. In the case of linters, they can teach you the language&amp;rsquo;s idioms and best practices while you write your first lines of code. Here&amp;rsquo;s how to set up a new project in Haskell and configure vim for Haskell.
+Basic vim setup for Haskell What you&amp;rsquo;re going to need:
+ Vim 8 Your .vimrc A vim package manager (here I use vundle)  Airline (Vim status bar) ALE (Linting engine) ghcmod-vim (Reveal types inline)  Haskell / ghc Stack ghc-mod, hlint, hdevtools, hfmt  This tutorial assumes you already have Vim 8 installed.</description>
+    </item>
     
     <item>
       <title>How to manage or eliminate React state without Redux</title>

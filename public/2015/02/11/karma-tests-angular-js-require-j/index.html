@@ -4,23 +4,20 @@
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
         <title>Karma tests with AngularJS &#43; RequireJS &middot; Monica</title>
-        <meta name="description" content="My tech blog, covering javascript, python, and fun unix tricks I learn while developing software.">
+        <meta name="description" content="Setting up testing is usually a little painful &ndash; but setting up testing when you&rsquo;re using some kind of weird Angular &#43; Require setup is even worse! Furthermore, the Karma documentation is a little bit terse, so it&rsquo;s hard to tell exactly what combination of configuration settings will get you your intended result. Here&rsquo;s how I accomplished this.
+File Hierarchy Here is a typical, sample hierarchy. My top-level directory is something like /opt/some-app.">
         <meta name="HandheldFriendly" content="True">
         <meta name="MobileOptimized" content="320">
-        <meta name="generator" content="Hugo 0.21" />
+        <meta name="generator" content="Hugo 0.30.2" />
         <meta name="robots" content="index,follow">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href="http://monicalent.com/blog/css/normalize.css">
         
-        <meta name="twitter:card" content="summary" />
-        <meta name="twitter:site" content="@monicalent" />
-        <meta name="twitter:title" content="Karma tests with AngularJS &#43; RequireJS by Monica" />
-        <meta name="twitter:description" content="My tech blog, covering javascript, python, and fun unix tricks I learn while developing software." />
-        <meta name="twitter:image" content="http://monicalent.com/assets/images/image01.jpg" />
-        <link rel="stylesheet" href="http://monicalent.com/blog/css/prism.css">
-        <link rel="stylesheet" href="http://monicalent.com/blog/css/style.css">
+        <link rel="stylesheet" href="http://monicalent.com/blog/dist/styles.css">
+        <link rel="stylesheet" href="http://monicalent.com/blog/dist/prism.css">
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&subset=latin,cyrillic-ext,latin-ext,cyrillic">
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+        
+        
     </head>
     <body>
         
@@ -41,7 +38,7 @@ ga('send', 'pageview');
                     <div class="site-title-wrapper">
                         
                             <h1 class="site-title">
-                                <a title="Karma tests with AngularJS &#43; RequireJS" href="http://monicalent.com/blog/">Karma tests with AngularJS &#43; RequireJS</a>
+                                <a title="Blog" href="http://monicalent.com/blog/">Blog</a>
                             </h1>
                         
                         <a class="button-square" href="http://monicalent.com/blog/index.xml"><i class="fa fa-rss"></i></a>
@@ -49,6 +46,7 @@ ga('send', 'pageview');
                             <a class="button-square button-social hint--top" data-hint="Twitter" title="Twitter" href="https://twitter.com/monicalent">
                                 <i class="fa fa-twitter"></i>
                             </a>
+                        
                         
                         
                             <a class="button-square button-social hint--top" data-hint="Github" title="Github" href="https://github.com/mlent">
@@ -61,6 +59,7 @@ ga('send', 'pageview');
                             <a class="button-square button-social hint--top" data-hint="Google+" title="Google+" href="https://google.com/&#43;MonicaLent">
                                 <i class="fa fa-google-plus"></i>
                             </a>
+                        
                         
                     </div>
 
@@ -93,13 +92,37 @@ ga('send', 'pageview');
     <p class="post-date">
         <span>Published <time datetime="2015-02-11" itemprop="datePublished">Wed, Feb 11, 2015</time></span>
         <span>by</span>
-        <span itemscope="" itemprop="author" itemtype="http://schema.org/Person">
+        <span itemscope="" itemprop="author" itemtype="https://schema.org/Person">
             <span itemprop="name">
                 <a href="http://monicalent.com" itemprop="url" rel="author">Monica</a>
             </span>
         </span>
     </p>
 </header>
+
+<div>
+  <center class="share" style="float: none; margin-bottom: 20px">
+    <span>Share this post:</span>
+    <a class="icon-twitter" href="http://twitter.com/share?text=How%20to%20manage%20or%20eliminate%20%23React%20state%20without%20%23Redux%20by%20%40monicalent&url=http%3a%2f%2fmonicalent.com%2fblog%2f2017%2f07%2f23%2fmanage-state-in-react%2f"
+                            onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+      <i class="fa fa-twitter"></i>
+      <span class="hidden">Twitter</span>
+    </a>
+
+    <a class="icon-facebook" href="https://www.facebook.com/sharer/sharer.php?u=http%3a%2f%2fmonicalent.com%2fblog%2f2017%2f07%2f23%2fmanage-state-in-react%2f"
+                             onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+      <i class="fa fa-facebook"></i>
+      <span class="hidden">Facebook</span>
+    </a>
+
+    <a class="icon-google-plus" href="https://plus.google.com/share?url=http%3a%2f%2fmonicalent.com%2fblog%2f2017%2f07%2f23%2fmanage-state-in-react%2f"
+                                onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
+      <i class="fa fa-google-plus"></i>
+      <span class="hidden">Google+</span>
+    </a>
+  </center>
+</div>
+
 
         <div class="post-content clearfix" itemprop="articleBody">
     
@@ -224,13 +247,13 @@ define(['app'], function(app) {
 
 <p>Now is a good time to install Karma and its variable components if you haven&rsquo;t already.</p>
 
-<pre><code>npm install karma karma-jasmine karma-phantomjs-launcher karma-requirejs --save-dev
+<pre><code class="language-bash">npm install karma karma-jasmine karma-phantomjs-launcher karma-requirejs --save-dev
 npm install -g karma-cli
 </code></pre>
 
 <p>You can now navigate to <code>app/test/</code> and run:</p>
 
-<pre><code>karma init
+<pre><code class="language-bash">karma init
 </code></pre>
 
 <p>When one of the prompts asks you whether you&rsquo;re using RequireJS, say YES. This will generate the bases of our two important configuration files: <code>karma.conf.js</code> and <code>test-main.js</code>. Naturally, they won&rsquo;t work out of the box, but we&rsquo;ll get there.</p>
@@ -271,7 +294,7 @@ npm install -g karma-cli
 
 <p>Time for the first test! Try running karma with your configuration file. It should spit out a biiiiig long list of all the files that you&rsquo;ve told it to serve (especially because of the <code>config.LOG_DEBUG</code> setting).</p>
 
-<pre><code>karma start app/test/karma.conf.js
+<pre><code class="language-bash">karma start app/test/karma.conf.js
 </code></pre>
 
 <p>You should get output which says that it loaded your configuration file. If you get an error that it could not find the configuration file, make sure the file path after &ldquo;karma start&rdquo; is correct. I am running this from my top-level directory (/opt/some-app).</p>
@@ -307,7 +330,7 @@ baseUrl: '/base/app/scripts'
 
 <p>Following this logic, we can re-define where we want our paths in test-main to come from:</p>
 
-<pre><code>/* app/test/test-main.js */
+<pre><code class="language-javascript">/* app/test/test-main.js */
 
 require.config({
   baseUrl: '/base/app/scripts',
@@ -324,7 +347,7 @@ require.config({
 
 <p>Now this means, when we have a file with the following header:</p>
 
-<pre><code>define(['path/to/somewhere'], function() { });
+<pre><code class="language-javascript">define(['path/to/somewhere'], function() { });
 </code></pre>
 
 <p>When it is loaded using <code>main.js</code>, &ldquo;path/to/somewhere&rdquo; will load <em><a href="http://localhost:8080/scripts/path/to/somewhere">http://localhost:8080/scripts/path/to/somewhere</a></em> from your normal webserver. When using <code>test-main.js</code>, the same file will require <em><a href="http://localhost:9876/base/app/scripts/path/to/somewhere">http://localhost:9876/base/app/scripts/path/to/somewhere</a></em> from karma. Meaning, the code can be used for running the app or for testing, with no modifications of the dependency paths in individual files!</p>
@@ -333,12 +356,12 @@ require.config({
 
 <p>Now we finally get to try to tie everything together with our first spec file. Start off by installing <code>angular-mocks</code>, as this will allow us to register our filter before we test it.</p>
 
-<pre><code>npm install angular-mocks --save-dev
+<pre><code class="language-bash">npm install angular-mocks --save-dev
 </code></pre>
 
 <p>Add this to your <code>test-main.js</code> file under &ldquo;paths&rdquo;:</p>
 
-<pre><code>paths: {
+<pre><code class="language-javascript">paths: {
   angular: '/base/app/vendor/angular/angular',
   angularMocks: '/base/app/vendor/angular-mocks/angular-mocks'
 },
@@ -350,15 +373,15 @@ shim: {
 
 <p>Once we include angularMocks as a dependency, we&rsquo;ll have <code>angular.mock</code> available on our instance of angular. We can use this to construct components on the fly as we test.</p>
 
-<pre><code>/* app/tests/spec/filters/my_filter_spec.js */
+<pre><code class="language-javascript">/* app/tests/spec/filters/my_filter_spec.js */
 
 define(['angular',
   'filters/my_filter', 
   'angularMocks'], 
   function(angular, myFilter) {
-
+    
     describe('myFilter', function() {
-
+      
       // Here we register the function returned by the myFilter AMD module
       beforeEach(angular.mock.module(function($filterProvider) {
         $filterprovider.register('myFilter', myFilter);
@@ -376,7 +399,7 @@ define(['angular',
 
 <p>Now it&rsquo;s time to <code>karma start</code> our tests!! You should see a very exciting message:</p>
 
-<pre><code>INFO [karma]: Karma v0.12.31 server started at http://localhost:9876/
+<pre><code class="language-bash">INFO [karma]: Karma v0.12.31 server started at http://localhost:9876/
 INFO [launcher]: Starting browser PhantomJS
 INFO [PhantomJS 1.9.8 (Mac OS X)]: Connected on socket W9ErxZ86IapgwQqqNiPw with id 48168125
 PhantomJS 1.9.8 (Mac OS X): Executed 1 of 1 SUCCESS (0.004 secs / 0.027 secs)
@@ -384,7 +407,7 @@ PhantomJS 1.9.8 (Mac OS X): Executed 1 of 1 SUCCESS (0.004 secs / 0.027 secs)
 
 <p>Once this works, you can go ahead and write a real test:</p>
 
-<pre><code>it(&quot;should concatenate strings&quot;, inject(function($filter) {
+<pre><code class="language-javascript">it(&quot;should concatenate strings&quot;, inject(function($filter) {
   expect($filter('myFilter')('a', 'b')).toBe('ab');
 });
 </code></pre>
@@ -413,36 +436,47 @@ PhantomJS 1.9.8 (Mac OS X): Executed 1 of 1 SUCCESS (0.004 secs / 0.027 secs)
         <p class="post-tags">
             <span>Tagged:</span>
             
-                 <a href="/blog/tags/angular/">angular</a>
             
-                 <a href="/blog/tags/require-js/">require js</a>
+                <a href="/blog/tags/angular/">angular</a>, 
             
-                 <a href="/blog/tags/karma/">karma</a>
+                <a href="/blog/tags/require-js/">require js</a>, 
             
-                 <a href="/blog/tags/javascript/">javascript</a>
+                <a href="/blog/tags/karma/">karma</a>, 
+            
+                <a href="/blog/tags/javascript/">javascript</a>
             
         </p>
     
 
-    <div class="share">
-        <a class="icon-twitter" href="http://twitter.com/share?text=Karma%20tests%20with%20AngularJS%20%2b%20RequireJS&url=http%3a%2f%2fmonicalent.com%2fblog%2f2015%2f02%2f11%2fkarma-tests-angular-js-require-j%2f"
+<div class="share">
+    <span>Share this post:</span>
+    
+        <a class="icon-twitter" href="https://twitter.com/share?text=Karma%20tests%20with%20AngularJS%20%2b%20RequireJS&url=http%3a%2f%2fmonicalent.com%2fblog%2f2015%2f02%2f11%2fkarma-tests-angular-js-require-j%2f"
             onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
             <i class="fa fa-twitter"></i>
             <span class="hidden">Twitter</span>
         </a>
+    
 
+    
         <a class="icon-facebook" href="https://www.facebook.com/sharer/sharer.php?u=http%3a%2f%2fmonicalent.com%2fblog%2f2015%2f02%2f11%2fkarma-tests-angular-js-require-j%2f"
             onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
             <i class="fa fa-facebook"></i>
             <span class="hidden">Facebook</span>
         </a>
+    
 
+    
         <a class="icon-google-plus" href="https://plus.google.com/share?url=http%3a%2f%2fmonicalent.com%2fblog%2f2015%2f02%2f11%2fkarma-tests-angular-js-require-j%2f"
-           onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
-           <i class="fa fa-google-plus"></i>
+          onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
+          <i class="fa fa-google-plus"></i>
             <span class="hidden">Google+</span>
         </a>
-    </div>
+    
+    
+</div>
+
+
 </footer>
 
 
@@ -457,7 +491,7 @@ PhantomJS 1.9.8 (Mac OS X): Executed 1 of 1 SUCCESS (0.004 secs / 0.027 secs)
             <div class="container">
                 <div class="site-title-wrapper">
                     <h1 class="site-title">
-                        <a title="Karma tests with AngularJS &#43; RequireJS" href="http://monicalent.com/blog/">Karma tests with AngularJS &#43; RequireJS</a>
+                        <a title="Blog" href="http://monicalent.com/blog/">Blog</a>
                     </h1>
                     <a class="button-square button-jump-top js-jump-top" href="#">
                         <i class="fa fa-angle-up"></i>
@@ -465,16 +499,19 @@ PhantomJS 1.9.8 (Mac OS X): Executed 1 of 1 SUCCESS (0.004 secs / 0.027 secs)
                 </div>
 
                 <p class="footer-copyright">
-                    <span>&copy; 2017 Monica Lent</span>
+                    <span>&copy; 2017 / Powered by <a href="https://gohugo.io/">Hugo</a></span>
+                </p>
+                <p class="footer-copyright">
+                    <span><a href="https://github.com/roryg/ghostwriter">Ghostwriter theme</a> By <a href="http://jollygoodthemes.com">JollyGoodThemes</a></span>
+                    <span>/ <a href="https://github.com/jbub/ghostwriter">Ported</a> to Hugo By <a href="https://github.com/jbub">jbub</a></span>
                 </p>
             </div>
         </footer>
 
         <script src="http://monicalent.com/blog/js/jquery-1.11.3.min.js"></script>
-        
         <script src="http://monicalent.com/blog/js/jquery.fitvids.js"></script>
-        <script src="http://monicalent.com/blog/js/scripts.js"></script>
         <script src="http://monicalent.com/blog/js/prism.js"></script>
+        <script src="http://monicalent.com/blog/js/scripts.js"></script>
     </body>
 </html>
 

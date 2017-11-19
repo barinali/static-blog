@@ -7,10 +7,19 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>Monica Lent</copyright>
-    <lastBuildDate>Mon, 03 Aug 2015 18:29:56 +0000</lastBuildDate>
+    <lastBuildDate>Sun, 19 Nov 2017 12:06:04 +0200</lastBuildDate>
     
 	<atom:link href="http://monicalent.com/blog/tags/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Ale</title>
+      <link>http://monicalent.com/blog/tags/ale/</link>
+      <pubDate>Sun, 19 Nov 2017 12:06:04 +0200</pubDate>
+      
+      <guid>http://monicalent.com/blog/tags/ale/</guid>
+      <description></description>
+    </item>
     
     <item>
       <title>Angular</title>
@@ -58,6 +67,15 @@
     </item>
     
     <item>
+      <title>Haskell</title>
+      <link>http://monicalent.com/blog/tags/haskell/</link>
+      <pubDate>Sun, 19 Nov 2017 12:06:04 +0200</pubDate>
+      
+      <guid>http://monicalent.com/blog/tags/haskell/</guid>
+      <description></description>
+    </item>
+    
+    <item>
       <title>Internationalization</title>
       <link>http://monicalent.com/blog/tags/internationalization/</link>
       <pubDate>Sun, 10 Aug 2014 12:02:59 +0000</pubDate>
@@ -81,6 +99,15 @@
       <pubDate>Wed, 11 Feb 2015 15:53:00 +0000</pubDate>
       
       <guid>http://monicalent.com/blog/tags/karma/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Linting</title>
+      <link>http://monicalent.com/blog/tags/linting/</link>
+      <pubDate>Sun, 19 Nov 2017 12:06:04 +0200</pubDate>
+      
+      <guid>http://monicalent.com/blog/tags/linting/</guid>
       <description></description>
     </item>
     
@@ -130,11 +157,29 @@
     </item>
     
     <item>
+      <title>Stack</title>
+      <link>http://monicalent.com/blog/tags/stack/</link>
+      <pubDate>Sun, 19 Nov 2017 12:06:04 +0200</pubDate>
+      
+      <guid>http://monicalent.com/blog/tags/stack/</guid>
+      <description></description>
+    </item>
+    
+    <item>
       <title>Underscore</title>
       <link>http://monicalent.com/blog/tags/underscore/</link>
       <pubDate>Sun, 10 Aug 2014 12:02:59 +0000</pubDate>
       
       <guid>http://monicalent.com/blog/tags/underscore/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Vim</title>
+      <link>http://monicalent.com/blog/tags/vim/</link>
+      <pubDate>Sun, 19 Nov 2017 12:06:04 +0200</pubDate>
+      
+      <guid>http://monicalent.com/blog/tags/vim/</guid>
       <description></description>
     </item>
     

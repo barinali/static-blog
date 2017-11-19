@@ -4,23 +4,19 @@
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
         <title>Custom event for detecting fetch errors in Backbone.js &middot; Monica</title>
-        <meta name="description" content="My tech blog, covering javascript, python, and fun unix tricks I learn while developing software.">
+        <meta name="description" content="One of Backbone&rsquo;s major strengths as a javascript MVC framework is the way it helps you do event handling. By extension, it&rsquo;s also great for handling errors that result from failed AJAX calls. As you can see in the Backbone.js documentation, the error event is triggered when a model&rsquo;s attempt to save fails server-side. However, there is no Backbone event that detects when the fetch event fails. Since a fetch from the server is the first thing that happens when a page is loaded, you would need to know if it fails because that could indicate that the API is down or some other server error.">
         <meta name="HandheldFriendly" content="True">
         <meta name="MobileOptimized" content="320">
-        <meta name="generator" content="Hugo 0.21" />
+        <meta name="generator" content="Hugo 0.30.2" />
         <meta name="robots" content="index,follow">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href="http://monicalent.com/blog/css/normalize.css">
         
-        <meta name="twitter:card" content="summary" />
-        <meta name="twitter:site" content="@monicalent" />
-        <meta name="twitter:title" content="Custom event for detecting fetch errors in Backbone.js by Monica" />
-        <meta name="twitter:description" content="My tech blog, covering javascript, python, and fun unix tricks I learn while developing software." />
-        <meta name="twitter:image" content="http://monicalent.com/assets/images/image01.jpg" />
-        <link rel="stylesheet" href="http://monicalent.com/blog/css/prism.css">
-        <link rel="stylesheet" href="http://monicalent.com/blog/css/style.css">
+        <link rel="stylesheet" href="http://monicalent.com/blog/dist/styles.css">
+        <link rel="stylesheet" href="http://monicalent.com/blog/dist/prism.css">
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&subset=latin,cyrillic-ext,latin-ext,cyrillic">
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+        
+        
     </head>
     <body>
         
@@ -41,7 +37,7 @@ ga('send', 'pageview');
                     <div class="site-title-wrapper">
                         
                             <h1 class="site-title">
-                                <a title="Custom event for detecting fetch errors in Backbone.js" href="http://monicalent.com/blog/">Custom event for detecting fetch errors in Backbone.js</a>
+                                <a title="Blog" href="http://monicalent.com/blog/">Blog</a>
                             </h1>
                         
                         <a class="button-square" href="http://monicalent.com/blog/index.xml"><i class="fa fa-rss"></i></a>
@@ -49,6 +45,7 @@ ga('send', 'pageview');
                             <a class="button-square button-social hint--top" data-hint="Twitter" title="Twitter" href="https://twitter.com/monicalent">
                                 <i class="fa fa-twitter"></i>
                             </a>
+                        
                         
                         
                             <a class="button-square button-social hint--top" data-hint="Github" title="Github" href="https://github.com/mlent">
@@ -61,6 +58,7 @@ ga('send', 'pageview');
                             <a class="button-square button-social hint--top" data-hint="Google+" title="Google+" href="https://google.com/&#43;MonicaLent">
                                 <i class="fa fa-google-plus"></i>
                             </a>
+                        
                         
                     </div>
 
@@ -93,13 +91,37 @@ ga('send', 'pageview');
     <p class="post-date">
         <span>Published <time datetime="2013-07-29" itemprop="datePublished">Mon, Jul 29, 2013</time></span>
         <span>by</span>
-        <span itemscope="" itemprop="author" itemtype="http://schema.org/Person">
+        <span itemscope="" itemprop="author" itemtype="https://schema.org/Person">
             <span itemprop="name">
                 <a href="http://monicalent.com" itemprop="url" rel="author">Monica</a>
             </span>
         </span>
     </p>
 </header>
+
+<div>
+  <center class="share" style="float: none; margin-bottom: 20px">
+    <span>Share this post:</span>
+    <a class="icon-twitter" href="http://twitter.com/share?text=How%20to%20manage%20or%20eliminate%20%23React%20state%20without%20%23Redux%20by%20%40monicalent&url=http%3a%2f%2fmonicalent.com%2fblog%2f2017%2f07%2f23%2fmanage-state-in-react%2f"
+                            onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+      <i class="fa fa-twitter"></i>
+      <span class="hidden">Twitter</span>
+    </a>
+
+    <a class="icon-facebook" href="https://www.facebook.com/sharer/sharer.php?u=http%3a%2f%2fmonicalent.com%2fblog%2f2017%2f07%2f23%2fmanage-state-in-react%2f"
+                             onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+      <i class="fa fa-facebook"></i>
+      <span class="hidden">Facebook</span>
+    </a>
+
+    <a class="icon-google-plus" href="https://plus.google.com/share?url=http%3a%2f%2fmonicalent.com%2fblog%2f2017%2f07%2f23%2fmanage-state-in-react%2f"
+                                onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
+      <i class="fa fa-google-plus"></i>
+      <span class="hidden">Google+</span>
+    </a>
+  </center>
+</div>
+
 
         <div class="post-content clearfix" itemprop="articleBody">
     
@@ -165,25 +187,35 @@ ga('send', 'pageview');
         <footer class="post-footer clearfix">
     
 
-    <div class="share">
-        <a class="icon-twitter" href="http://twitter.com/share?text=Custom%20event%20for%20detecting%20fetch%20errors%20in%20Backbone.js&url=http%3a%2f%2fmonicalent.com%2fblog%2f2013%2f07%2f29%2fusing-a-custom-event-to-detect-fetch-errors-in-backbone-js%2f"
+<div class="share">
+    <span>Share this post:</span>
+    
+        <a class="icon-twitter" href="https://twitter.com/share?text=Custom%20event%20for%20detecting%20fetch%20errors%20in%20Backbone.js&url=http%3a%2f%2fmonicalent.com%2fblog%2f2013%2f07%2f29%2fusing-a-custom-event-to-detect-fetch-errors-in-backbone-js%2f"
             onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
             <i class="fa fa-twitter"></i>
             <span class="hidden">Twitter</span>
         </a>
+    
 
+    
         <a class="icon-facebook" href="https://www.facebook.com/sharer/sharer.php?u=http%3a%2f%2fmonicalent.com%2fblog%2f2013%2f07%2f29%2fusing-a-custom-event-to-detect-fetch-errors-in-backbone-js%2f"
             onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
             <i class="fa fa-facebook"></i>
             <span class="hidden">Facebook</span>
         </a>
+    
 
+    
         <a class="icon-google-plus" href="https://plus.google.com/share?url=http%3a%2f%2fmonicalent.com%2fblog%2f2013%2f07%2f29%2fusing-a-custom-event-to-detect-fetch-errors-in-backbone-js%2f"
-           onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
-           <i class="fa fa-google-plus"></i>
+          onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
+          <i class="fa fa-google-plus"></i>
             <span class="hidden">Google+</span>
         </a>
-    </div>
+    
+    
+</div>
+
+
 </footer>
 
 
@@ -198,7 +230,7 @@ ga('send', 'pageview');
             <div class="container">
                 <div class="site-title-wrapper">
                     <h1 class="site-title">
-                        <a title="Custom event for detecting fetch errors in Backbone.js" href="http://monicalent.com/blog/">Custom event for detecting fetch errors in Backbone.js</a>
+                        <a title="Blog" href="http://monicalent.com/blog/">Blog</a>
                     </h1>
                     <a class="button-square button-jump-top js-jump-top" href="#">
                         <i class="fa fa-angle-up"></i>
@@ -206,16 +238,19 @@ ga('send', 'pageview');
                 </div>
 
                 <p class="footer-copyright">
-                    <span>&copy; 2017 Monica Lent</span>
+                    <span>&copy; 2017 / Powered by <a href="https://gohugo.io/">Hugo</a></span>
+                </p>
+                <p class="footer-copyright">
+                    <span><a href="https://github.com/roryg/ghostwriter">Ghostwriter theme</a> By <a href="http://jollygoodthemes.com">JollyGoodThemes</a></span>
+                    <span>/ <a href="https://github.com/jbub/ghostwriter">Ported</a> to Hugo By <a href="https://github.com/jbub">jbub</a></span>
                 </p>
             </div>
         </footer>
 
         <script src="http://monicalent.com/blog/js/jquery-1.11.3.min.js"></script>
-        
         <script src="http://monicalent.com/blog/js/jquery.fitvids.js"></script>
-        <script src="http://monicalent.com/blog/js/scripts.js"></script>
         <script src="http://monicalent.com/blog/js/prism.js"></script>
+        <script src="http://monicalent.com/blog/js/scripts.js"></script>
     </body>
 </html>
 
