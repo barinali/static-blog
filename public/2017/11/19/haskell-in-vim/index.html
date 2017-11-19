@@ -295,11 +295,19 @@ more details about the error which looks something like this:</p>
 &lt;&lt;&lt;OUTPUT ENDS&gt;&gt;&gt;
 </code></pre>
 
-<p>A simple fix for this is to edit your <code>.vimrc</code> and</p>
+<p>A simple fix for this is to edit your <code>.vimrc</code> and remove the problematic
+linters.</p>
 
 <pre><code class="language-vim">let g:ale_linters = {
     \   'haskell': ['stack-ghc', 'ghc-mod', 'hlint', 'hdevtools', 'hfmt'],
     \}
+</code></pre>
+
+<p>Becomes:</p>
+
+<pre><code class="language-vim">let g:ale_linters ={
+      \   'haskell': ['hlint', 'hdevtools', 'hfmt'],
+      \}
 </code></pre>
 
 <h3 id="executable-named-my-project-exec-not-found-on-path">Executable named my-project-exec not found on path</h3>
