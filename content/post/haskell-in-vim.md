@@ -3,7 +3,7 @@ title = "Writing Haskell with Vim"
 description = "Tools you can you use with Vim to make writing Haskell more fun, plus troubleshooting tips"
 author = "Monica Lent"
 tags = ["haskell", "stack", "vim", "ale", "linting"]
-date = "2017-11-19T16:06:04+02:00"
+date = "2017-11-19T12:06:04+02:00"
 
 +++
 
