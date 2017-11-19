@@ -176,13 +176,23 @@ more details about the error which looks something like this:
 <<<OUTPUT ENDS>>>
 ```
 
-A simple fix for this is to edit your `.vimrc` and 
+A simple fix for this is to edit your `.vimrc` and remove the problematic
+linters.
 
 ```vim
 let g:ale_linters = {
     \   'haskell': ['stack-ghc', 'ghc-mod', 'hlint', 'hdevtools', 'hfmt'],
     \}
 ```
+
+Becomes:
+
+```vim
+let g:ale_linters ={
+      \   'haskell': ['hlint', 'hdevtools', 'hfmt'],
+      \}
+```
+
 
 ### Executable named my-project-exec not found on path
 
