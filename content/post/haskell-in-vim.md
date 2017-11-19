@@ -20,7 +20,8 @@ What you're going to need:
 - Your `.vimrc`
 - A vim package manager (here I use vundle)
   - Airline (Vim status bar)
-  - Ale (Linting engine)
+  - ALE (Linting engine)
+  - ghcmod-vim (Reveal types inline)
 - Haskell / ghc
 - Stack
 - ghc-mod, hlint, hdevtools, hfmt
@@ -42,16 +43,20 @@ Plugin 'gmarik/Vundle.vim'
 call vundle#end()
 ```
 
-### Install Airline and Ale
+### Install your Haskell-friendly vim plugins
 
-There are two plugins for Vim that will make writing Haskell more fruitful,
-and that's [Airline](https://github.com/vim-airline/vim-airline) and
+There are a few plugins for Vim that will make writing Haskell more fruitful,
+including [Airline](https://github.com/vim-airline/vim-airline) and
 [ALE](https://github.com/w0rp/ale).
 
 Airline provides you with a sexy status bar inside your vim that integrates
 with ALE, a linting engine which will asyncronously run your code through
 a few different Haskell linters and report the information back to you
 inside vim itself.
+
+GchMod-vim can reveal types inside your code, and this plugin depends
+on `vimproc` which you'll install with vundle and compile by
+going into `~/.vim/bundle/vimproc` and running `make`.
 
 To get started, update your `.vimrc` and, while the file is open, you execute
 `:PluginInstall`.
@@ -61,15 +66,40 @@ set rtp+=~/.vim/bundle/Vundle.vim
 call vundle#begin()
 
 Plugin 'gmarik/Vundle.vim'
+" Plugin 'mlent/ale' -- Has a small change for multi-line ghc errors, see below
 Plugin 'w0rp/ale'
 Plugin 'vim-airline/vim-airline'
+Plugin 'eagletmt/ghcmod-vim'
+Plugin 'Shougo/vimproc'
 
 call vundle#end()
 
 let g:airline#extensions#ale#enabled = 1
+
+nnoremap <Leader>ht :GhcModType<cr>
+nnoremap <Leader>htc :GhcModTypeClear<cr>
+autocmd FileType haskell nnoremap <buffer> <leader>? :call ale#cursor#ShowCursorDetail()<cr>
 ```
 
-This last line enables Airline to report ALE information to you.
+This first line after the plugins list enables Airline to report ALE
+information to you.
+
+The second two are conveniet ways to call the ghc type checker and get that
+information inside vim.
+
+And the last line allows you to show multi-line errors in vim by combining
+your `<Leader>` key + ?. Unfortunately this only works if you use [my
+fork of ALE](https://github.com/mlent/ale), but there are changes coming
+in the next ALE release which should make this work with the main repository.
+For example:
+
+```
+  Couldn't match expected typeIO [FilePath]’
+  with actual typeFilePath -> IO [FilePath]’
+  Probable cause: getDirectoryContents is applied to too few arguments
+    In the expression: getDirectoryContents
+    In an equation for findPost: findPosts x = getDirectoryContents
+```
 
 ### Install Haskell and relevant tooling
 
@@ -148,7 +178,7 @@ A simple fix for this is to edit your `.vimrc` and
 
 ```
 let g:ale_linters = {
-    \   'haskell': ['ghc', 'stack-ghc', 'ghc-mod', 'hlint', 'hdevtools', 'hfmt'],
+    \   'haskell': ['stack-ghc', 'ghc-mod', 'hlint', 'hdevtools', 'hfmt'],
     \}
 ```
 
