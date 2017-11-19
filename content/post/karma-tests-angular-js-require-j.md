@@ -121,14 +121,14 @@ Now we create the "testing" counterparts:
 
 Now is a good time to install Karma and its variable components if you haven't already.
 
-```
+```bash
 npm install karma karma-jasmine karma-phantomjs-launcher karma-requirejs --save-dev
 npm install -g karma-cli
 ```
 
 You can now navigate to `app/test/` and run:
 
-```
+```bash
 karma init
 ```
 When one of the prompts asks you whether you're using RequireJS, say YES. This will generate the bases of our two important configuration files: `karma.conf.js` and `test-main.js`. Naturally, they won't work out of the box, but we'll get there.
@@ -169,7 +169,7 @@ I heightened the `logLevel` so we'll get more verbose output during debugging, a
 
 Time for the first test! Try running karma with your configuration file. It should spit out a biiiiig long list of all the files that you've told it to serve (especially because of the `config.LOG_DEBUG` setting).
 
-```
+```bash
 karma start app/test/karma.conf.js
 ```
 
@@ -206,84 +206,95 @@ This is because karma is serving our entire top-level directory at `/base`. So, 
 
 Following this logic, we can re-define where we want our paths in test-main to come from:
 
-    /* app/test/test-main.js */
-    
-    require.config({
-      baseUrl: '/base/app/scripts',
-      deps: allTestFiles,
-      callback: window.__karma__.start,
-      paths: {
-        angular: '/base/app/vendor/angular/angular'
-      },
-      shim: {
-        angular: { exports: 'angular' }
-      }
-    });
-    
+```javascript
+/* app/test/test-main.js */
+
+require.config({
+  baseUrl: '/base/app/scripts',
+  deps: allTestFiles,
+  callback: window.__karma__.start,
+  paths: {
+    angular: '/base/app/vendor/angular/angular'
+  },
+  shim: {
+    angular: { exports: 'angular' }
+  }
+});
+``` 
 
 Now this means, when we have a file with the following header:
     
-    define(['path/to/somewhere'], function() { });
+```javascript
+define(['path/to/somewhere'], function() { });
+```
 
 When it is loaded using `main.js`, "path/to/somewhere" will load _http://localhost:8080/scripts/path/to/somewhere_ from your normal webserver. When using `test-main.js`, the same file will require _http://localhost:9876/base/app/scripts/path/to/somewhere_ from karma. Meaning, the code can be used for running the app or for testing, with no modifications of the dependency paths in individual files!
 
 
-
 # Our first spec file
-
 
 Now we finally get to try to tie everything together with our first spec file. Start off by installing `angular-mocks`, as this will allow us to register our filter before we test it.
 
-    npm install angular-mocks --save-dev
+```bash
+npm install angular-mocks --save-dev
+```
 
 Add this to your `test-main.js` file under "paths":
 
-    paths: {
-      angular: '/base/app/vendor/angular/angular',
-      angularMocks: '/base/app/vendor/angular-mocks/angular-mocks'
-    },
-    shim: {
-      angular: { exports: 'angular' },
-      angularMocks: { deps: ['angular'] }
-    }
+```javascript
+paths: {
+  angular: '/base/app/vendor/angular/angular',
+  angularMocks: '/base/app/vendor/angular-mocks/angular-mocks'
+},
+shim: {
+  angular: { exports: 'angular' },
+  angularMocks: { deps: ['angular'] }
+}
+```
 
 Once we include angularMocks as a dependency, we'll have `angular.mock` available on our instance of angular. We can use this to construct components on the fly as we test.
 
-    /* app/tests/spec/filters/my_filter_spec.js */
+```javascript
+/* app/tests/spec/filters/my_filter_spec.js */
+
+define(['angular',
+  'filters/my_filter', 
+  'angularMocks'], 
+  function(angular, myFilter) {
     
-    define(['angular',
-      'filters/my_filter', 
-      'angularMocks'], 
-      function(angular, myFilter) {
-        
-        describe('myFilter', function() {
-          
-          // Here we register the function returned by the myFilter AMD module
-          beforeEach(angular.mock.module(function($filterProvider) {
-            $filterprovider.register('myFilter', myFilter);
-          }));
-    
-          // Our first test!!!!
-          it('should not be null', inject(function($filter) {
-            expect($filter('myFilter')).not.toBeNull();
-          }));
-    
-        });
-      }
-    );
+    describe('myFilter', function() {
+      
+      // Here we register the function returned by the myFilter AMD module
+      beforeEach(angular.mock.module(function($filterProvider) {
+        $filterprovider.register('myFilter', myFilter);
+      }));
+
+      // Our first test!!!!
+      it('should not be null', inject(function($filter) {
+        expect($filter('myFilter')).not.toBeNull();
+      }));
+
+    });
+  }
+);
+```
 
 Now it's time to `karma start` our tests!! You should see a very exciting message:
     
-    INFO [karma]: Karma v0.12.31 server started at http://localhost:9876/
-    INFO [launcher]: Starting browser PhantomJS
-    INFO [PhantomJS 1.9.8 (Mac OS X)]: Connected on socket W9ErxZ86IapgwQqqNiPw with id 48168125
-    PhantomJS 1.9.8 (Mac OS X): Executed 1 of 1 SUCCESS (0.004 secs / 0.027 secs)
+```bash
+INFO [karma]: Karma v0.12.31 server started at http://localhost:9876/
+INFO [launcher]: Starting browser PhantomJS
+INFO [PhantomJS 1.9.8 (Mac OS X)]: Connected on socket W9ErxZ86IapgwQqqNiPw with id 48168125
+PhantomJS 1.9.8 (Mac OS X): Executed 1 of 1 SUCCESS (0.004 secs / 0.027 secs)
+```
 
 Once this works, you can go ahead and write a real test:
     
-    it("should concatenate strings", inject(function($filter) {
-      expect($filter('myFilter')('a', 'b')).toBe('ab');
-    });
+```javascript
+it("should concatenate strings", inject(function($filter) {
+  expect($filter('myFilter')('a', 'b')).toBe('ab');
+});
+```
 
 * * *
 

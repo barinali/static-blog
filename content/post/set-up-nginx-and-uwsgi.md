@@ -16,18 +16,24 @@ Before you read this guide, I would advise taking a look at [Setting up Django a
 
 The fun begins when you simply install both components, nginx and uWSGI.
     
-    $ sudo apt-get install nginx uwsgi uwsgi-plugin-python
+```bash
+$ sudo apt-get install nginx uwsgi uwsgi-plugin-python
+```
 
 Now, you cannot trust that the version of uWSGI you've just installed is the most recent. Even after running `apt-get update` my package installer _still_ insisted on an ancient version of uWSGI, something like 0.8. You cannot even run `apt-get install uwsgi=1.9` and expect it will find the correct version. The great part about this is that such an old version of uWSGI flat out does not work with nginx. So, check you have the most recent version of uWSGI installed:
 
-    $ uwsgi --version
+```bash
+$ uwsgi --version
+```
 
 If you find anything besides the latest version (1.9, at the time of writing), you have to do a magic work around for this issue (acquired from [this Stackoverflow question](http://stackoverflow.com/questions/13965555/after-pip-installing-uwsgi-theres-no-etc-uwsgi-directory-how-can-i-use-apps)):
 
-    $ pip install -U uwsgi
-    $ cd /usr/bin
-    $ mv uwsgi uwsgi-old
-    $ ln -s /usr/local/bin/uwsgi uwsgi
+```bash
+$ pip install -U uwsgi
+$ cd /usr/bin
+$ mv uwsgi uwsgi-old
+$ ln -s /usr/local/bin/uwsgi uwsgi
+```
 
 ## nginx Configuration
 
@@ -35,23 +41,25 @@ Both nginx and uWSGI require their own configuration files. Presuming my project
 
 In `/opt/app/extras/nginx.conf`, place the following code:
     
-    server {
-      listen  8000;
-        server_name localhost;
-        charset utf-8;
-        access_log /var/log/nginx/app.net_access.log;
-        error_log /var/log/nginx/app.net_error.log;
-    
-        location  /static {
-          alias  /opt/app/static/;
-        }
-    
-        location / {
-          uwsgi_pass  unix:///var/uwsgi/app.sock;
-          include     /opt/app/extras/uwsgi_params;
-          uwsgi_param UWSGI_SCRIPT app.wsgi;
-        }
+```nginx
+server {
+  listen  8000;
+    server_name localhost;
+    charset utf-8;
+    access_log /var/log/nginx/app.net_access.log;
+    error_log /var/log/nginx/app.net_error.log;
+
+    location  /static {
+      alias  /opt/app/static/;
     }
+
+    location / {
+      uwsgi_pass  unix:///var/uwsgi/app.sock;
+      include     /opt/app/extras/uwsgi_params;
+      uwsgi_param UWSGI_SCRIPT app.wsgi;
+    }
+}
+```
 
 I'll explain all these settings in turn:
 
@@ -68,36 +76,38 @@ I'll explain all these settings in turn:
 
 The uWSGI configuration is much pickier than the nginx configuration for several reasons. Hereafter, I'll share the configuration that I use and discuss the errors that many of these specific configurations and values specifically fixed.
 
-    [uwsgi]
-    binary-path = /usr/local/bin/uwsgi
-    chdir = /opt/app
-    chmod-socket = 777
-    chown-socket = www-data
-    
-    # While debugging, it makes sense to comment out this line, 
-    # so you see uWSGI errors in the terminal instead of having 
-    # to go to the logs. Once your setup works, uncomment and it 
-    # should smoothly switch to a daemon process.
-    daemonize = /var/log/app/app_daemon.log
-    
-    die-on-term = true
-    emperor = true
-    enable-threads = true
-    gid = www-data
-    home = env
-    limit-as = 512
-    master = true
-    module = app.wsgi
-    pidfile = /opt/logs/uwsgi/master.pid
-    processes = 2
-    python-path = /opt/app
-    socket = /var/uwsgi/app.sock 
-    touch-reload = /opt/app/reload
-    uid = www-data
-    vacuum = true
-    vhost = true
-    virtualenv = /opt/app/env
-    workers = 4
+```nginx
+[uwsgi]
+binary-path = /usr/local/bin/uwsgi
+chdir = /opt/app
+chmod-socket = 777
+chown-socket = www-data
+
+# While debugging, it makes sense to comment out this line, 
+# so you see uWSGI errors in the terminal instead of having 
+# to go to the logs. Once your setup works, uncomment and it 
+# should smoothly switch to a daemon process.
+daemonize = /var/log/app/app_daemon.log
+
+die-on-term = true
+emperor = true
+enable-threads = true
+gid = www-data
+home = env
+limit-as = 512
+master = true
+module = app.wsgi
+pidfile = /opt/logs/uwsgi/master.pid
+processes = 2
+python-path = /opt/app
+socket = /var/uwsgi/app.sock 
+touch-reload = /opt/app/reload
+uid = www-data
+vacuum = true
+vhost = true
+virtualenv = /opt/app/env
+workers = 4
+```
 
 Not all of these settings may be necessary, but it's what I finally found works for me. Visit the official uWSGI documentation on [Configuration Options](http://uwsgi-docs.readthedocs.org/en/latest/Options.html) for a complete rundown. Here are settings I needed to resolve specific bugs.
 
@@ -105,24 +115,28 @@ Not all of these settings may be necessary, but it's what I finally found works 
 
 **chmod-socket, chown-socket, gid, uid, socket** For uWSGI and nginx to communicate over a socket, you need to specify the permissions and the owner of the socket. _777 as chmod-socket is much too liberal for production_. However, you may have to mess around with this number to get it correct, so everything necessary can communicate. If you don't take care of your socket configurations, you will get errors such as:
 
-```
+```bash
 (111: Connection refused) while connecting to upstream.
 ```
-    
-```
+
+```bash
 bind(): Permission denied [socket.c line 107]
 ``` 
 
 To create the space for the socket to exist, you just have to pick a persistent directory (e.g. _not_ `/run` or `/tmp`) and make `www-data` (the user nginx runs as) the owner of it, as such:
 
-    $ sudo mkdir /var/uwsgi
-    $ sudo chown www-data:www-data /var/uwsgi
+```bash
+$ sudo mkdir /var/uwsgi
+$ sudo chown www-data:www-data /var/uwsgi
+```
 
 Make sure that your value for `socket` in the uWSGI conf file corresponds to the value for `uwsgi_pass` in the nginx conf file.
 
 **limit-as** Unix has some sort of built in limits for what it can transfer. You may need to set this value if you get errors such as:
 
-    [error] 20739#0: *21 upstream prematurely closed connection while reading response header from upstream
+```bash
+[error] 20739#0: *21 upstream prematurely closed connection while reading response header from upstream
+```
 
 **module** Refers to the uWSGI module, which must be on the Python Path. In the Nginx settings, you saw this same value corresponding to `uwsgi_param UWSGI_SCRIPT`.
 
@@ -132,15 +146,19 @@ Make sure that your value for `socket` in the uWSGI conf file corresponds to the
 
 Okay, so you should now have two working configuration files stored in a place such as `/opt/app/extras`. Now, in order for nginx and uWSGI to automatically load when you use them as services, we have to sym link our files into directories that each looks in on startup.
 
-    $ ln -s /opt/app/extras/nginx.conf /etc/nginx/sites-enabled/nginx.conf
-    $ ln -s /opt/app/extras/uwsgi.conf /etc/uwsgi/apps-enabled/uwsgi.conf
+```bash
+$ ln -s /opt/app/extras/nginx.conf /etc/nginx/sites-enabled/nginx.conf
+$ ln -s /opt/app/extras/uwsgi.conf /etc/uwsgi/apps-enabled/uwsgi.conf
+```
 
 ## Testing the Configuration
 
 Now we should be able to test out the configuration. My advice is to comment out the `daemonize` line in `uWSGI.conf`, so you can see what's happening while you start up uWSGI. Then start both services.
 
-    $ service nginx restart
-    $ uwsgi /opt/extras/uwsgi.conf
+```bash
+$ service nginx restart
+$ uwsgi /opt/extras/uwsgi.conf
+```
 
 You should then see uWSGI take over your entire terminal and tell you that it's running correctly. Open up localhost or the IP address in the web browser and watch what happens. If you can load a page, congratulations! Sig int and uncomment the daemon line, and let it run.
 
@@ -148,28 +166,35 @@ You should then see uWSGI take over your entire terminal and tell you that it's 
 
 **Error:**
 
-    ImportError: No module named 'app.wsgi'
-    unable to load app 0 (mountpoint='') (callable not found or import error)
+```bash
+ImportError: No module named 'app.wsgi'
+unable to load app 0 (mountpoint='') (callable not found or import error)
+```
 
 **Problem:** You probably have a Python path issue, because it is not finding your WSGI app. Also, make sure your virtualenv is running!
 
 **Error:**
 
-    uWSGI Error. Python application not found
+```bash
+uWSGI Error. Python application not found
+```
     
 **Problem:** Your python path is probably still wrong to your app.wsgi. Make sure that nginx and uWSGI are finding your UWSGI app at all by checking their logs.
 
 **Error:**
 
-    502 Bad Gateway
+```bash
+502 Bad Gateway
+```
 
 **Problem:** Chances are that uWSGI isn't actually running. The issue is that Nginx is trying to funnel requests through uWGSI, but uWSGI isn't running to handle them with your Python app. 
 
 **In general:**
 **Make sure uWSGI is actually running.** It generally helps to look at the processes and see how many are running--I had issues where I thought uWSGI was running, but it was "silently" failing because all the errors were being funneled into the logs. This means that nginx will be attempting to talk to uWSGI, but it cannot. You'll get all sorts of non-descriptives errors of this.
 
-    
-    $ ps aux | grep uwsgi
+```bash
+$ ps aux | grep uwsgi
+```
 
 Will list all the processing running on your machine. 
 

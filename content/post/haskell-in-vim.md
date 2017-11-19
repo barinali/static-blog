@@ -200,3 +200,9 @@ not `my-project-exec`.
 ## That's a wrap!
 
 Stay tuned for more tips on writing your first Haskell project.
+
+* * *
+
+## Questions, Comments, Corrections?
+
+Get in touch via Twitter at [@monicalent](http://www.twitter.com/monicalent).
