@@ -34,7 +34,7 @@ If you don't already have a package manager for vim, you can pick
 just about any on the market. I'm using Vundle, which is easy to add
 by amending your `.vimrc` with just a few lines.
 
-```
+```vim
 set rtp+=~/.vim/bundle/Vundle.vim
 call vundle#begin()
 
@@ -61,7 +61,7 @@ going into `~/.vim/bundle/vimproc` and running `make`.
 To get started, update your `.vimrc` and, while the file is open, you execute
 `:PluginInstall`.
 
-```
+```vim
 set rtp+=~/.vim/bundle/Vundle.vim
 call vundle#begin()
 
@@ -93,7 +93,7 @@ fork of ALE](https://github.com/mlent/ale), but there are changes coming
 in the next ALE release which should make this work with the main repository.
 For example:
 
-```
+```bash
   Couldn't match expected typeIO [FilePath]’
   with actual typeFilePath -> IO [FilePath]’
   Probable cause: getDirectoryContents is applied to too few arguments
@@ -109,14 +109,14 @@ with [Python](/blog/tags/python/)'s virtualenv and pip, it's a little bit
 similar in that Stack gives you an isolated environment and a package
 manager, but in one tool.
 
-```
+```bash
 # Install Stack
 ❯ curl -sSL https://get.haskellstack.org/ | sh
 ```
 
 If you're creating a new project, you do do this with:
 
-```
+```bash
 # Create a new project, if needed
 ❯ stack new my-project # Directory must not already exist
 ❯ cd my-project
@@ -132,7 +132,7 @@ more modules, you need to expose them through this file.
 Otherwise, continue to install the tools that ALE is going to use
 to lint our Haskell files.
 
-```
+```bash
 stack install ghc-mod hlint hdevtools hfmt
 ```
 
@@ -141,7 +141,7 @@ to a directory where you can access them directly through the commandline.
 For instance, if you want to run `hlint` on your code, all you have to do
 now is execute:
 
-```
+```bash
 ❯ hlint src 
 No hints
 ```
@@ -160,12 +160,14 @@ exported by your other modules (including modules in the same directory!)
 
 If you're having this problem, you'll see lines like:
 
-    Failed to load interface for YourModuleName. Use -v to see a list of the files searched for.
+```bash
+Failed to load interface for YourModuleName. Use -v to see a list of the files searched for.
+```
 
 In vim. If you use `:ALEInfo` and <kbd>Shift</kbd> + <kbd>G</kbd>, you'll find
 more details about the error which looks something like this:
 
-```
+```bash
 (finished - exit code 1) ['/usr/local/bin/zsh', '-c', 'stack ghc -- -fno-code -v0 ''/tmp/vvzQVxy/8/Cli.hs''']
 <<<OUTPUT STARTS>>>
   /tmp/vvzQVxy/8/Cli.hs:7:1: error:
@@ -176,7 +178,7 @@ more details about the error which looks something like this:
 
 A simple fix for this is to edit your `.vimrc` and 
 
-```
+```vim
 let g:ale_linters = {
     \   'haskell': ['stack-ghc', 'ghc-mod', 'hlint', 'hdevtools', 'hfmt'],
     \}
@@ -187,7 +189,7 @@ let g:ale_linters = {
 This error isn't specific to the vim setup, but is something you might
 encounter while working with Haskell and Stack.
 
-```
+```bash
 ❯ stack exec my-project-exec
 Executable named my-project-exec not found on path: ["/opt/bstats/.stack-work/install/x86_64-osx/lts-9.10/8.0.2/bin","/private/var/root/.stack/snapshots/x86_64-osx/lts-9.10/8.0.2/bin","/private/var/root/.stack/programs/x86_64-osx/ghc-8.0.2/bin","/private/var/root/google-cloud-sdk/bin","/usr/local/bin","/usr/local/bin","/usr/bin","/bin","/usr/sbin","/sbin","/private/var/root/google-cloud-sdk/bin","/usr/local/opt/go/libexec/bin","/var/root/Go/bin","/usr/local/opt/go/libexec/bin","/private/var/root/.local/bin","/var/root/Go/bin"]
 ```
