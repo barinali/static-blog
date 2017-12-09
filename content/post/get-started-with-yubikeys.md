@@ -18,7 +18,17 @@ date = "2017-12-09T12:06:04+02:00"
 
 #### Facebook
 
+### Generate PGP keys
+
+* Storing master key offline
+* Only adding sub-keys to yubikey
+* Ability to revoke keys if yubikey is lost
+
 ### Signing git commits
+
+### SSH authentication
+
+## Synchronizing yubikeys
 
 ## Create your own app with 2FA via yubikeys
 
