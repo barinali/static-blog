@@ -1,5 +1,5 @@
 +++
-title = "SSH into Ubuntu via YubiKeys as 2FA"
+title = "Set up 2FA on Ubuntu with YubiKeys"
 description = "Use your yubikey, combined with your publickey, to ssh into your favorite Ubuntu server with the touch of a finger."
 author = "Monica Lent"
 tags = ["ubuntu", "YubiKeys", "2FA"]
