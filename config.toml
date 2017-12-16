@@ -29,7 +29,6 @@ paginatePath = "page"
     bio = "Software developer, currently living and working in Berlin."
     contact = "lent.monica@gmail.com"
     linkedin = "monica-lent-542122145"
-    disqus = "monicalent"
 
 [Permalinks]
     posts = "/:year/:month/:day/:filename/"
