@@ -16,7 +16,7 @@ password, and use it in combination with another method of authentication
 Many popular websites like Google, Facebook, and Github allow you to enable
 2FA via YubiKeys.
 
-![YubiKeys](../../../../images/yubikeys.jpg "YubiKeys")
+![YubiKeys](/blog/images/yubikeys.jpg "YubiKeys")
 
 The idea is that even if your first "factor" of authentication like your
 password or your ssh key were compromised, you'd have a second physical
