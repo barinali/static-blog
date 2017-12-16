@@ -2,6 +2,7 @@
 title = "SSH into Ubuntu via YubiKeys as 2FA"
 description = "Use your yubikey, combined with your publickey, to ssh into your favorite Ubuntu server with the touch of a finger."
 author = "Monica Lent"
+image = "/images/yubikeys.jpg"
 tags = ["ubuntu", "YubiKeys", "2FA"]
 date = "2017-12-16T12:06:04+02:00"
 +++
