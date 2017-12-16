@@ -1,4 +1,4 @@
-baseurl = "http://monicalent.com/blog/"
+baseurl = "https://monicalent.com/blog/"
 title = "Monica Lent's Blog"
 theme = "pickles"
 languageCode = "en-us"
@@ -8,7 +8,7 @@ paginatePath = "page"
 
 [Author]
     name = "Monica"
-    profile = "http://monicalent.com"
+    profile = "https://monicalent.com"
 
 [Taxonomies]
     tag = "tags"
@@ -23,7 +23,7 @@ paginatePath = "page"
     gplus = "https://google.com/+MonicaLent"
     twitter = "monicalent"
     ga_api_key = "UA-40399378-2"
-    avatar = "http://monicalent.com/assets/images/image01.jpg"
+    avatar = "https://monicalent.com/assets/images/image01.jpg"
     author = "Monica Lent"
     authorwebsite = "http://monicalent.com"
     bio = "Software developer, currently living and working in Berlin."
@@ -41,11 +41,11 @@ paginatePath = "page"
 
 [[menu.main]]
     name = "Website"
-    url = "http://monicalent.com/"
+    url = "https://monicalent.com/"
     weight = 2
 
 [[menu.main]]
     name = "About"
-    url = "http://monicalent.com/#about"
+    url = "https://monicalent.com/#about"
     weight = 4
 
