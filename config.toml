@@ -15,8 +15,8 @@ paginatePath = "page"
 
 [Params]
     headline = "Monica Lent's Blog"
-    description = "A software development blog with a dash of unix. You probably got here by googling an error message ^_^"
-    subtitle = "A software development blog with a dash of unix. You probably got here by googling an error message ^_^"
+    description = "A software development blog with a dash of linux. You probably got here by googling an error message ˆ_ˆ"
+    subtitle = "A software development blog with a dash of linux. You probably got here by googling an error message ˆ_ˆ"
     logo = "/favicon.png"
     favicon = "/favicon.png"
     github = "mlent"
@@ -48,4 +48,3 @@ paginatePath = "page"
     name = "About"
     url = "https://monicalent.com/#about"
     weight = 4
-
