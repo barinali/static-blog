@@ -1,10 +1,9 @@
 baseurl = "http://monicalent.com/blog/"
-title = "Blog"
-theme = "ghostwriter"
+title = "Monica Lent's Blog"
+theme = "pickles"
 languageCode = "en-us"
-copyright = "Monica Lent"
-googleAnalytics = "UA-40399378-2"
-paginate = 10
+copyright = "&copy; Monica Lent 2017"
+paginate = 5
 paginatePath = "page"
 
 [Author]
@@ -15,17 +14,28 @@ paginatePath = "page"
     tag = "tags"
 
 [Params]
-    headline = "Blog"
-    description = "My tech blog, covering javascript, python, and fun unix tricks I learn while developing software."
+    headline = "Monica Lent's Blog"
+    description = "A software development blog with a dash of unix. You probably got here by googling an error message ^_^"
+    subtitle = "A software development blog with a dash of unix. You probably got here by googling an error message ^_^"
+    logo = "/images/favicon.png"
+    favicon = "/images/favicon.png"
     github = "https://github.com/mlent"
     gplus = "https://google.com/+MonicaLent"
     twitter = "https://twitter.com/monicalent"
+    ga_api_key = "UA-40399378-2"
+    avatar = "http://monicalent.com/assets/images/image01.jpg"
+    author = "Monica Lent"
+    authorwebsite = "http://monicalent.com"
+    bio = "Software developer, currently living and working in Berlin."
+    contact = "lent.monica@gmail.com"
+    linkedin = "monica-lent-542122145"
+    disqus = "monicalent"
 
 [Permalinks]
-    post = "/:year/:month/:day/:filename/"
+    posts = "/:year/:month/:day/:filename/"
 
 [[menu.main]]
-    name = "Blog"
+    name = "Home"
     url = "/"
     weight = 1
 

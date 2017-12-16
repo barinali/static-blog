@@ -1,3 +1,6 @@
 [submodule "themes/ghostwriter"]
 	path = themes/ghostwriter
 	url = https://github.com/jbub/ghostwriter
+[submodule "themes/pickles"]
+	path = themes/pickles
+	url = git@github.com:mlent/hugo_theme_pickles.git
