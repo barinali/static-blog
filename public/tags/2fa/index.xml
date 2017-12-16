@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>2fa on Blog</title>
+    <link>http://monicalent.com/blog/tags/2fa/</link>
+    <description>Recent content in 2fa on Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <copyright>Monica Lent</copyright>
+    <lastBuildDate>Sat, 16 Dec 2017 12:06:04 +0200</lastBuildDate>
+    
+	<atom:link href="http://monicalent.com/blog/tags/2fa/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>SSH into Ubuntu via YubiKeys as 2FA</title>
+      <link>http://monicalent.com/blog/2017/12/16/ssh-via-yubikeys-ubuntu/</link>
+      <pubDate>Sat, 16 Dec 2017 12:06:04 +0200</pubDate>
+      
+      <guid>http://monicalent.com/blog/2017/12/16/ssh-via-yubikeys-ubuntu/</guid>
+      <description>What&amp;rsquo;s a YubiKey? A YubiKey is basically a tiny device that plugs into your USB slot and pretends to be a keyboard. When you tap the little golden disc, it types out a One Time Password (OTP). Through the Yubico API, you can easily validate this password, and use it in combination with another method of authentication (such as a password or ssh key) to achieve two-factor authentication (2FA). Many popular websites like Google, Facebook, and Github allow you to enable 2FA via YubiKeys.</description>
+    </item>
+    
+  </channel>
+</rss>

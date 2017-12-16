@@ -3,6 +3,11 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
+    <loc>http://monicalent.com/blog/2017/12/16/ssh-via-yubikeys-ubuntu/</loc>
+    <lastmod>2017-12-16T12:06:04+02:00</lastmod>
+  </url>
+  
+  <url>
     <loc>http://monicalent.com/blog/2017/11/19/haskell-in-vim/</loc>
     <lastmod>2017-11-19T12:06:04+02:00</lastmod>
   </url>
@@ -63,6 +68,12 @@
   </url>
   
   <url>
+    <loc>http://monicalent.com/blog/tags/2fa/</loc>
+    <lastmod>2017-12-16T12:06:04+02:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
     <loc>http://monicalent.com/blog/tags/ale/</loc>
     <lastmod>2017-11-19T12:06:04+02:00</lastmod>
     <priority>0</priority>
@@ -88,7 +99,7 @@
   
   <url>
     <loc>http://monicalent.com/blog/</loc>
-    <lastmod>2017-11-19T12:06:04+02:00</lastmod>
+    <lastmod>2017-12-16T12:06:04+02:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -142,7 +153,7 @@
   
   <url>
     <loc>http://monicalent.com/blog/post/</loc>
-    <lastmod>2017-11-19T12:06:04+02:00</lastmod>
+    <lastmod>2017-12-16T12:06:04+02:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -178,7 +189,13 @@
   
   <url>
     <loc>http://monicalent.com/blog/tags/</loc>
-    <lastmod>2017-11-19T12:06:04+02:00</lastmod>
+    <lastmod>2017-12-16T12:06:04+02:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>http://monicalent.com/blog/tags/ubuntu/</loc>
+    <lastmod>2017-12-16T12:06:04+02:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -197,6 +214,12 @@
   <url>
     <loc>http://monicalent.com/blog/tags/webpack/</loc>
     <lastmod>2015-08-03T18:29:56+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>http://monicalent.com/blog/tags/yubikeys/</loc>
+    <lastmod>2017-12-16T12:06:04+02:00</lastmod>
     <priority>0</priority>
   </url>
   
