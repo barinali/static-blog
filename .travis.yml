@@ -6,19 +6,16 @@ go:
 addons:
   apt:
     packages:
-      - python-pygments
-      
-# disable the default submodule logic
+    - python-pygments
+
 git:
   submodules: false
 
-# use sed to replace the SSH URL with the public URL, then init and update submodules
 before_install:
- - sed -i 's/git@github.com:/git:\/\/github.com\//' .gitmodules
- - git submodule update --init --recursive
-
-install:
-  - rm -rf public || exit 0
+  - openssl aes-256-cbc -K $encrypted_285ce119f0f4_key -iv $encrypted_285ce119f0f4_iv
+    -in travis_rsa.enc -out travis_rsa -d
+  - sed -i 's/git@github.com:/git:\/\/github.com\//' .gitmodules
+  - git submodule update --init --recursive
 
 install:
   - go get -v github.com/spf13/hugo
