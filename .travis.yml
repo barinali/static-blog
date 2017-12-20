@@ -5,9 +5,6 @@ go:
 
 addons:
   ssh_known_hosts: monicalent.com
-  apt:
-    packages:
-    - python-pygments
 
 git:
   submodules: false
