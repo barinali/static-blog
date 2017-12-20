@@ -23,5 +23,5 @@ install:
 script:
   - hugo -d public
 
-deploy:
+after_success:
   - bash ./deploy.sh
