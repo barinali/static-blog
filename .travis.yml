@@ -4,6 +4,7 @@ go:
   - 1.9.2
 
 addons:
+  ssh_known_hosts: monicalent.com
   apt:
     packages:
     - python-pygments
@@ -14,6 +15,8 @@ git:
 before_install:
   - openssl aes-256-cbc -K $encrypted_285ce119f0f4_key -iv $encrypted_285ce119f0f4_iv
     -in travis_rsa.enc -out travis_rsa -d
+  - chmod 600 travis_rsa
+  - mv travis_rsa ~/.ssh/id_rsa
   - sed -i 's/git@github.com:/git:\/\/github.com\//' .gitmodules
   - git submodule update --init --recursive
 
@@ -21,4 +24,7 @@ install:
   - go get -v github.com/spf13/hugo
 
 script:
-  - hugo
+  - hugo -d public
+
+deploy:
+  - bash ./deploy.sh
