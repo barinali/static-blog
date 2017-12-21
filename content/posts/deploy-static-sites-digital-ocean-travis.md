@@ -256,7 +256,7 @@ You can do this with a "match" block. Note, these match blocks need
 to come at the _end_ of your file, or you won't be able to restart
 your sshd service.
 
-```
+```bash
 Match User monica
   AuthenticationMethods publickey,keyboard-interactive:pam
 
