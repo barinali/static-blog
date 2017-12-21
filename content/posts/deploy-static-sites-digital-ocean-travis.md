@@ -244,7 +244,7 @@ before_install:
   - git submodule update --init --recursive
 ```
 
-### Enabling different authorization methods for different users on linux
+### Enabling different authorization methods for different users
 
 If you read my previous post on [setting up 2FA with YubiKeys]({{< ref
 "ssh-via-yubikeys-ubuntu.md" >}}), you might need to make a few modifications
@@ -266,6 +266,10 @@ Match User travis
 
 Does it defeat the point of 2FA? Honestly a little bit. Although the `travis`
 user is rather restricted, so even if the machine were compromised with this
-user, the damage they could do would be comparatively limited...I hope!
+user, the damage they could do would be limited compared to my other user.
 
-## 
+* * *
+
+## Questions, Comments, Corrections?
+
+Get in touch via Twitter at [@monicalent](http://www.twitter.com/monicalent).
