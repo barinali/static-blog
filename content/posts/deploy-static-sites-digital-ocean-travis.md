@@ -1,7 +1,7 @@
 ---
 title: "Deploy static sites to Digital Ocean with Travis CI"
 description: "Here's an easy way to deploy your static websites on your digital ocean droplet using Travis CI."
-date: "2017-12-21T21:08:08+01:00"
+date: "2017-12-21T20:15:08+01:00"
 author: "Monica Lent"
 tags: ["travis", "hugo", "devops"]
 ---
