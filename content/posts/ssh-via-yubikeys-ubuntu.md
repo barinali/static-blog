@@ -220,3 +220,9 @@ article](https://medium.com/@james_poole/yubikey-2fa-on-ubuntu-ssh-e09b4e91bfc8)
 Since then, I've also discovered [this other article](https://github.com/drduh/YubiKey-Guide)
 with a lot more detailed information on using your YubiKey for GPG and SSH via
 gpg-agent. Have fun!
+
+* * *
+
+## Questions, Comments, Corrections?
+
+Get in touch via Twitter at [@monicalent](http://www.twitter.com/monicalent).
